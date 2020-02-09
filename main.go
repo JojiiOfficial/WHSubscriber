@@ -10,7 +10,7 @@ var (
 	//Global flags
 	app           = kingpin.New("whsub", "A WebHook subscriber")
 	appDebug      = app.Flag("debug", "Enable debug mode.").Short('d').Bool()
-	appConfigFile = app.Flag("config", "the configuration file for the subscriber").Short('c').File()
+	appConfigFile = app.Flag("config", "the configuration file for the subscriber").Envar(getEnvVar(EnvVarConfigFile)).Short('c').File()
 
 	//Server chlid command
 	serverCmd        = app.Command("server", "Commands for the WH subscriber server")
@@ -20,7 +20,7 @@ var (
 	//Subsrcibe child command
 	subscribeWh    = app.Command("subscribe", "Subscribe to a webhook")
 	subscribeWhID  = subscribeWh.Arg("whid", "Which webhook you want to subscribe").Required().String()
-	subscribeWhURL = subscribeWh.Arg("url", "The URL to receive the notifications").Required().Envar("WH_URL").String()
+	subscribeWhURL = subscribeWh.Arg("url", "The URL to receive the notifications").Envar(getEnvVar(EnvVarReceiveURL)).String()
 )
 
 func main() {
