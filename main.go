@@ -8,9 +8,12 @@ import (
 
 var (
 	//Global flags
-	app           = kingpin.New("whsub", "A WebHook subscriber")
-	appDebug      = app.Flag("debug", "Enable debug mode.").Short('d').Bool()
-	appConfigFile = app.Flag("config", "the configuration file for the subscriber").Envar(getEnVar(EnVarConfigFile)).Short('c').File()
+	app        = kingpin.New("whsub", "A WebHook subscriber")
+	appDebug   = app.Flag("debug", "Enable debug mode.").Short('d').Bool()
+	appCfgFile = app.
+			Flag("config", "the configuration file for the subscriber").
+			Envar(getEnVar(EnVarConfigFile)).
+			Short('c').String()
 
 	//Server chlid command
 	serverCmd        = app.Command("server", "Commands for the WH subscriber server")
@@ -21,6 +24,11 @@ var (
 	subscribeWh    = app.Command("subscribe", "Subscribe to a webhook")
 	subscribeWhID  = subscribeWh.Arg("whid", "Which webhook you want to subscribe").Required().String()
 	subscribeWhURL = subscribeWh.Arg("url", "The URL to receive the notifications").Envar(getEnVar(EnVarReceiveURL)).String()
+
+	//Config child command
+	configCmd           = app.Command("config", "Commands for the config file")
+	configCmdCreate     = configCmd.Command("create", "Create config file")
+	configCmdCreateName = configCmdCreate.Arg("name", "Config filename").Required().String()
 )
 
 func main() {
@@ -29,12 +37,24 @@ func main() {
 		return
 	}
 
+	//parsing the args
+	parsed := kingpin.MustParse(app.Parse(os.Args[1:]))
+
+	if parsed != configCmdCreate.FullCommand() {
+		//Return on error
+		if InitConfig(*appCfgFile, false) {
+			return
+		}
+	}
+
 	//Runnig the correct child command
-	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
+	switch parsed {
 	case serverCmdStart.FullCommand():
 		runWHReceiverServer()
 	case subscribeWh.FullCommand():
 		subscribe()
+	case configCmdCreate.FullCommand():
+		InitConfig(*configCmdCreateName, true)
 	}
 }
 

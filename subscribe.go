@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 )
 
 const (
@@ -16,6 +17,11 @@ func printSubscriberVersion() {
 func subscribe() {
 	url := *subscribeWhURL
 	whID := *subscribeWhID
+
+	if len(url) == 0 {
+		log.Fatalln("Callback url is empty!")
+		return
+	}
 
 	fmt.Printf("Trying to subscribe to '%s' using callback URL '%s'\n", whID, url)
 }
