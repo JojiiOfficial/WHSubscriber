@@ -15,17 +15,17 @@ var (
 	//Server chlid command
 	serverCmd        = app.Command("server", "Commands for the WH subscriber server")
 	serverCmdStart   = serverCmd.Command("start", "Start the server")
-	serverCmdVersion = serverCmd.Flag("version", "Show the version of the version of the server").Short('v').Bool()
+	serverCmdVersion = serverCmd.Flag("version", "Show the version of the server").Bool()
 
 	//Subsrcibe child command
-	subscribeWh    = app.Command("subscribe", "Subscribe to a webhook").Alias("sub")
+	subscribeWh    = app.Command("subscribe", "Subscribe to a webhook")
 	subscribeWhID  = subscribeWh.Arg("whid", "Which webhook you want to subscribe").Required().String()
 	subscribeWhURL = subscribeWh.Arg("url", "The URL to receive the notifications").Required().Envar("WH_URL").String()
 )
 
 func main() {
 	app.HelpFlag.Short('h')
-	if checkServerVersion() {
+	if checkVersionCommand() {
 		return
 	}
 
@@ -38,11 +38,17 @@ func main() {
 	}
 }
 
-func checkServerVersion() bool {
+func checkVersionCommand() bool {
 	args := os.Args
-	if len(args) == 3 && args[1] == serverCmd.FullCommand() && (args[2] == "--version" || args[2] == "-v") {
-		printServerVersion()
-		return true
+	if len(args) == 3 && (args[2] == "--version" || args[2] == "-v") {
+		switch args[1] {
+		case serverCmd.FullCommand():
+			printServerVersion()
+			return true
+		case subscribeWh.FullCommand(), "subscriber", "sub":
+			printSubscriberVersion()
+			return true
+		}
 	}
 	return false
 }
