@@ -6,13 +6,13 @@ import (
 
 //Env vars
 const (
-	//EnvVarPrefix prefix of all used env vars
-	EnvVarPrefix = "WHS"
+	//EnVarPrefix prefix of all used env vars
+	EnVarPrefix = "WHS"
 
-	EnvVarReceiveURL = "URL"
-	EnvVarConfigFile = "CONFIG"
+	EnVarReceiveURL = "URL"
+	EnVarConfigFile = "CONFIG"
 )
 
-func getEnvVar(name string) string {
-	return fmt.Sprintf("%s_%s", EnvVarPrefix, name)
+func getEnVar(name string) string {
+	return fmt.Sprintf("%s_%s", EnVarPrefix, name)
 }
