@@ -3,5 +3,8 @@ package main
 import "fmt"
 
 func subscribe() {
-	fmt.Println(*subWhID)
+	url := *subscribeWhURL
+	whID := *subscribeWhID
+
+	fmt.Printf("Trying to subscribe to '%s' using callback URL '%s'\n", whID, url)
 }

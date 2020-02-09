@@ -7,20 +7,21 @@ import (
 )
 
 var (
-	app   = kingpin.New("whsub", "A WebHook subscriber")
-	debug = app.Flag("debug", "Enable debug mode.").Bool()
+	//Global flags
+	app           = kingpin.New("whsub", "A WebHook subscriber")
+	appDebug      = app.Flag("debug", "Enable debug mode.").Short('d').Bool()
+	appConfigFile = app.Flag("config", "the configuration file for the subscriber").Short('c').File()
 
-	runServer    = app.Command("server", "Commands for the WH subscriber server")
-	startServer  = runServer.Command("start", "Start the server")
-	serverVerion = runServer.Flag("version", "Show the version of the version of the server").Bool()
+	//Server chlid command
+	serverCmd        = app.Command("server", "Commands for the WH subscriber server")
+	serverCmdStart   = serverCmd.Command("start", "Start the server")
+	serverCmdVersion = serverCmd.Flag("version", "Show the version of the version of the server").Short('v').Bool()
 
-	subscribeWh = app.Command("subscribe", "Subscribe to a webhook")
-	subWhID     = subscribeWh.Arg("whid", "Which webhook you want to subscribe").Required().String()
+	//Subsrcibe child command
+	subscribeWh    = app.Command("subscribe", "Subscribe to a webhook").Alias("sub")
+	subscribeWhID  = subscribeWh.Arg("whid", "Which webhook you want to subscribe").Required().String()
+	subscribeWhURL = subscribeWh.Arg("url", "The URL to receive the notifications").Required().Envar("WH_URL").String()
 )
-
-func init() {
-
-}
 
 func main() {
 	app.HelpFlag.Short('h')
@@ -28,8 +29,9 @@ func main() {
 		return
 	}
 
+	//Runnig the correct child command
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
-	case startServer.FullCommand():
+	case serverCmdStart.FullCommand():
 		runWHReceiverServer()
 	case subscribeWh.FullCommand():
 		subscribe()
@@ -38,7 +40,7 @@ func main() {
 
 func checkServerVersion() bool {
 	args := os.Args
-	if len(args) == 3 && args[1] == runServer.FullCommand() && args[2] == "--version" {
+	if len(args) == 3 && args[1] == serverCmd.FullCommand() && (args[2] == "--version" || args[2] == "-v") {
 		printServerVersion()
 		return true
 	}
