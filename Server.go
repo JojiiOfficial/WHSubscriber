@@ -9,5 +9,6 @@ func printServerVersion() {
 }
 
 func runWHReceiverServer() {
+	//ToDo implement the server
 	fmt.Println("run the server")
 }

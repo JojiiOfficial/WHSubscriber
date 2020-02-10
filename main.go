@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
@@ -44,6 +45,12 @@ func main() {
 	if parsed != configCmdCreate.FullCommand() {
 		//Return on error
 		if InitConfig(*appCfgFile, false) {
+			return
+		}
+		if !config.Check() {
+			if *appDebug {
+				log.Println("Exiting")
+			}
 			return
 		}
 	}

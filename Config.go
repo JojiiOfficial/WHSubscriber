@@ -11,15 +11,16 @@ import (
 //ConfigStruct the structure of the configfile
 type ConfigStruct struct {
 	Server struct {
-		Enable  bool `default:"false"`
-		Port    int  `default:"443"`
-		SSLCert string
-		SSLKey  string
+		Enable      bool   `default:"false"`
+		CallbackURL string `default:"https://yourCallbackDomain.de/"`
+		Port        uint16 `default:"443"`
+		EnableHTTPS bool
+		SSLCert     string
+		SSLKey      string
 	}
 
 	Client struct {
-		ServerURL   string `default:"https://wh-share.de/"`
-		CallbackURL string `default:"https://yourCallbackDomain.de/"`
+		ServerURL string `default:"https://wh-share.de/"`
 	}
 }
 
@@ -63,4 +64,32 @@ func InitConfig(confFile string, createMode bool) bool {
 	}
 
 	return false
+}
+
+//Check check the config file of logical errors
+//Returns true on success
+func (config *ConfigStruct) Check() bool {
+	if config.Server.Enable && len(config.Server.CallbackURL) == 0 {
+		log.Println("You need to enter a callbackURL to enable the server")
+		return false
+	}
+	if !inPortValid(config.Server.Port) {
+		log.Println("The specified port is invalid")
+		return false
+	}
+	if config.Server.EnableHTTPS {
+		if len(config.Server.SSLCert) == 0 {
+			log.Println("To enable HTTPS you need to specify a SSL certificate")
+			return false
+		}
+		if len(config.Server.SSLKey) == 0 {
+			log.Println("To enable HTTPS you need to specify a SSL private key")
+			return false
+		}
+	}
+	if config.Server.Port == 443 && config.Server.EnableHTTPS {
+		log.Println("Warning: You shouldn't use HTTP on port 443")
+	}
+
+	return true
 }

@@ -14,14 +14,17 @@ func subscribe() {
 	webhookID := *subscribeWhID
 	remoteURL := config.Client.ServerURL
 
-	if len(callbackURL) == 0 && len(config.Client.CallbackURL) == 0 {
+	if len(callbackURL) == 0 && len(config.Server.CallbackURL) == 0 {
 		log.Fatalln("Callback url is empty!")
 		return
 	}
 
 	if len(callbackURL) == 0 {
-		callbackURL = config.Client.CallbackURL
+		callbackURL = config.Server.CallbackURL
 	}
 
-	fmt.Printf("Trying to subscribe to '%s' using callback URL '%s' and remote '%s'\n", webhookID, callbackURL, remoteURL)
+	if *appDebug {
+		fmt.Printf("Trying to subscribe to '%s' using callback URL '%s' and remote '%s'\n", webhookID, callbackURL, remoteURL)
+	}
+
 }
