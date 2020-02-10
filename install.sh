@@ -48,7 +48,7 @@ fi
 sudo cp whsub /usr/local/bin/whsub &&
 sudo chmod +x /usr/local/bin/whsub &&
 sudo touch /usr/local/man/man1/whsub.1 &&
-sudo chown jojii:jojii /usr/local/man/man1/whsub.1 &&
+sudo chown $USER:$USER /usr/local/man/man1/whsub.1 &&
 sudo /usr/local/bin/whsub --help-man > /usr/local/man/man1/whsub.1 &&
 sudo chown root:root /usr/local/man/man1/whsub.1 &&
 echo "Man entry installed"
