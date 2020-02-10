@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"strconv"
 
 	godbhelper "github.com/JojiiOfficial/GoDBHelper"
 )
@@ -81,4 +82,26 @@ func getHooksHumanized(dab *godbhelper.DBhelper, limit int) ([]string, error) {
 	var hooks []string
 	err := dab.QueryRows(&hooks, "SELECT hookName || '-' || hookID FROM "+TableSubscriptions)
 	return hooks, err
+}
+
+func getActionIDs(dab *godbhelper.DBhelper, limit int) ([]string, error) {
+	var hooks []string
+	err := dab.QueryRowsf(&hooks, "SELECT pkID FROM %s LIMIT %s", []string{TableActions, strconv.Itoa(limit)})
+	return hooks, err
+}
+
+func hasAction(dab *godbhelper.DBhelper, actionID int64) (bool, error) {
+	var c int
+	err := dab.QueryRowf(&c, "SELECT COUNT(*) FROM %s WHERE pkID=?", []string{TableActions}, actionID)
+	if err != nil {
+		return false, err
+	}
+	return c == 1, nil
+}
+
+// ---------------------------------- Deletions ------------------------------------
+
+func deleteActionByID(dab *godbhelper.DBhelper, id int64) error {
+	_, err := dab.Execf("DELETE FROM %s WHERE pkID=?", []string{TableActions}, id)
+	return err
 }

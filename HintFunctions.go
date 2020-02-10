@@ -38,6 +38,19 @@ func getDBunparsed() string {
 	return db
 }
 
+func hintListActionIDs() []string {
+	database = getDBunparsed()
+	if err := connectDB(); err != nil {
+		fmt.Println(err.Error())
+	}
+	dat, err := getActionIDs(db, 9)
+	if err != nil {
+		log.Fatalln(err.Error())
+		return []string{}
+	}
+	return dat
+}
+
 func hintSubscriptions() []string {
 	database = getDBunparsed()
 	if err := connectDB(); err != nil {
@@ -47,9 +60,6 @@ func hintSubscriptions() []string {
 	if err != nil {
 		log.Fatalln(err.Error())
 		return []string{}
-	}
-	for _, i := range dat {
-		fmt.Println(i)
 	}
 	return dat
 }

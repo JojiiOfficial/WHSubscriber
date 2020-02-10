@@ -48,8 +48,8 @@ var (
 	//Action list
 	actionCmdCList = actionCmd.Command("list", "lists the actions")
 	//Action delete
-	actionCmdCDelete   = actionCmd.Command("delete", "Deletes an action from a webhook")
-	actionCmdDeleteAID = actionCmdCDelete.Arg("id", "The name of the script").Required().Int()
+	actionCmdCDelete   = actionCmd.Command("delete", "Deletes an action from a webhook").Alias("rm")
+	actionCmdDeleteAID = actionCmdCDelete.Arg("id", "The name of the script").HintAction(hintListActionIDs).Required().Int64()
 )
 
 var (
@@ -97,6 +97,8 @@ func main() {
 		addAction()
 	case actionCmdCList.FullCommand():
 		printActionList()
+	case actionCmdCDelete.FullCommand():
+		delAction()
 	}
 }
 

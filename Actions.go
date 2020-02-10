@@ -53,7 +53,27 @@ func printActionList() {
 		}
 		fmt.Printf("%d\t%s\t%s\t\t%s\t%s\n", action.ID, name, action.HookID, mode, action.File)
 	}
-	if len(actions) > 0 {
-		fmt.Println()
+	if len(actions) == 0 {
+		fmt.Println("No action available")
+	}
+	fmt.Println()
+}
+
+func delAction() {
+	actionID := (*actionCmdDeleteAID)
+	has, err := hasAction(db, actionID)
+	if err != nil {
+		fmt.Println("An error occured:", err.Error())
+		return
+	}
+	if !has {
+		fmt.Println("Action does not exists")
+		return
+	}
+	err = deleteActionByID(db, actionID)
+	if err == nil {
+		fmt.Println("Action deleted successfully")
+	} else {
+		fmt.Println("Error deleting action:", err.Error())
 	}
 }
