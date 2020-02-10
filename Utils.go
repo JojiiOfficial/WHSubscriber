@@ -57,5 +57,9 @@ func fileFullPath(scriptPath string) (string, bool) {
 		return path.Join(getCurrentDir(), scriptPath[2:]), true
 	}
 
+	if strings.HasPrefix(scriptPath, "~/") {
+		return path.Join(getHome(), scriptPath[2:]), true
+	}
+
 	return path.Join(getCurrentDir(), scriptPath), true
 }
