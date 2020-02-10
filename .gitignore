@@ -19,3 +19,4 @@ test
 debug
 test*
 config.yml
+data.db

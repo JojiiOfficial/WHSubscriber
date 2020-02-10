@@ -9,8 +9,9 @@ const (
 	//EnVarPrefix prefix of all used env vars
 	EnVarPrefix = "WHS"
 
-	EnVarReceiveURL = "URL"
-	EnVarConfigFile = "CONFIG"
+	EnVarReceiveURL   = "URL"
+	EnVarConfigFile   = "CONFIG"
+	EnVarDatabaseFile = "DATABASE"
 )
 
 func getEnVar(name string) string {

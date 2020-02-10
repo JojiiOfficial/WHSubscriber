@@ -4,14 +4,17 @@ import (
 	"log"
 	"os"
 
+	dbhelper "github.com/JojiiOfficial/GoDBHelper"
+	_ "github.com/mattn/go-sqlite3"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
 	//Global flags
-	app        = kingpin.New("whsub", "A WebHook subscriber")
-	appDebug   = app.Flag("debug", "Enable debug mode.").Short('d').Bool()
-	appCfgFile = app.
+	app         = kingpin.New("whsub", "A WebHook subscriber")
+	appDebug    = app.Flag("debug", "Enable debug mode.").Short('d').Bool()
+	appDatabase = app.Flag("database", "Path to the database to use").Default(DatabaseFile).Envar(getEnVar(DatabaseFile)).String()
+	appCfgFile  = app.
 			Flag("config", "the configuration file for the subscriber").
 			Envar(getEnVar(EnVarConfigFile)).
 			Short('c').String()
@@ -46,6 +49,11 @@ var (
 	actionCmdDeleteAID = actionCmdCDelete.Arg("id", "The name of the script").Required().Int()
 )
 
+var (
+	db       *dbhelper.DBhelper
+	database string
+)
+
 func main() {
 	app.HelpFlag.Short('h')
 	if checkVersionCommand() {
@@ -54,6 +62,8 @@ func main() {
 
 	//parsing the args
 	parsed := kingpin.MustParse(app.Parse(os.Args[1:]))
+
+	database = *appDatabase
 
 	if parsed != configCmdCCreate.FullCommand() {
 		//Return on error
@@ -64,6 +74,10 @@ func main() {
 			if *appDebug {
 				log.Println("Exiting")
 			}
+			return
+		}
+		if err := connectDB(); err != nil {
+			log.Fatalln(err.Error())
 			return
 		}
 	}
