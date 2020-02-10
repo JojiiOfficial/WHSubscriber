@@ -10,8 +10,8 @@ func printSubscriberVersion() {
 }
 
 func subscribe() {
-	callbackURL := *subscribeWhCallbackURL
-	webhookID := *subscribeWhID
+	callbackURL := *subscribeWhACallbackURL
+	webhookID := *subscribeWhAID
 	remoteURL := config.Client.ServerURL
 
 	if len(callbackURL) == 0 && len(config.Server.CallbackURL) == 0 {

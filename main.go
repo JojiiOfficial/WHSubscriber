@@ -17,20 +17,33 @@ var (
 			Short('c').String()
 
 	//Server chlid command
-	serverCmd        = app.Command("server", "Commands for the WH subscriber server")
-	serverCmdStart   = serverCmd.Command("start", "Start the server")
-	serverCmdVersion = serverCmd.Flag("version", "Show the version of the server").Bool()
+	serverCmd         = app.Command("server", "Commands for the WH subscriber server")
+	serverCmdCStart   = serverCmd.Command("start", "Start the server")
+	serverCmdFVersion = serverCmd.Flag("version", "Show the version of the server").Bool()
 
 	//Subsrcibe child command
-	subscribeWh            = app.Command("subscribe", "Subscribe to a webhook")
-	subscribeWhID          = subscribeWh.Arg("whid", "Which webhook you want to subscribe").Required().String()
-	subscribeWhCallbackURL = subscribeWh.Arg("url", "The callback URL to receive the notifications").Envar(getEnVar(EnVarReceiveURL)).String()
-	subscribeWhScript      = subscribeWh.Flag("script", "The script to run on a webhook call").Short('s').String()
+	subscribeWh             = app.Command("subscribe", "Subscribe to a webhook")
+	subscribeWhAID          = subscribeWh.Arg("webhookID", "Which webhook you want to subscribe").Required().String()
+	subscribeWhACallbackURL = subscribeWh.Arg("url", "The callback URL to receive the notifications").Envar(getEnVar(EnVarReceiveURL)).String()
+	subscribeWhFScript      = subscribeWh.Flag("script", "The script to run on a webhook call").Short('s').String()
 
 	//Config child command
-	configCmd           = app.Command("config", "Commands for the config file")
-	configCmdCreate     = configCmd.Command("create", "Create config file")
-	configCmdCreateName = configCmdCreate.Arg("name", "Config filename").Required().String()
+	configCmd            = app.Command("config", "Commands for the config file")
+	configCmdCCreate     = configCmd.Command("create", "Create config file")
+	configCmdACreateName = configCmdCCreate.Arg("name", "Config filename").Required().String()
+
+	//Action commands
+	actionCmd = app.Command("actions", "Configure your actions for wehbooks")
+	//Action add
+	actionCmdCAdd     = actionCmd.Command("add", "Adds an action for a webhook")
+	actionCmdAddFMode = actionCmdCAdd.Flag("mode", "The kind of action you want to add (script / action)").HintOptions("script", "action").Default("script").String()
+	actionCmdAddName  = actionCmdCAdd.Arg("webhook", "The webhook to add the action to").Required().String()
+	actionCmdAddAFile = actionCmdCAdd.Arg("file", "the file of the action (a script or action file)").Required().File()
+	//Action list
+	actionCmdCList = actionCmd.Command("list", "lists the actions")
+	//Action delete
+	actionCmdCDelete   = actionCmd.Command("delete", "Deletes an action from a webhook")
+	actionCmdDeleteAID = actionCmdCDelete.Arg("id", "The name of the script").Required().Int()
 )
 
 func main() {
@@ -42,7 +55,7 @@ func main() {
 	//parsing the args
 	parsed := kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	if parsed != configCmdCreate.FullCommand() {
+	if parsed != configCmdCCreate.FullCommand() {
 		//Return on error
 		if InitConfig(*appCfgFile, false) {
 			return
@@ -57,12 +70,12 @@ func main() {
 
 	//Runnig the correct child command
 	switch parsed {
-	case serverCmdStart.FullCommand():
+	case serverCmdCStart.FullCommand():
 		runWHReceiverServer()
 	case subscribeWh.FullCommand():
 		subscribe()
-	case configCmdCreate.FullCommand():
-		InitConfig(*configCmdCreateName, true)
+	case configCmdCCreate.FullCommand():
+		InitConfig(*configCmdACreateName, true)
 	}
 }
 
