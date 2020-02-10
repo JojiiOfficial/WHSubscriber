@@ -39,10 +39,11 @@ var (
 	//Action commands
 	actionCmd = app.Command("actions", "Configure your actions for wehbooks")
 	//Action add
-	actionCmdCAdd     = actionCmd.Command("add", "Adds an action for a webhook")
-	actionCmdAddFMode = actionCmdCAdd.Flag("mode", "The kind of action you want to add (script / action)").HintOptions("script", "action").Default("script").String()
-	actionCmdAddName  = actionCmdCAdd.Arg("webhook", "The webhook to add the action to").Required().String()
-	actionCmdAddAFile = actionCmdCAdd.Arg("file", "the file of the action (a script or action file)").Required().File()
+	actionCmdCAdd       = actionCmd.Command("add", "Adds an action for a webhook")
+	actionCmdAddFMode   = actionCmdCAdd.Flag("mode", "The kind of action you want to add (script / action)").HintOptions("script", "action").Default("script").String()
+	actionCmdAddName    = actionCmdCAdd.Flag("name", "The name of the action. To make it recycleable").HintAction(hintRandomNames).Default(getRandomName()).String()
+	actionCmdAddWebhook = actionCmdCAdd.Arg("webhook", "The webhook to add the action to").Required().HintAction(listWebhooks).String()
+	actionCmdAddAFile   = actionCmdCAdd.Arg("file", "the file of the action (a script or action file)").Required().File()
 	//Action list
 	actionCmdCList = actionCmd.Command("list", "lists the actions")
 	//Action delete
@@ -91,6 +92,8 @@ func main() {
 		subscribe()
 	case configCmdCCreate.FullCommand():
 		InitConfig(*configCmdACreateName, true)
+	case actionCmdCAdd.FullCommand():
+		addAction()
 	}
 }
 
