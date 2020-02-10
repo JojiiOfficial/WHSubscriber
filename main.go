@@ -26,6 +26,8 @@ var (
 	serverCmdCStart   = serverCmd.Command("start", "Start the server")
 	serverCmdFVersion = serverCmd.Flag("version", "Show the version of the server").Bool()
 
+	//Subscriptions
+	subscribtions = app.Command("subscriptions", "Lists your subscriptions").FullCommand()
 	//Subsrcibe child command
 	subscribeWh             = app.Command("subscribe", "Subscribe to a webhook")
 	subscribeWhAID          = subscribeWh.Arg("webhookID", "Which webhook you want to subscribe").Required().String()
@@ -37,8 +39,11 @@ var (
 	configCmdCCreate     = configCmd.Command("create", "Create config file")
 	configCmdACreateName = configCmdCCreate.Arg("name", "Config filename").Required().String()
 
+	//Actions
+	actionsCmd = app.Command("actions", "Configure your actions for wehbooks").FullCommand()
+
 	//Action commands
-	actionCmd = app.Command("actions", "Configure your actions for wehbooks")
+	actionCmd = app.Command("action", "Configure your actions for wehbooks")
 	//Action add
 	actionCmdCAdd       = actionCmd.Command("add", "Adds an action for a webhook")
 	actionCmdAddFMode   = actionCmdCAdd.Flag("mode", "The kind of action you want to add (script / action)").HintOptions("script", "action").Default("script").String()
@@ -99,10 +104,12 @@ func main() {
 		InitConfig(*configCmdACreateName, true)
 	case actionCmdCAdd.FullCommand():
 		addAction()
-	case actionCmdCList.FullCommand():
-		printActionList()
 	case actionCmdCDelete.FullCommand():
 		delAction()
+	case actionsCmd:
+		printActionList()
+	case subscribtions:
+		printSubsciptionList()
 	case actionCmdCSetWh.FullCommand():
 		actionSetWebhook()
 	}

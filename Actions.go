@@ -56,7 +56,7 @@ func addAction() {
 	if err != nil {
 		log.Println(err.Error())
 	}
-	fmt.Println(action.ID)
+	fmt.Printf("Created action %s %s\n", *actionCmdAddName, color.HiGreenString("successfully"))
 }
 
 func printActionList() {

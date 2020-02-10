@@ -36,7 +36,7 @@ func getInitSQL() godbhelper.QueryChain {
 
 // ---------------------------------- Inserts ------------------------------------
 
-func (webhook *Webhook) insert(dab *godbhelper.DBhelper) error {
+func (webhook *Subscription) insert(dab *godbhelper.DBhelper) error {
 	var rs *sql.Result
 	var err error
 	var id int64
@@ -76,6 +76,12 @@ func getActions(dab *godbhelper.DBhelper) ([]Action, error) {
 	var actions []Action
 	err := dab.QueryRowsf(&actions, "SELECT %s.*,IFNULL(%s.hookName,'- na -')as hookName FROM %s LEFT JOIN %s ON (%s.pkID = %s.hookID) ORDER BY pkID DESC", []string{TableActions, TableSubscriptions, TableActions, TableSubscriptions, TableSubscriptions, TableActions})
 	return actions, err
+}
+
+func getSubscriptions(dab *godbhelper.DBhelper) ([]Subscription, error) {
+	var subscriptions []Subscription
+	err := dab.QueryRowsf(&subscriptions, "SELECT * FROM %s ORDER BY pkID DESC", []string{TableSubscriptions})
+	return subscriptions, err
 }
 
 func getHooksHumanized(dab *godbhelper.DBhelper, limit int) ([]string, error) {

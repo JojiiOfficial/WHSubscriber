@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+
+	"github.com/fatih/color"
 )
 
 func printSubscriberVersion() {
@@ -27,7 +29,7 @@ func subscribe() {
 		fmt.Printf("Trying to subscribe to '%s' using callback URL '%s' and remote '%s'\n", webhookID, callbackURL, remoteURL)
 	}
 
-	wh := Webhook{
+	wh := Subscription{
 		HookID: webhookID,
 	}
 	err := wh.insert(db)
@@ -36,4 +38,25 @@ func subscribe() {
 		return
 	}
 	fmt.Println(wh.ID)
+}
+
+func printSubsciptionList() {
+	subscriptions, err := getSubscriptions(db)
+	if err != nil {
+		log.Fatalln(err.Error())
+		return
+	}
+	headingColor := color.New(color.FgHiGreen, color.Underline, color.Bold)
+	headingColor.Println("ID\tHookID\t\t\tName")
+	for _, subscription := range subscriptions {
+		hookID := subscription.HookID
+		if len(hookID) < 8 {
+			hookID += "\t"
+		}
+		fmt.Printf("%d\t%s\t\t%s\n", subscription.ID, hookID, subscription.Name)
+	}
+	if len(subscriptions) == 0 {
+		fmt.Println("No subscription yet")
+	}
+	fmt.Println()
 }
