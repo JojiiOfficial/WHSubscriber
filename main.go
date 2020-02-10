@@ -13,7 +13,7 @@ var (
 	//Global flags
 	app         = kingpin.New("whsub", "A WebHook subscriber")
 	appDebug    = app.Flag("debug", "Enable debug mode.").Short('d').Bool()
-	appDatabase = app.Flag("database", "Path to the database to use").Default(DatabaseFile).Envar(getEnVar(DatabaseFile)).String()
+	appDatabase = app.Flag("database", "Path to the database to use").Default(getDefaultDBFile()).Envar(getEnVar(DefaultDatabaseFile)).String()
 	appCfgFile  = app.
 			Flag("config", "the configuration file for the subscriber").
 			Envar(getEnVar(EnVarConfigFile)).
@@ -62,7 +62,6 @@ func main() {
 
 	//parsing the args
 	parsed := kingpin.MustParse(app.Parse(os.Args[1:]))
-
 	database = *appDatabase
 
 	if parsed != configCmdCCreate.FullCommand() {

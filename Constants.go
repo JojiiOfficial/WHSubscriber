@@ -4,9 +4,10 @@ package main
 const (
 	//DefaultConfigFile the default configuration file
 	DefaultConfigFile = "config.yml"
+	DataDir           = ".whsub"
 )
 
 var (
-	//DatabaseFile database file
-	DatabaseFile = "data.db"
+	//DefaultDatabaseFile database file
+	DefaultDatabaseFile = "data.db"
 )
