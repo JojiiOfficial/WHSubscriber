@@ -16,9 +16,11 @@ func connectDB() error {
 		return err
 	}
 	db = dab
+	db.Options.Debug = *appDebug
 	return updateDB()
 }
 
 func updateDB() error {
+	db.AddQueryChain(getInitSQL())
 	return db.RunUpdate()
 }

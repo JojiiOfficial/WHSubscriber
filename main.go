@@ -5,6 +5,7 @@ import (
 	"os"
 
 	dbhelper "github.com/JojiiOfficial/GoDBHelper"
+	"github.com/gobuffalo/packr"
 	_ "github.com/mattn/go-sqlite3"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
@@ -50,8 +51,9 @@ var (
 )
 
 var (
-	db       *dbhelper.DBhelper
-	database string
+	db         *dbhelper.DBhelper
+	database   string
+	appDataBox *packr.Box
 )
 
 func main() {

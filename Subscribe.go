@@ -27,4 +27,13 @@ func subscribe() {
 		fmt.Printf("Trying to subscribe to '%s' using callback URL '%s' and remote '%s'\n", webhookID, callbackURL, remoteURL)
 	}
 
+	wh := Webhook{
+		HookID: webhookID,
+	}
+	err := wh.insert(db)
+	if err != nil {
+		log.Printf(err.Error())
+		return
+	}
+	fmt.Println(wh.ID)
 }
