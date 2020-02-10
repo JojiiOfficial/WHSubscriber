@@ -10,6 +10,10 @@ import (
 
 //ConfigStruct the structure of the configfile
 type ConfigStruct struct {
+	Client struct {
+		ServerURL string `default:"https://wh-share.de/"`
+	}
+
 	Server struct {
 		Enable      bool   `default:"false"`
 		CallbackURL string `default:"https://yourCallbackDomain.de/"`
@@ -17,10 +21,6 @@ type ConfigStruct struct {
 		EnableHTTPS bool
 		SSLCert     string
 		SSLKey      string
-	}
-
-	Client struct {
-		ServerURL string `default:"https://wh-share.de/"`
 	}
 }
 
