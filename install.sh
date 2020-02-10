@@ -11,14 +11,17 @@ else
 	sh=0
 fi
 
-go get -u -v &&
-go build -o whsub &&
+go get -u -v
+go build -o whsub 
+if [ $? -ne 0 ]; then
+	exit 1
+fi
 
-if [ ! -f "./whsub" ]; then
+if test -f "./whsub"; then
+	echo "Binary './whsub' built successfully"
+else
 	echo "Building binary failed!"
 	exit 1
-else
-	echo "Binary './whsub' built successfully"
 fi
 
 # Install autocompletion
