@@ -10,9 +10,17 @@ func addAction() {
 	if *actionCmdAddFMode == "action" {
 		mode = 1
 	}
+
+	scriptPath := (*actionCmdAddAFile)
+	scriptFileAbs, exists := fileFullPath(scriptPath)
+	if !exists {
+		log.Fatalf("File '%s' does not exists", scriptPath)
+		return
+	}
+
 	action := Action{
 		Mode:   mode,
-		File:   (*actionCmdAddAFile).Name(),
+		File:   scriptFileAbs,
 		HookID: "0",
 		Name:   *actionCmdAddName,
 	}

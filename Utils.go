@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 )
 
 func inPortValid(port uint16) bool {
@@ -31,4 +32,31 @@ func getDataPath() string {
 		log.Fatalln("Datapath-name already taken by a file!")
 	}
 	return path
+}
+
+func getCurrentDir() string {
+	exec, err := os.Executable()
+	if err != nil {
+		log.Fatalln(err.Error())
+		return ""
+	}
+	dir, _ := path.Split(exec)
+	return dir
+}
+
+func fileFullPath(scriptPath string) (string, bool) {
+	s, err := os.Stat(scriptPath)
+	if err != nil || s == nil || s.IsDir() {
+		return "", false
+	}
+	var fullPath string
+	if strings.HasPrefix(scriptPath, "/") {
+		return fullPath, true
+	}
+
+	if strings.HasPrefix(scriptPath, "./") {
+		return path.Join(getCurrentDir(), scriptPath[2:]), true
+	}
+
+	return path.Join(getCurrentDir(), scriptPath), true
 }
