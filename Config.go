@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"strings"
 
 	"github.com/JojiiOfficial/configor"
 )
@@ -37,6 +38,12 @@ func InitConfig(confFile string, createMode bool) bool {
 			log.Fatalln("This name is already taken by a folder")
 			return true
 		}
+		if !strings.HasSuffix(confFile, ".yml") {
+			log.Fatalln("The configfile must end with .yml")
+			return true
+		}
+	} else if len(confFile) == 0 {
+		confFile = DefaultConfigFile
 	}
 
 	isDefault, err := configor.SetupConfig(&config, confFile, configor.NoChange)
