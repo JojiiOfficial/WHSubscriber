@@ -37,8 +37,3 @@ func subscribe() {
 	}
 	fmt.Println(wh.ID)
 }
-
-func listWebhooks() []string {
-	//ToDo
-	return []string{"a", "b"}
-}

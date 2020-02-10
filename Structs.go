@@ -4,6 +4,7 @@ package main
 type Webhook struct {
 	ID     int64  `db:"pkID" orm:"pk,ai"`
 	HookID string `db:"hookID"`
+	Name   string `db:"hookName"`
 }
 
 //Action webhook struct

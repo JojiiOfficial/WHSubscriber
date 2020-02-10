@@ -15,12 +15,3 @@ func getRandomName() string {
 	r2 := rand.New(r).Int31n((int32)(len(ss) - 1))
 	return fmt.Sprintf("%s_%s", ss[r1], ss[r2])
 }
-
-func hintRandomNames() []string {
-	c := 5
-	names := make([]string, c)
-	for i := 0; i < c; i++ {
-		names[i] = getRandomName()
-	}
-	return names
-}

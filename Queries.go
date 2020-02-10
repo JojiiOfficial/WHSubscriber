@@ -20,7 +20,7 @@ func getInitSQL() godbhelper.QueryChain {
 		Order: 0,
 		Queries: godbhelper.CreateInitVersionSQL(
 			godbhelper.InitSQL{
-				Query:   "CREATE TABLE %s (`pkID` INTEGER PRIMARY KEY AUTOINCREMENT, `hookID` TEXT)",
+				Query:   "CREATE TABLE %s (`pkID` INTEGER PRIMARY KEY AUTOINCREMENT, `hookID` TEXT, `hookName` TEXT)",
 				FParams: []string{TableSubscriptions},
 			},
 			godbhelper.InitSQL{
@@ -75,4 +75,10 @@ func getActions(dab *godbhelper.DBhelper, param ...string) ([]Action, error) {
 	var actions []Action
 	err := dab.QueryRowsf(&actions, "SELECT * FROM %s", []string{TableActions})
 	return actions, err
+}
+
+func getHooksHumanized(dab *godbhelper.DBhelper, limit int) ([]string, error) {
+	var hooks []string
+	err := dab.QueryRows(&hooks, "SELECT hookName || '-' || hookID FROM "+TableSubscriptions)
+	return hooks, err
 }
