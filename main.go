@@ -47,9 +47,13 @@ var (
 	actionCmdAddAFile   = actionCmdCAdd.Arg("file", "the file of the action (a script or action file)").HintAction(hintListCurrDir).Required().String()
 	//Action list
 	actionCmdCList = actionCmd.Command("list", "lists the actions")
+	//Action setWebhook
+	actionCmdCSetWh       = actionCmd.Command("setwebhook", "Sets/Changes the webhook for an action")
+	actionCmdSetWhAction  = actionCmdCSetWh.Arg("action", "The action to change the webhook for").HintAction(hintListActions).Required().String()
+	actionCmdSetWhWebhook = actionCmdCSetWh.Arg("webhook", "The new webhook").HintAction(hintSubscriptions).Required().String()
 	//Action delete
 	actionCmdCDelete   = actionCmd.Command("delete", "Deletes an action from a webhook").Alias("rm")
-	actionCmdDeleteAID = actionCmdCDelete.Arg("id", "The name of the script").HintAction(hintListActionIDs).Required().Int64List()
+	actionCmdDeleteAID = actionCmdCDelete.Arg("name", "The name of the action").HintAction(hintListActions).Required().Strings()
 )
 
 var (
@@ -99,6 +103,8 @@ func main() {
 		printActionList()
 	case actionCmdCDelete.FullCommand():
 		delAction()
+	case actionCmdCSetWh.FullCommand():
+		actionSetWebhook()
 	}
 }
 

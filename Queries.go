@@ -80,7 +80,7 @@ func getActions(dab *godbhelper.DBhelper) ([]Action, error) {
 
 func getHooksHumanized(dab *godbhelper.DBhelper, limit int) ([]string, error) {
 	var hooks []string
-	err := dab.QueryRows(&hooks, "SELECT hookName || ' - ' || hookID FROM "+TableSubscriptions)
+	err := dab.QueryRowsf(&hooks, "SELECT hookName || '-' || hookID FROM %s WHERE hookName != ''", []string{TableSubscriptions})
 	return hooks, err
 }
 
@@ -99,18 +99,31 @@ func getActionIDs(dab *godbhelper.DBhelper, limit int) ([]string, error) {
 	return hooks, err
 }
 
-func hasAction(dab *godbhelper.DBhelper, actionID int64) (bool, error) {
+func hasAction(dab *godbhelper.DBhelper, actionName string) (bool, error) {
 	var c int
-	err := dab.QueryRowf(&c, "SELECT COUNT(*) FROM %s WHERE pkID=?", []string{TableActions}, actionID)
+	err := dab.QueryRowf(&c, "SELECT COUNT(*) FROM %s WHERE name=?", []string{TableActions}, actionName)
 	if err != nil {
 		return false, err
 	}
 	return c == 1, nil
 }
 
+func getActionFromName(dab *godbhelper.DBhelper, actionName string) (int64, error) {
+	var c int64
+	err := dab.QueryRowf(&c, "SELECT pkID FROM %s WHERE name=?", []string{TableActions}, actionName)
+	if err != nil {
+		return -1, err
+	}
+	return c, nil
+}
+func updateActionWebhook(dab *godbhelper.DBhelper, aID, whID int64) error {
+	_, err := dab.Execf("UPDATE %s SET hookID=? WHERE pkID=?", []string{TableActions}, whID, aID)
+	return err
+}
+
 // ---------------------------------- Deletions ------------------------------------
 
-func deleteActionByID(dab *godbhelper.DBhelper, id int64) error {
-	_, err := dab.Execf("DELETE FROM %s WHERE pkID=?", []string{TableActions}, id)
+func deleteActionByID(dab *godbhelper.DBhelper, name string) error {
+	_, err := dab.Execf("DELETE FROM %s WHERE name=?", []string{TableActions}, name)
 	return err
 }

@@ -21,6 +21,8 @@ func getWhIDFromHumanInput(input string) (int64, error) {
 				return whID, errors.New("no wh found")
 			}
 		}
+	} else if !strings.Contains(input, "-") {
+		return -1, errors.New("no wh found")
 	}
 	return whID, nil
 }
@@ -40,7 +42,7 @@ func addAction() {
 
 	whID, err := getWhIDFromHumanInput(*actionCmdAddWebhook)
 	if err != nil {
-		fmt.Println(color.HiYellowString("Warning"), "subscription not found")
+		fmt.Println(color.HiYellowString("Warning"), "webhook-subscription not found")
 	}
 
 	action := Action{
@@ -94,14 +96,40 @@ func delAction() {
 			return
 		}
 		if !has {
-			fmt.Printf("Action '%d' does %s\n", actionID, color.RedString("not exists"))
+			fmt.Printf("Action '%s' does %s\n", actionID, color.RedString("not exists"))
 			return
 		}
 		err = deleteActionByID(db, actionID)
 		if err == nil {
-			fmt.Printf("Action '%d' deleted %s\n", actionID, color.HiGreenString("successful"))
+			fmt.Printf("Action '%s' deleted %s\n", actionID, color.HiGreenString("successful"))
 		} else {
 			fmt.Println("Error deleting action:", err.Error())
 		}
 	}
+}
+
+func actionSetWebhook() {
+	whs := *actionCmdSetWhWebhook
+	var whID int64
+	var err error
+	if whs != "na-" {
+		whID, err = getWhIDFromHumanInput(*actionCmdSetWhWebhook)
+		if err != nil {
+			fmt.Println("Error webhook-subscription", color.HiRedString("not found"))
+			return
+		}
+	} else {
+		whID = -1
+	}
+	aID, err := getActionFromName(db, *actionCmdSetWhAction)
+	if err != nil {
+		fmt.Println("Error action", color.HiRedString("not found"))
+		return
+	}
+	err = updateActionWebhook(db, aID, whID)
+	if err != nil {
+		log.Fatalln(err.Error())
+		return
+	}
+	fmt.Printf("Action %s updated %s", *actionCmdSetWhAction, color.HiGreenString("successfully"))
 }
