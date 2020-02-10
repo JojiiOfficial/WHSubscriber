@@ -37,7 +37,7 @@ func subscribe() {
 		log.Printf(err.Error())
 		return
 	}
-	fmt.Println(wh.ID)
+	fmt.Printf("%s subscribed to '%s'\n", color.HiGreenString("Successfully"), webhookID)
 }
 
 func printSubsciptionList() {

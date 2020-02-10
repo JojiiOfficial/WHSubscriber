@@ -13,7 +13,7 @@ import (
 var (
 	//Global flags
 	app         = kingpin.New("whsub", "A WebHook subscriber")
-	appDebug    = app.Flag("debug", "Enable debug mode.").Short('d').Bool()
+	appDebug    = app.Flag("debug", "Enable debug mode").Short('d').Bool()
 	appNoColor  = app.Flag("no-color", "Disable colors").Envar(getEnVar(EnVarNoColor)).Bool()
 	appDatabase = app.Flag("database", "Path to the database to use").Default(getDefaultDBFile()).Envar(getEnVar(EnVarDatabaseFile)).String()
 	appCfgFile  = app.
@@ -28,11 +28,16 @@ var (
 
 	//Subscriptions
 	subscribtions = app.Command("subscriptions", "Lists your subscriptions").FullCommand()
+
+	//Subsciption
+	subscription = app.Command("subscription", "Subscription command")
 	//Subsrcibe child command
-	subscribeWh             = app.Command("subscribe", "Subscribe to a webhook")
-	subscribeWhAID          = subscribeWh.Arg("webhookID", "Which webhook you want to subscribe").Required().String()
-	subscribeWhACallbackURL = subscribeWh.Arg("url", "The callback URL to receive the notifications").Envar(getEnVar(EnVarReceiveURL)).String()
-	subscribeWhFScript      = subscribeWh.Flag("script", "The script to run on a webhook call").Short('s').String()
+	subscribeAddWh          = subscription.Command("add", "Subscribe to a webhook")
+	subscribeWhAID          = subscribeAddWh.Arg("webhookID", "Which webhook you want to subscribe").Required().String()
+	subscribeWhACallbackURL = subscribeAddWh.Arg("url", "The callback URL to receive the notifications").Envar(getEnVar(EnVarReceiveURL)).String()
+	subscribeWhFScript      = subscribeAddWh.Flag("script", "The script to run on a webhook call").Short('s').String()
+
+	subscribeImport = subscription.Command("import", "Imports a subscription")
 
 	//Config child command
 	configCmd            = app.Command("config", "Commands for the config file")
@@ -50,8 +55,6 @@ var (
 	actionCmdAddName    = actionCmdCAdd.Flag("name", "The name of the action. To make it recycleable").HintAction(hintRandomNames).Default(getRandomName()).String()
 	actionCmdAddWebhook = actionCmdCAdd.Flag("webhook", "The webhook to add the action to").HintAction(hintSubscriptions).String()
 	actionCmdAddAFile   = actionCmdCAdd.Arg("file", "the file of the action (a script or action file)").HintAction(hintListCurrDir).Required().String()
-	//Action list
-	actionCmdCList = actionCmd.Command("list", "lists the actions")
 	//Action setWebhook
 	actionCmdCSetWh       = actionCmd.Command("setwebhook", "Sets/Changes the webhook for an action")
 	actionCmdSetWhAction  = actionCmdCSetWh.Arg("action", "The action to change the webhook for").HintAction(hintListActions).Required().String()
@@ -98,7 +101,7 @@ func main() {
 	switch parsed {
 	case serverCmdCStart.FullCommand():
 		runWHReceiverServer()
-	case subscribeWh.FullCommand():
+	case subscribeAddWh.FullCommand():
 		subscribe()
 	case configCmdCCreate.FullCommand():
 		InitConfig(*configCmdACreateName, true)
@@ -122,7 +125,7 @@ func checkVersionCommand() bool {
 		case serverCmd.FullCommand():
 			printServerVersion()
 			return true
-		case subscribeWh.FullCommand(), "subscriber", "sub":
+		case subscribeAddWh.FullCommand(), "subscriber", "sub":
 			printSubscriberVersion()
 			return true
 		}

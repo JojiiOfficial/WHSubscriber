@@ -2,9 +2,10 @@ package main
 
 //Subscription webhook struct
 type Subscription struct {
-	ID     int64  `db:"pkID" orm:"pk,ai"`
-	HookID string `db:"hookID"`
-	Name   string `db:"hookName"`
+	ID             int64  `db:"pkID" orm:"pk,ai"`
+	Name           string `db:"hookName"`
+	HookID         string `db:"hookID"`
+	SubscriptionID string `db:"subsID"`
 }
 
 //Action webhook struct

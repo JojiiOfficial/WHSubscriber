@@ -21,7 +21,7 @@ func getInitSQL() godbhelper.QueryChain {
 		Order: 0,
 		Queries: godbhelper.CreateInitVersionSQL(
 			godbhelper.InitSQL{
-				Query:   "CREATE TABLE %s (`pkID` INTEGER PRIMARY KEY AUTOINCREMENT, `hookID` TEXT, `hookName` TEXT)",
+				Query:   "CREATE TABLE %s (`pkID` INTEGER PRIMARY KEY AUTOINCREMENT, `hookID` TEXT, `hookName` TEXT, `subsID` TEXT)",
 				FParams: []string{TableSubscriptions},
 			},
 			godbhelper.InitSQL{
