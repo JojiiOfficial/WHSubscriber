@@ -60,20 +60,22 @@ func printActionList() {
 }
 
 func delAction() {
-	actionID := (*actionCmdDeleteAID)
-	has, err := hasAction(db, actionID)
-	if err != nil {
-		fmt.Println("An error occured:", err.Error())
-		return
-	}
-	if !has {
-		fmt.Println("Action does not exists")
-		return
-	}
-	err = deleteActionByID(db, actionID)
-	if err == nil {
-		fmt.Println("Action deleted successfully")
-	} else {
-		fmt.Println("Error deleting action:", err.Error())
+	actionIDs := (*actionCmdDeleteAID)
+	for _, actionID := range actionIDs {
+		has, err := hasAction(db, actionID)
+		if err != nil {
+			fmt.Println("An error occured:", err.Error())
+			return
+		}
+		if !has {
+			fmt.Printf("Action '%d'\tdoes not exists\n", actionID)
+			return
+		}
+		err = deleteActionByID(db, actionID)
+		if err == nil {
+			fmt.Printf("Action '%d'\tdeleted successfully\n", actionID)
+		} else {
+			fmt.Println("Error deleting action:", err.Error())
+		}
 	}
 }

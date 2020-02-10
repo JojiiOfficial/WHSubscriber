@@ -49,9 +49,8 @@ func fileFullPath(scriptPath string) (string, bool) {
 	if err != nil || s == nil || s.IsDir() {
 		return "", false
 	}
-	var fullPath string
 	if strings.HasPrefix(scriptPath, "/") {
-		return fullPath, true
+		return scriptPath, true
 	}
 
 	if strings.HasPrefix(scriptPath, "./") {
