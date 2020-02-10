@@ -12,6 +12,7 @@ const (
 	EnVarReceiveURL   = "URL"
 	EnVarConfigFile   = "CONFIG"
 	EnVarDatabaseFile = "DATABASE"
+	EnVarNoColor      = "NOCOLOR"
 )
 
 func getEnVar(name string) string {

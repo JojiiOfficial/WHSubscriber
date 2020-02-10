@@ -74,14 +74,23 @@ func (action *Action) insert(dab *godbhelper.DBhelper) error {
 
 func getActions(dab *godbhelper.DBhelper) ([]Action, error) {
 	var actions []Action
-	err := dab.QueryRowsf(&actions, "SELECT * FROM %s ORDER BY pkID DESC", []string{TableActions})
+	err := dab.QueryRowsf(&actions, "SELECT %s.*,IFNULL(%s.hookName,'- na -')as hookName FROM %s LEFT JOIN %s ON (%s.pkID = %s.hookID) ORDER BY pkID DESC", []string{TableActions, TableSubscriptions, TableActions, TableSubscriptions, TableSubscriptions, TableActions})
 	return actions, err
 }
 
 func getHooksHumanized(dab *godbhelper.DBhelper, limit int) ([]string, error) {
 	var hooks []string
-	err := dab.QueryRows(&hooks, "SELECT hookName || '-' || hookID FROM "+TableSubscriptions)
+	err := dab.QueryRows(&hooks, "SELECT hookName || ' - ' || hookID FROM "+TableSubscriptions)
 	return hooks, err
+}
+
+func getSubscriptionID(dab *godbhelper.DBhelper, sid string) (int64, error) {
+	var id int64
+	err := dab.QueryRowf(&id, "SELECT pkID FROM %s WHERE hookID=?", []string{TableSubscriptions}, sid)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
 }
 
 func getActionIDs(dab *godbhelper.DBhelper, limit int) ([]string, error) {

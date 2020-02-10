@@ -1,11 +1,29 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/fatih/color"
 )
+
+func getWhIDFromHumanInput(input string) (int64, error) {
+	whID := int64(-1)
+	if len(input) > 0 && strings.Contains(input, "-") {
+		realID := strings.Trim(strings.Split(input, "-")[1], " ")
+		if len(realID) > 0 {
+			var err error
+			whID, err = getSubscriptionID(db, realID)
+			if err != nil {
+				whID = -1
+				return whID, errors.New("no wh found")
+			}
+		}
+	}
+	return whID, nil
+}
 
 func addAction() {
 	mode := int8(0)
@@ -20,14 +38,19 @@ func addAction() {
 		return
 	}
 
+	whID, err := getWhIDFromHumanInput(*actionCmdAddWebhook)
+	if err != nil {
+		fmt.Println(color.HiYellowString("Warning"), "subscription not found")
+	}
+
 	action := Action{
 		Mode:   mode,
 		File:   scriptFileAbs,
-		HookID: "0",
+		HookID: whID,
 		Name:   *actionCmdAddName,
 	}
 
-	err := action.insert(db)
+	err = action.insert(db)
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -41,7 +64,7 @@ func printActionList() {
 		return
 	}
 	headingColor := color.New(color.FgHiGreen, color.Underline, color.Bold)
-	headingColor.Println("ID\tName\t\tWebhook\t\tMode\tFile")
+	headingColor.Println("ID\tName\t\tWebhook\t\t\tMode\tFile")
 	for _, action := range actions {
 		mode := "script"
 		if action.Mode == 1 {
@@ -51,7 +74,10 @@ func printActionList() {
 		if len(name) < 8 {
 			name += "\t"
 		}
-		fmt.Printf("%d\t%s\t%s\t\t%s\t%s\n", action.ID, name, action.HookID, mode, action.File)
+		if len(action.HookName) < 8 {
+			action.HookName += "\t"
+		}
+		fmt.Printf("%d\t%s\t%s\t\t%s\t%s\n", action.ID, name, action.HookName, mode, action.File)
 	}
 	if len(actions) == 0 {
 		fmt.Println("No action available")
@@ -68,12 +94,12 @@ func delAction() {
 			return
 		}
 		if !has {
-			fmt.Printf("Action '%d'\tdoes not exists\n", actionID)
+			fmt.Printf("Action '%d' does %s\n", actionID, color.RedString("not exists"))
 			return
 		}
 		err = deleteActionByID(db, actionID)
 		if err == nil {
-			fmt.Printf("Action '%d'\tdeleted successfully\n", actionID)
+			fmt.Printf("Action '%d' deleted %s\n", actionID, color.HiGreenString("successful"))
 		} else {
 			fmt.Println("Error deleting action:", err.Error())
 		}

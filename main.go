@@ -14,7 +14,7 @@ var (
 	//Global flags
 	app         = kingpin.New("whsub", "A WebHook subscriber")
 	appDebug    = app.Flag("debug", "Enable debug mode.").Short('d').Bool()
-	appNoColor  = app.Flag("no-color", "Disable colors").Bool()
+	appNoColor  = app.Flag("no-color", "Disable colors").Envar(getEnVar(EnVarNoColor)).Bool()
 	appDatabase = app.Flag("database", "Path to the database to use").Default(getDefaultDBFile()).Envar(getEnVar(EnVarDatabaseFile)).String()
 	appCfgFile  = app.
 			Flag("config", "the configuration file for the subscriber").
@@ -43,7 +43,7 @@ var (
 	actionCmdCAdd       = actionCmd.Command("add", "Adds an action for a webhook")
 	actionCmdAddFMode   = actionCmdCAdd.Flag("mode", "The kind of action you want to add (script / action)").HintOptions("script", "action").Default("script").String()
 	actionCmdAddName    = actionCmdCAdd.Flag("name", "The name of the action. To make it recycleable").HintAction(hintRandomNames).Default(getRandomName()).String()
-	actionCmdAddWebhook = actionCmdCAdd.Arg("webhook", "The webhook to add the action to").HintAction(hintSubscriptions).Required().String()
+	actionCmdAddWebhook = actionCmdCAdd.Flag("webhook", "The webhook to add the action to").HintAction(hintSubscriptions).String()
 	actionCmdAddAFile   = actionCmdCAdd.Arg("file", "the file of the action (a script or action file)").HintAction(hintListCurrDir).Required().String()
 	//Action list
 	actionCmdCList = actionCmd.Command("list", "lists the actions")

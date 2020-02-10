@@ -13,5 +13,9 @@ func getRandomName() string {
 	r := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(r).Int31n((int32)(len(ss) - 1))
 	r2 := rand.New(r).Int31n((int32)(len(ss) - 1))
-	return fmt.Sprintf("%s_%s", ss[r1], ss[r2])
+	name := fmt.Sprintf("%s_%s", ss[r1], ss[r2])
+	if len(name) > 14 {
+		return name[:14]
+	}
+	return name
 }
