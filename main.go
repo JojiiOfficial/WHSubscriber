@@ -13,7 +13,7 @@ var (
 	//Global flags
 	app         = kingpin.New("whsub", "A WebHook subscriber")
 	appDebug    = app.Flag("debug", "Enable debug mode.").Short('d').Bool()
-	appDatabase = app.Flag("database", "Path to the database to use").Default(getDefaultDBFile()).Envar(getEnVar(DefaultDatabaseFile)).String()
+	appDatabase = app.Flag("database", "Path to the database to use").Default(getDefaultDBFile()).Envar(getEnVar(EnVarDatabaseFile)).String()
 	appCfgFile  = app.
 			Flag("config", "the configuration file for the subscriber").
 			Envar(getEnVar(EnVarConfigFile)).
