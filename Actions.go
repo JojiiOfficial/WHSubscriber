@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+
+	"github.com/fatih/color"
 )
 
 func addAction() {
@@ -30,4 +32,28 @@ func addAction() {
 		log.Println(err.Error())
 	}
 	fmt.Println(action.ID)
+}
+
+func printActionList() {
+	actions, err := getActions(db)
+	if err != nil {
+		log.Fatalln(err.Error())
+		return
+	}
+	headingColor := color.New(color.FgHiGreen, color.Underline, color.Bold)
+	headingColor.Println("ID\tName\t\tWebhook\t\tMode\tFile")
+	for _, action := range actions {
+		mode := "script"
+		if action.Mode == 1 {
+			mode = "action"
+		}
+		name := action.Name
+		if len(name) < 8 {
+			name += "\t"
+		}
+		fmt.Printf("%d\t%s\t%s\t\t%s\t%s\n", action.ID, name, action.HookID, mode, action.File)
+	}
+	if len(actions) > 0 {
+		fmt.Println()
+	}
 }

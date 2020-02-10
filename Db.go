@@ -17,6 +17,7 @@ func connectDB() error {
 	}
 	db = dab
 	db.Options.Debug = *appDebug
+	db.Options.UseColors = !(*appNoColor)
 	return updateDB()
 }
 

@@ -71,9 +71,9 @@ func (action *Action) insert(dab *godbhelper.DBhelper) error {
 
 // ---------------------------------- Selects ------------------------------------
 
-func getActions(dab *godbhelper.DBhelper, param ...string) ([]Action, error) {
+func getActions(dab *godbhelper.DBhelper) ([]Action, error) {
 	var actions []Action
-	err := dab.QueryRowsf(&actions, "SELECT * FROM %s", []string{TableActions})
+	err := dab.QueryRowsf(&actions, "SELECT * FROM %s ORDER BY pkID DESC", []string{TableActions})
 	return actions, err
 }
 
