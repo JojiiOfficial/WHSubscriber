@@ -21,10 +21,10 @@ var (
 	serverCmdVersion = serverCmd.Flag("version", "Show the version of the server").Bool()
 
 	//Subsrcibe child command
-	subscribeWh       = app.Command("subscribe", "Subscribe to a webhook")
-	subscribeWhID     = subscribeWh.Arg("whid", "Which webhook you want to subscribe").Required().String()
-	subscribeWhURL    = subscribeWh.Arg("url", "The URL to receive the notifications").Envar(getEnVar(EnVarReceiveURL)).String()
-	subscribeWhScript = subscribeWh.Flag("script", "The script to run on a webhook call").Short('s').String()
+	subscribeWh            = app.Command("subscribe", "Subscribe to a webhook")
+	subscribeWhID          = subscribeWh.Arg("whid", "Which webhook you want to subscribe").Required().String()
+	subscribeWhCallbackURL = subscribeWh.Arg("url", "The callback URL to receive the notifications").Envar(getEnVar(EnVarReceiveURL)).String()
+	subscribeWhScript      = subscribeWh.Flag("script", "The script to run on a webhook call").Short('s').String()
 
 	//Config child command
 	configCmd           = app.Command("config", "Commands for the config file")

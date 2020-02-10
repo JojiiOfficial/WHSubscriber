@@ -10,13 +10,18 @@ func printSubscriberVersion() {
 }
 
 func subscribe() {
-	url := *subscribeWhURL
-	whID := *subscribeWhID
+	callbackURL := *subscribeWhCallbackURL
+	webhookID := *subscribeWhID
+	remoteURL := config.Client.ServerURL
 
-	if len(url) == 0 {
+	if len(callbackURL) == 0 && len(config.Client.CallbackURL) == 0 {
 		log.Fatalln("Callback url is empty!")
 		return
 	}
 
-	fmt.Printf("Trying to subscribe to '%s' using callback URL '%s'\n", whID, url)
+	if len(callbackURL) == 0 {
+		callbackURL = config.Client.CallbackURL
+	}
+
+	fmt.Printf("Trying to subscribe to '%s' using callback URL '%s' and remote '%s'\n", webhookID, callbackURL, remoteURL)
 }
