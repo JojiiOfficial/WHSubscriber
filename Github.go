@@ -1,20 +1,16 @@
 package main
 
 import (
-	"io/ioutil"
 	"os"
 
-	"gopkg.in/go-playground/webhooks.v5/github"
+	"github.com/JojiiOfficial/configor"
 )
 
 //GithubActionStruct the struct for github webhooks
 type GithubActionStruct struct {
-	action githubActionItem
-}
-
-type githubActionItem struct {
-	on      github.Event
-	actions []string
+	Trigger string
+	Filter  map[string]string
+	Actions []string
 }
 
 func createDefaultGithubFile(file string) error {
@@ -22,5 +18,11 @@ func createDefaultGithubFile(file string) error {
 	if err == nil {
 		return nil
 	}
-	return ioutil.WriteFile(file, []byte("action:\n  on: push\n  filter:\n    branch:\n      master\n  actions:\n    - <call scripts>"), 0700)
+	ghActionStruct := GithubActionStruct{
+		Trigger: "push",
+		Filter:  map[string]string{"branch": "master"},
+		Actions: []string{"/a/script/here/to/run.sh"},
+	}
+	_, err = configor.SetupConfig(&ghActionStruct, file, configor.NoChange)
+	return err
 }
