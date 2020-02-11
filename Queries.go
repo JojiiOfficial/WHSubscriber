@@ -111,7 +111,7 @@ func hasAction(dab *godbhelper.DBhelper, actionName string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return c == 1, nil
+	return c > 0, nil
 }
 
 func getActionFromName(dab *godbhelper.DBhelper, actionName string) (int64, error) {

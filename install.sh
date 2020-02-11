@@ -11,7 +11,7 @@ else
 	sh=0
 fi
 
-go get -u -v
+#go get -u -v
 go build -o whsub 
 if [ $? -ne 0 ]; then
 	exit 1

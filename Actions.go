@@ -32,6 +32,17 @@ func addAction() {
 	if *actionCmdAddFMode == "action" {
 		mode = 1
 	}
+	actionName := *actionCmdAddName
+
+	hasAction, err := hasAction(db, actionName)
+	if err != nil {
+		log.Fatalln(err.Error())
+		return
+	}
+	if hasAction {
+		fmt.Printf("There is already an action with the name '%s'", actionName)
+		return
+	}
 
 	scriptPath := (*actionCmdAddAFile)
 	scriptFileAbs, exists := fileFullPath(scriptPath)
@@ -42,21 +53,21 @@ func addAction() {
 
 	whID, err := getWhIDFromHumanInput(*actionCmdAddWebhook)
 	if err != nil {
-		fmt.Println(color.HiYellowString("Warning"), "webhook-subscription not found")
+		fmt.Printf(color.HiYellowString("Warning")+" webhook '%s' not found\n", *actionCmdAddWebhook)
 	}
 
 	action := Action{
 		Mode:   mode,
 		File:   scriptFileAbs,
 		HookID: whID,
-		Name:   *actionCmdAddName,
+		Name:   actionName,
 	}
 
 	err = action.insert(db)
 	if err != nil {
 		log.Println(err.Error())
 	}
-	fmt.Printf("Created action %s %s\n", *actionCmdAddName, color.HiGreenString("successfully"))
+	fmt.Printf("Created action %s %s\n", *&actionName, color.HiGreenString("successfully"))
 }
 
 func printActionList() {

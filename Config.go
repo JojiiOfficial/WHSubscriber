@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/JojiiOfficial/configor"
@@ -26,9 +27,16 @@ type ConfigStruct struct {
 
 var config ConfigStruct
 
+func getDefaultConfig() string {
+	return path.Join(getDataPath(), DefaultConfigFile)
+}
+
 //InitConfig inits the config
 //Returns true if system should exit
 func InitConfig(confFile string, createMode bool) bool {
+	if len(confFile) == 0 {
+		confFile = getDefaultConfig()
+	}
 	if createMode {
 		s, err := os.Stat(confFile)
 		if err == nil {
@@ -43,8 +51,6 @@ func InitConfig(confFile string, createMode bool) bool {
 			log.Fatalln("The configfile must end with .yml")
 			return true
 		}
-	} else if len(confFile) == 0 {
-		confFile = DefaultConfigFile
 	}
 
 	isDefault, err := configor.SetupConfig(&config, confFile, configor.NoChange)
@@ -54,8 +60,10 @@ func InitConfig(confFile string, createMode bool) bool {
 	}
 	if isDefault {
 		log.Println("New config created.")
-		log.Println("Exiting")
-		return true
+		if createMode {
+			log.Println("Exiting")
+			return true
+		}
 	}
 
 	if err = configor.Load(&config, confFile); err != nil {

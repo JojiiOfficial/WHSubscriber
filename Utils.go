@@ -35,7 +35,7 @@ func getDataPath() string {
 }
 
 func getCurrentDir() string {
-	exec, err := os.Executable()
+	exec, err := os.Getwd()
 	if err != nil {
 		log.Fatalln(err.Error())
 		return ""
