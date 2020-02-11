@@ -51,7 +51,7 @@ var (
 	actionCmd = app.Command("action", "Configure your actions for wehbooks")
 	//Action add
 	actionCmdCAdd       = actionCmd.Command("add", "Adds an action for a webhook")
-	actionCmdAddFMode   = actionCmdCAdd.Flag("mode", "The kind of action you want to add (script / action)").HintOptions("script", "action").Default("script").String()
+	actionCmdAddFAction = actionCmdCAdd.Flag("action", "The kind of action you want to add").HintAction(hintAvailableActions).Default("script").String()
 	actionCmdAddName    = actionCmdCAdd.Flag("name", "The name of the action. To make it recycleable").HintAction(hintRandomNames).Default(getRandomName()).String()
 	actionCmdAddWebhook = actionCmdCAdd.Flag("webhook", "The webhook to add the action to").HintAction(hintSubscriptions).String()
 	actionCmdAddAFile   = actionCmdCAdd.Arg("file", "the file of the action (a script or action file)").HintAction(hintListCurrDir).Required().String()

@@ -80,3 +80,11 @@ func hintSubscriptions() []string {
 	}
 	return dat
 }
+
+func hintAvailableActions() []string {
+	s := []string{}
+	for action := range Actions {
+		s = append(s, action)
+	}
+	return s
+}

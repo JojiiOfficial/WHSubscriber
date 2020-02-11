@@ -63,3 +63,12 @@ func fileFullPath(scriptPath string) (string, bool) {
 
 	return path.Join(getCurrentDir(), scriptPath), true
 }
+
+func mapKeyByValue(val int8, m map[string]int8) string {
+	for k, v := range m {
+		if v == val {
+			return k
+		}
+	}
+	return ""
+}

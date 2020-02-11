@@ -9,6 +9,11 @@ import (
 	"github.com/fatih/color"
 )
 
+//Actions the available actions
+var Actions = map[string]int8{
+	"github": 3, "gitlab": 1, "docker": 2, "script": 0,
+}
+
 func getWhIDFromHumanInput(input string) (int64, error) {
 	whID := int64(-1)
 	if len(input) > 0 && strings.Contains(input, "-") {
@@ -28,10 +33,7 @@ func getWhIDFromHumanInput(input string) (int64, error) {
 }
 
 func addAction() {
-	mode := int8(0)
-	if *actionCmdAddFMode == "action" {
-		mode = 1
-	}
+	mode := Actions[*actionCmdAddFAction]
 	actionName := *actionCmdAddName
 
 	hasAction, err := hasAction(db, actionName)
@@ -51,9 +53,13 @@ func addAction() {
 		return
 	}
 
-	whID, err := getWhIDFromHumanInput(*actionCmdAddWebhook)
-	if err != nil {
-		fmt.Printf(color.HiYellowString("Warning")+" webhook '%s' not found\n", *actionCmdAddWebhook)
+	whName := *actionCmdAddWebhook
+	var whID int64
+	if len(whName) > 0 {
+		whID, err = getWhIDFromHumanInput(*actionCmdAddWebhook)
+		if err != nil {
+			fmt.Printf(color.HiYellowString("Warning")+" webhook '%s' not found\n", *actionCmdAddWebhook)
+		}
 	}
 
 	action := Action{
@@ -79,10 +85,7 @@ func printActionList() {
 	headingColor := color.New(color.FgHiGreen, color.Underline, color.Bold)
 	headingColor.Println("ID\tName\t\tWebhook\t\t\tMode\tFile")
 	for _, action := range actions {
-		mode := "script"
-		if action.Mode == 1 {
-			mode = "action"
-		}
+		mode := mapKeyByValue(action.Mode, Actions)
 		name := action.Name
 		if len(name) < 8 {
 			name += "\t"
@@ -107,14 +110,14 @@ func delAction() {
 			return
 		}
 		if !has {
-			fmt.Printf("Action '%s' does %s\n", actionID, color.RedString("not exists"))
-			return
+			fmt.Printf("Action '%s' does %s\n", actionID, color.RedString("not exist")+". Skipping...")
+			continue
 		}
 		err = deleteActionByID(db, actionID)
 		if err == nil {
 			fmt.Printf("Action '%s' deleted %s\n", actionID, color.HiGreenString("successful"))
 		} else {
-			fmt.Println("Error deleting action:", err.Error())
+			fmt.Println(color.RedString("Err"), "deleting action:", err.Error())
 		}
 	}
 }
