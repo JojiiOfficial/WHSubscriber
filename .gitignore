@@ -21,3 +21,4 @@ test*
 config.yml
 data.db
 actions
+.vscode

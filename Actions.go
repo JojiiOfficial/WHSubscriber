@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
+	"path"
 	"strings"
 
 	"github.com/fatih/color"
@@ -46,10 +48,9 @@ func addAction() {
 		return
 	}
 
-	scriptPath := (*actionCmdAddAFile)
-	scriptFileAbs, exists := fileFullPath(scriptPath)
+	scriptPathAbs, exists := dirAbs((*actionCmdAddAPath))
 	if !exists {
-		log.Fatalf("File '%s' does not exists", scriptPath)
+		log.Fatalf("Path '%s' does not exists", scriptPathAbs)
 		return
 	}
 
@@ -62,9 +63,15 @@ func addAction() {
 		}
 	}
 
+	ending := ".yml"
+	if mode == 0 {
+		ending = ".sh"
+	}
+	file := path.Join(scriptPathAbs, actionName+ending)
+
 	action := Action{
 		Mode:   mode,
-		File:   scriptFileAbs,
+		File:   file,
 		HookID: whID,
 		Name:   actionName,
 	}
@@ -73,6 +80,27 @@ func addAction() {
 	if err != nil {
 		log.Println(err.Error())
 	}
+
+	switch mode {
+	case 0:
+		{
+			f, err := os.Create(file)
+			if err != nil {
+				log.Fatalln(err.Error())
+				return
+			}
+			f.WriteString("#!/bin/bash\n")
+			f.Close()
+		}
+	case 3:
+		{
+			if err := createDefaultGithubFile(file); err != nil {
+				log.Fatalln(err.Error())
+				return
+			}
+		}
+	}
+
 	fmt.Printf("Created action %s %s\n", *&actionName, color.HiGreenString("successfully"))
 }
 

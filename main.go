@@ -54,7 +54,7 @@ var (
 	actionCmdAddFAction = actionCmdCAdd.Flag("action", "The kind of action you want to add").HintAction(hintAvailableActions).Default("script").String()
 	actionCmdAddName    = actionCmdCAdd.Flag("name", "The name of the action. To make it recycleable").HintAction(hintRandomNames).Default(getRandomName()).String()
 	actionCmdAddWebhook = actionCmdCAdd.Flag("webhook", "The webhook to add the action to").HintAction(hintSubscriptions).String()
-	actionCmdAddAFile   = actionCmdCAdd.Arg("file", "the file of the action (a script or action file)").HintAction(hintListCurrDir).Required().String()
+	actionCmdAddAPath   = actionCmdCAdd.Arg("dir", "The dir where the action-file should be created").HintAction(hintListCurrDir).Required().String()
 	//Action setWebhook
 	actionCmdCSetWh       = actionCmd.Command("setwebhook", "Sets/Changes the webhook for an action")
 	actionCmdSetWhAction  = actionCmdCSetWh.Arg("action", "The action to change the webhook for").HintAction(hintListActions).Required().String()

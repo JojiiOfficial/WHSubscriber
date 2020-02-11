@@ -40,14 +40,13 @@ func getCurrentDir() string {
 		log.Fatalln(err.Error())
 		return ""
 	}
-	dir, _ := path.Split(exec)
-	return dir
+	return exec
 }
 
-func fileFullPath(scriptPath string) (string, bool) {
+func dirAbs(scriptPath string) (string, bool) {
 	s, err := os.Stat(scriptPath)
-	if err != nil || s == nil || s.IsDir() {
-		return "", false
+	if err != nil || s == nil || !s.IsDir() {
+		return scriptPath, false
 	}
 	if strings.HasPrefix(scriptPath, "/") {
 		return scriptPath, true

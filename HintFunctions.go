@@ -16,7 +16,9 @@ func hintListCurrDir() []string {
 	var s []string
 
 	for _, e := range files {
-		s = append(s, e.Name())
+		if e.IsDir() {
+			s = append(s, e.Name())
+		}
 	}
 	return s
 }
