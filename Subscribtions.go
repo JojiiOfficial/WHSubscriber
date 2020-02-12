@@ -16,13 +16,9 @@ func printSubscriberVersion() {
 func Subscribe(db *godbhelper.DBhelper, config *ConfigStruct, callbackURL, webhookID string) {
 	remoteURL := config.Client.ServerURL
 
-	if len(callbackURL) == 0 && len(config.Server.CallbackURL) == 0 {
+	if len(callbackURL) == 0 && len(config.Client.DefaultCallbackURL) == 0 {
 		log.Fatalln("Callback url is empty!")
 		return
-	}
-
-	if len(callbackURL) == 0 {
-		callbackURL = config.Server.CallbackURL
 	}
 
 	if *appDebug {

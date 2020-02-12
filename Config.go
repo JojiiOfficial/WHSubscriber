@@ -12,16 +12,16 @@ import (
 //ConfigStruct the structure of the configfile
 type ConfigStruct struct {
 	Client struct {
-		ServerURL string `default:"https://wh-share.de/"`
+		ServerURL          string `default:"https://wh-share.de/"`
+		DefaultCallbackURL string `default:"https://yourCallbackDomain.de/"`
 	}
 
 	Server struct {
-		Enable      bool   `default:"false"`
-		CallbackURL string `default:"https://yourCallbackDomain.de/"`
-		Port        uint16 `default:"443"`
-		EnableHTTPS bool
-		SSLCert     string
-		SSLKey      string
+		Enable        bool   `default:"false"`
+		ListenAddress string `default:":8499"`
+		UseTLS        bool
+		SSLCert       string
+		SSLKey        string
 	}
 }
 
@@ -74,28 +74,42 @@ func InitConfig(confFile string, createMode bool) (*ConfigStruct, bool) {
 }
 
 //Check check the config file of logical errors
-//Returns true on success
 func (config *ConfigStruct) Check() bool {
-	if config.Server.Enable && len(config.Server.CallbackURL) == 0 {
-		log.Println("You need to enter a callbackURL to enable the server")
-		return false
-	}
-	if !inPortValid(config.Server.Port) {
-		log.Println("The specified port is invalid")
-		return false
-	}
-	if config.Server.EnableHTTPS {
-		if len(config.Server.SSLCert) == 0 {
-			log.Println("To enable HTTPS you need to specify a SSL certificate")
+	return true
+}
+
+//CheckServer check the config for the server of logical errors
+//Returns true on success
+func (config *ConfigStruct) CheckServer() bool {
+	//Validate server configuration if enabled
+	if config.Server.Enable {
+
+		if len(config.Server.ListenAddress) == 0 {
+			log.Println("You need to set the address in the config")
 			return false
 		}
-		if len(config.Server.SSLKey) == 0 {
-			log.Println("To enable HTTPS you need to specify a SSL private key")
-			return false
+
+		if config.Server.UseTLS {
+			//Check SSL values
+			if len(config.Server.SSLCert) == 0 {
+				log.Println("To enable TLS you need to specify a SSL certificate")
+				return false
+			}
+			if len(config.Server.SSLKey) == 0 {
+				log.Println("To enable TLS you need to specify a SSL private key")
+				return false
+			}
+
+			//Check SSL files
+			if !FileExists(config.Server.SSLCert) {
+				log.Println("Can't find the SSL certificate. File not found")
+				return false
+			}
+			if !FileExists(config.Server.SSLKey) {
+				log.Println("Can't find the SSL key. File not found")
+				return false
+			}
 		}
-	}
-	if config.Server.Port == 443 && config.Server.EnableHTTPS {
-		log.Println("Warning: You shouldn't use HTTP on port 443")
 	}
 
 	return true

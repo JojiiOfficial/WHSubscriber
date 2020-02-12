@@ -71,3 +71,13 @@ func mapKeyByValue(val int8, m map[string]int8) string {
 	}
 	return ""
 }
+
+//FileExists reports whether the named file or directory exists.
+func FileExists(name string) bool {
+	if _, err := os.Stat(name); err != nil {
+		if os.IsNotExist(err) {
+			return false
+		}
+	}
+	return true
+}

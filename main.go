@@ -106,7 +106,9 @@ func main() {
 	case serverCmdStart.FullCommand():
 		{
 			//whsub server start
-			runWHReceiverServer(config)
+			if config.CheckServer() {
+				StartReceiverServer(config)
+			}
 		}
 
 	//Subscriptions --------------------

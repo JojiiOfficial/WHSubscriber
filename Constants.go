@@ -7,7 +7,7 @@ const (
 	DataDir           = ".whsub"
 )
 
-//Endpoints
+//Remote endpoints
 const (
 	//Subscriptions
 	EPSubscription         = "/sub"
@@ -23,6 +23,12 @@ const (
 	EPSource       = "/source"
 	EPSourceCreate = EPSource + "/create"
 	EPSourceDelete = EPSource + "/delete"
+)
+
+//Local endpoints
+const (
+	//Webhooks
+	LEPWebhooks = "/hooks/"
 )
 
 var (
