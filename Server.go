@@ -15,7 +15,10 @@ func printServerVersion() {
 //StartReceiverServer starts the receiver server
 func StartReceiverServer(config *ConfigStruct) {
 	if config.Server.Enable {
+		//Add handle functions
 		http.HandleFunc(LEPWebhooks, webhookPage)
+
+		//Start the server
 		if config.Server.UseTLS {
 			log.Fatal(http.ListenAndServeTLS(config.Server.ListenAddress, config.Server.SSLCert, config.Server.SSLKey, nil))
 		} else {

@@ -7,6 +7,11 @@ const (
 	DataDir           = ".whsub"
 )
 
+var (
+	//DefaultDatabaseFile database file
+	DefaultDatabaseFile = "data.db"
+)
+
 //Remote endpoints
 const (
 	//Subscriptions
@@ -29,9 +34,4 @@ const (
 const (
 	//Webhooks
 	LEPWebhooks = "/hooks/"
-)
-
-var (
-	//DefaultDatabaseFile database file
-	DefaultDatabaseFile = "data.db"
 )
