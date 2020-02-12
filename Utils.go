@@ -2,10 +2,8 @@ package main
 
 import (
 	"log"
-	"net/url"
 	"os"
 	"path"
-	"strings"
 )
 
 func inPortValid(port uint16) bool {
@@ -35,35 +33,6 @@ func getDataPath() string {
 	return path
 }
 
-func getCurrentDir() string {
-	exec, err := os.Getwd()
-	if err != nil {
-		log.Fatalln(err.Error())
-		return ""
-	}
-	return exec
-}
-
-func dirAbs(scriptPath string) (string, bool) {
-	s, err := os.Stat(scriptPath)
-	if err != nil || s == nil || !s.IsDir() {
-		return scriptPath, false
-	}
-	if strings.HasPrefix(scriptPath, "/") {
-		return scriptPath, true
-	}
-
-	if strings.HasPrefix(scriptPath, "./") {
-		return path.Join(getCurrentDir(), scriptPath[2:]), true
-	}
-
-	if strings.HasPrefix(scriptPath, "~/") {
-		return path.Join(getHome(), scriptPath[2:]), true
-	}
-
-	return path.Join(getCurrentDir(), scriptPath), true
-}
-
 func mapKeyByValue(val int8, m map[string]int8) string {
 	for k, v := range m {
 		if v == val {
@@ -71,24 +40,4 @@ func mapKeyByValue(val int8, m map[string]int8) string {
 		}
 	}
 	return ""
-}
-
-//FileExists reports whether the named file or directory exists.
-func FileExists(name string) bool {
-	if _, err := os.Stat(name); err != nil {
-		if os.IsNotExist(err) {
-			return false
-		}
-	}
-	return true
-}
-
-//URLJoinPath join path to url
-func URLJoinPath(surl, spath string) (string, error) {
-	u, err := url.Parse(surl)
-	if err != nil {
-		return "", err
-	}
-	u.Path = path.Join(u.Path, spath)
-	return u.String(), nil
 }

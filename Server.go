@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	goHelper "github.com/JojiiOfficial/GoAwesomeHelper"
 )
 
 func printServerVersion() {
@@ -41,8 +43,16 @@ func StartReceiverServer(config *ConfigStruct, debug bool) {
 
 //OnWebhookReceived
 func webhookPage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to the HomePage!")
-	fmt.Println("Endpoint Hit: homePage")
+	hookSource := r.Header.Get(HeaderSource)
+	hookReceivedTime := r.Header.Get(HeaderReceived)
+	if len(hookSource) > 0 && len(hookReceivedTime) > 0 {
+		fmt.Println("header", hookSource)
+
+		fmt.Fprintf(w, "Welcome to the HomePage!")
+		fmt.Println("Endpoint Hit: homePage")
+	} else {
+		log.Printf("Found request without correct headers from %s\n", goHelper.GetIPFromHTTPrequest(r))
+	}
 }
 
 //

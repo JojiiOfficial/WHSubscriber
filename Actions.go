@@ -8,6 +8,7 @@ import (
 	"path"
 	"strings"
 
+	goHelper "github.com/JojiiOfficial/GoAwesomeHelper"
 	godbhelper "github.com/JojiiOfficial/GoDBHelper"
 	"github.com/fatih/color"
 )
@@ -49,7 +50,7 @@ func AddAction(db *godbhelper.DBhelper, actionType, actionName, webhookName, act
 		return
 	}
 
-	scriptPathAbs, exists := dirAbs(actionFileDir)
+	scriptPathAbs, exists := goHelper.DirAbs(actionFileDir)
 	if !exists {
 		log.Fatalf("Path '%s' does not exists", scriptPathAbs)
 		return

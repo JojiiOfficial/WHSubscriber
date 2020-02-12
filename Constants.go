@@ -34,3 +34,10 @@ const (
 const (
 //Webhooks
 )
+
+const (
+	//HeaderSource the sourceID of the incomming hook
+	HeaderSource = "W_S_Source"
+	//HeaderReceived the unixtime when the hook was received
+	HeaderReceived = "W_S_Source"
+)
