@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 )
 
 func printServerVersion() {
@@ -13,19 +14,28 @@ func printServerVersion() {
 // ------------------ Receiver SERVER ----------------
 
 //StartReceiverServer starts the receiver server
-func StartReceiverServer(config *ConfigStruct) {
-	if config.Server.Enable {
-		//Add handle functions
-		http.HandleFunc(LEPWebhooks, webhookPage)
+func StartReceiverServer(config *ConfigStruct, debug bool) {
+	//Always listen only on /
+	http.HandleFunc("/", webhookPage)
 
-		//Start the server
-		if config.Server.UseTLS {
+	//Start the server
+	if config.Server.UseTLS {
+		go (func() {
 			log.Fatal(http.ListenAndServeTLS(config.Server.ListenAddress, config.Server.SSLCert, config.Server.SSLKey, nil))
-		} else {
-			log.Fatal(http.ListenAndServe(config.Server.ListenAddress, nil))
+		})()
+		if debug {
+			log.Printf("Started HTTPS server on address %s\n", config.Server.ListenAddress)
 		}
 	} else {
-		fmt.Printf("Error: You need to enable the server first: 'enabled: true' (in the config)")
+		go (func() {
+			log.Fatal(http.ListenAndServe(config.Server.ListenAddress, nil))
+		})()
+		if debug {
+			log.Printf("Started HTTP server on address %s\n", config.Server.ListenAddress)
+		}
+	}
+	for {
+		time.Sleep(1 * time.Hour)
 	}
 }
 

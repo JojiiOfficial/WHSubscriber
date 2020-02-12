@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/url"
 	"os"
 	"path"
 	"strings"
@@ -80,4 +81,14 @@ func FileExists(name string) bool {
 		}
 	}
 	return true
+}
+
+//URLJoinPath join path to url
+func URLJoinPath(surl, spath string) (string, error) {
+	u, err := url.Parse(surl)
+	if err != nil {
+		return "", err
+	}
+	u.Path = path.Join(u.Path, spath)
+	return u.String(), nil
 }

@@ -32,6 +32,5 @@ const (
 
 //Local endpoints
 const (
-	//Webhooks
-	LEPWebhooks = "/hooks/"
+//Webhooks
 )

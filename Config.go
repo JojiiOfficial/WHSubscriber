@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"path"
 	"strings"
@@ -12,8 +14,8 @@ import (
 //ConfigStruct the structure of the configfile
 type ConfigStruct struct {
 	Client struct {
-		ServerURL          string `default:"https://wh-share.de/"`
-		DefaultCallbackURL string `default:"https://yourCallbackDomain.de/"`
+		ServerURL   string `default:"https://wh-share.de/"`
+		CallbackURL string `default:"https://yourCallbackDomain.de/"`
 	}
 
 	Server struct {
@@ -82,34 +84,46 @@ func (config *ConfigStruct) Check() bool {
 //Returns true on success
 func (config *ConfigStruct) CheckServer() bool {
 	//Validate server configuration if enabled
-	if config.Server.Enable {
+	if !config.Server.Enable {
+		fmt.Printf("Error: You need to enable the server first: 'enabled: true' (in the config)")
+		return false
+	}
 
-		if len(config.Server.ListenAddress) == 0 {
-			log.Println("You need to set the address in the config")
+	if len(config.Server.ListenAddress) == 0 {
+		log.Println("You need to set the address in the config")
+		return false
+	}
+
+	if config.Server.UseTLS {
+		//Check SSL values
+		if len(config.Server.SSLCert) == 0 {
+			log.Println("To enable TLS you need to specify a SSL certificate")
+			return false
+		}
+		if len(config.Server.SSLKey) == 0 {
+			log.Println("To enable TLS you need to specify a SSL private key")
 			return false
 		}
 
-		if config.Server.UseTLS {
-			//Check SSL values
-			if len(config.Server.SSLCert) == 0 {
-				log.Println("To enable TLS you need to specify a SSL certificate")
-				return false
-			}
-			if len(config.Server.SSLKey) == 0 {
-				log.Println("To enable TLS you need to specify a SSL private key")
-				return false
-			}
-
-			//Check SSL files
-			if !FileExists(config.Server.SSLCert) {
-				log.Println("Can't find the SSL certificate. File not found")
-				return false
-			}
-			if !FileExists(config.Server.SSLKey) {
-				log.Println("Can't find the SSL key. File not found")
-				return false
-			}
+		//Check SSL files
+		if !FileExists(config.Server.SSLCert) {
+			log.Println("Can't find the SSL certificate. File not found")
+			return false
 		}
+		if !FileExists(config.Server.SSLKey) {
+			log.Println("Can't find the SSL key. File not found")
+			return false
+		}
+	}
+
+	u, err := url.Parse(config.Client.CallbackURL)
+	if err != nil {
+		log.Println("Can't parse CallbackURL:", err.Error())
+		return false
+	}
+	if len(u.Path) != 0 && u.Path != "/" {
+		log.Println("You can't specify a path in the CallbackURL. Use a reverseproxy to change the path")
+		return false
 	}
 
 	return true

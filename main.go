@@ -107,7 +107,7 @@ func main() {
 		{
 			//whsub server start
 			if config.CheckServer() {
-				StartReceiverServer(config)
+				StartReceiverServer(config, *appDebug)
 			}
 		}
 
