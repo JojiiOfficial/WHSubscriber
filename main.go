@@ -45,7 +45,7 @@ var (
 	configCmdCreateName = configCmdCreate.Arg("name", "Config filename").Required().String()
 
 	//Actions
-	actionsCmd = app.Command("actions", "Configure your actions for wehbooks").FullCommand()
+	actionsCmd = app.Command("actions", "List you actions").FullCommand()
 
 	//Action commands
 	actionCmd = app.Command("action", "Configure your actions for wehbooks")
@@ -62,6 +62,17 @@ var (
 	//Action delete
 	actionCmdDelete     = actionCmd.Command("delete", "Deletes an action from a webhook").Alias("rm")
 	actionCmdDeleteName = actionCmdDelete.Arg("name", "The name of the action").HintAction(hintListActions).Required().Strings()
+
+	//Sources
+	sourceCmd = app.Command("source", "Source command")
+	//Infos for source
+	sourceCmdInfos   = sourceCmd.Command("info", "Shows information for source")
+	sourceCmdInfosID = sourceCmdInfos.Arg("sourceID", "The ID of the source to display informations for").String()
+	//Create source
+	sourceCmdCreate = sourceCmd.Command("create", "Create a new source")
+	//Delete source
+	sourceCmdDelete   = sourceCmd.Command("delete", "Delete a source")
+	sourceCmdDeleteID = sourceCmdDelete.Arg("sourceID", "The ID of the source to delete").String()
 )
 
 func main() {
@@ -150,6 +161,23 @@ func main() {
 		{
 			//whsub config create
 			InitConfig(*configCmdCreateName, true)
+		}
+
+	//Source --------------------
+	case sourceCmdCreate.FullCommand():
+		{
+			//whsub source create
+			CreateSource()
+		}
+	case sourceCmdDelete.FullCommand():
+		{
+			//whsub source delete
+			DeleteSource()
+		}
+	case sourceCmdInfos.FullCommand():
+		{
+			//whsub source info
+			SourceInfo()
 		}
 	}
 }
