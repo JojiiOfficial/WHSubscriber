@@ -50,17 +50,23 @@ func webhookPage(w http.ResponseWriter, r *http.Request) {
 	hookSource := r.Header.Get(HeaderSource)
 	hookReceivedTime := r.Header.Get(HeaderReceived)
 	if len(hookSource) > 0 && len(hookReceivedTime) > 0 {
+		fmt.Println("header", hookSource)
+
 		subscription, err := getSubscriptionFromID(dbs, hookSource)
 		if err != nil {
 			log.Printf("Err %s\n", err.Error())
 			return
 		}
 
-		fmt.Println("header", hookSource)
-		fmt.Println("subscriptionID:", subscription.ID)
+		actions, err := getActionsForSource(dbs, subscription.ID)
+		if err != nil {
+			log.Printf("Err %s\n", err.Error())
+		}
+		for _, action := range actions {
+			fmt.Println(action.Name, "-", action.File, "-", action.Mode)
+		}
 
 		fmt.Fprintf(w, "Welcome to the HomePage!")
-		fmt.Println("Endpoint Hit: homePage")
 	} else {
 		log.Printf("Found request without correct headers from %s\n", goHelper.GetIPFromHTTPrequest(r))
 	}

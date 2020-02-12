@@ -75,7 +75,7 @@ func hintSubscriptions() []string {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	dat, err := getHooksHumanized(db, 9)
+	dat, err := getSubscriptionsHumanized(db, 9)
 	if err != nil {
 		log.Fatalln(err.Error())
 		return []string{}

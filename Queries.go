@@ -72,42 +72,7 @@ func (action *Action) insert(db *godbhelper.DBhelper) error {
 
 // ---------------------------------- Selects ------------------------------------
 
-func getActions(db *godbhelper.DBhelper) ([]Action, error) {
-	var actions []Action
-	err := db.QueryRowsf(&actions, "SELECT %s.*,IFNULL(%s.hookName,'- na -')as hookName FROM %s LEFT JOIN %s ON (%s.pkID = %s.subscriptionID) ORDER BY pkID DESC", []string{TableActions, TableSubscriptions, TableActions, TableSubscriptions, TableSubscriptions, TableActions})
-	return actions, err
-}
-
-func getSubscriptions(db *godbhelper.DBhelper) ([]Subscription, error) {
-	var subscriptions []Subscription
-	err := db.QueryRowsf(&subscriptions, "SELECT * FROM %s ORDER BY pkID DESC", []string{TableSubscriptions})
-	return subscriptions, err
-}
-
-func getHooksHumanized(db *godbhelper.DBhelper, limit int) ([]string, error) {
-	var hooks []string
-	err := db.QueryRowsf(&hooks, "SELECT hookName || '-' || sourceID FROM %s WHERE hookName != ''", []string{TableSubscriptions})
-	return hooks, err
-}
-
-func getSubscriptionFromID(db *godbhelper.DBhelper, sid string) (*Subscription, error) {
-	var subscription Subscription
-	err := db.QueryRowf(&subscription, "SELECT * FROM %s WHERE sourceID=?", []string{TableSubscriptions}, sid)
-	if err != nil {
-		return nil, err
-	}
-	return &subscription, nil
-}
-
-func getSubscriptionID(db *godbhelper.DBhelper, sid string) (int64, error) {
-	var id int64
-	err := db.QueryRowf(&id, "SELECT pkID FROM %s WHERE sourceID=?", []string{TableSubscriptions}, sid)
-	if err != nil {
-		return 0, err
-	}
-	return id, nil
-}
-
+//-->  Actions ----------------
 func getActionIDs(db *godbhelper.DBhelper, limit int) ([]string, error) {
 	var hooks []string
 	err := db.QueryRowsf(&hooks, "SELECT pkID FROM %s LIMIT %s", []string{TableActions, strconv.Itoa(limit)})
@@ -131,6 +96,52 @@ func getActionFromName(db *godbhelper.DBhelper, actionName string) (int64, error
 	}
 	return c, nil
 }
+
+func getActions(db *godbhelper.DBhelper) ([]Action, error) {
+	var actions []Action
+	err := db.QueryRowsf(&actions, "SELECT %s.*,IFNULL(%s.hookName,'- na -')as hookName FROM %s LEFT JOIN %s ON (%s.pkID = %s.subscriptionID) ORDER BY pkID DESC", []string{TableActions, TableSubscriptions, TableActions, TableSubscriptions, TableSubscriptions, TableActions})
+	return actions, err
+}
+
+func getActionsForSource(db *godbhelper.DBhelper, sourceID int64) ([]Action, error) {
+	var actions []Action
+	err := db.QueryRowsf(&actions, "SELECT * FROM %s WHERE subscriptionID=? ORDER BY pkID ASC", []string{TableActions}, sourceID)
+	return actions, err
+}
+
+//-->  Subscriptions ---------------------
+func getSubscriptions(db *godbhelper.DBhelper) ([]Subscription, error) {
+	var subscriptions []Subscription
+	err := db.QueryRowsf(&subscriptions, "SELECT * FROM %s ORDER BY pkID DESC", []string{TableSubscriptions})
+	return subscriptions, err
+}
+
+func getSubscriptionsHumanized(db *godbhelper.DBhelper, limit int) ([]string, error) {
+	var hooks []string
+	err := db.QueryRowsf(&hooks, "SELECT hookName || '-' || sourceID FROM %s WHERE hookName != ''", []string{TableSubscriptions})
+	return hooks, err
+}
+
+func getSubscriptionFromID(db *godbhelper.DBhelper, sid string) (*Subscription, error) {
+	var subscription Subscription
+	err := db.QueryRowf(&subscription, "SELECT * FROM %s WHERE sourceID=?", []string{TableSubscriptions}, sid)
+	if err != nil {
+		return nil, err
+	}
+	return &subscription, nil
+}
+
+func getSubscriptionID(db *godbhelper.DBhelper, sid string) (int64, error) {
+	var id int64
+	err := db.QueryRowf(&id, "SELECT pkID FROM %s WHERE sourceID=?", []string{TableSubscriptions}, sid)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+// ---------------------------------- Updates ------------------------------------
+
 func updateActionWebhook(db *godbhelper.DBhelper, aID, whID int64) error {
 	_, err := db.Execf("UPDATE %s SET subscriptionID=? WHERE pkID=?", []string{TableActions}, whID, aID)
 	return err
