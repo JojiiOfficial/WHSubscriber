@@ -4,7 +4,7 @@ package main
 type Subscription struct {
 	ID             int64  `db:"pkID" orm:"pk,ai"`
 	Name           string `db:"hookName"`
-	HookID         string `db:"hookID"`
+	SourceID       string `db:"sourceID"`
 	SubscriptionID string `db:"subsID"`
 }
 

@@ -21,7 +21,7 @@ func getInitSQL() godbhelper.QueryChain {
 		Order: 0,
 		Queries: godbhelper.CreateInitVersionSQL(
 			godbhelper.InitSQL{
-				Query:   "CREATE TABLE %s (`pkID` INTEGER PRIMARY KEY AUTOINCREMENT, `hookID` TEXT, `hookName` TEXT, `subsID` TEXT)",
+				Query:   "CREATE TABLE %s (`pkID` INTEGER PRIMARY KEY AUTOINCREMENT, `sourceID` TEXT, `hookName` TEXT, `subsID` TEXT)",
 				FParams: []string{TableSubscriptions},
 			},
 			godbhelper.InitSQL{
@@ -86,13 +86,22 @@ func getSubscriptions(db *godbhelper.DBhelper) ([]Subscription, error) {
 
 func getHooksHumanized(db *godbhelper.DBhelper, limit int) ([]string, error) {
 	var hooks []string
-	err := db.QueryRowsf(&hooks, "SELECT hookName || '-' || hookID FROM %s WHERE hookName != ''", []string{TableSubscriptions})
+	err := db.QueryRowsf(&hooks, "SELECT hookName || '-' || sourceID FROM %s WHERE hookName != ''", []string{TableSubscriptions})
 	return hooks, err
+}
+
+func getSubscriptionFromID(db *godbhelper.DBhelper, sid string) (*Subscription, error) {
+	var subscription Subscription
+	err := db.QueryRowf(&subscription, "SELECT * FROM %s WHERE sourceID=?", []string{TableSubscriptions}, sid)
+	if err != nil {
+		return nil, err
+	}
+	return &subscription, nil
 }
 
 func getSubscriptionID(db *godbhelper.DBhelper, sid string) (int64, error) {
 	var id int64
-	err := db.QueryRowf(&id, "SELECT pkID FROM %s WHERE hookID=?", []string{TableSubscriptions}, sid)
+	err := db.QueryRowf(&id, "SELECT pkID FROM %s WHERE sourceID=?", []string{TableSubscriptions}, sid)
 	if err != nil {
 		return 0, err
 	}

@@ -26,7 +26,7 @@ func Subscribe(db *godbhelper.DBhelper, config *ConfigStruct, callbackURL, webho
 	}
 
 	wh := Subscription{
-		HookID: webhookID,
+		SourceID: webhookID,
 	}
 	err := wh.insert(db)
 	if err != nil {
@@ -46,7 +46,7 @@ func ViewSubscriptions(db *godbhelper.DBhelper) {
 	headingColor := color.New(color.FgHiGreen, color.Underline, color.Bold)
 	headingColor.Println("ID\tHookID\t\t\tName")
 	for _, subscription := range subscriptions {
-		hookID := subscription.HookID
+		hookID := subscription.SourceID
 		if len(hookID) < 8 {
 			hookID += "\t"
 		}

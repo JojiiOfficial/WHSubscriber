@@ -7,6 +7,7 @@ import (
 	"time"
 
 	goHelper "github.com/JojiiOfficial/GoAwesomeHelper"
+	godbhelper "github.com/JojiiOfficial/GoDBHelper"
 )
 
 func printServerVersion() {
@@ -15,8 +16,11 @@ func printServerVersion() {
 
 // ------------------ Receiver SERVER ----------------
 
+var dbs *godbhelper.DBhelper
+
 //StartReceiverServer starts the receiver server
-func StartReceiverServer(config *ConfigStruct, debug bool) {
+func StartReceiverServer(config *ConfigStruct, db *godbhelper.DBhelper, debug bool) {
+	dbs = db
 	//Always listen only on /
 	http.HandleFunc("/", webhookPage)
 
@@ -46,7 +50,14 @@ func webhookPage(w http.ResponseWriter, r *http.Request) {
 	hookSource := r.Header.Get(HeaderSource)
 	hookReceivedTime := r.Header.Get(HeaderReceived)
 	if len(hookSource) > 0 && len(hookReceivedTime) > 0 {
+		subscription, err := getSubscriptionFromID(dbs, hookSource)
+		if err != nil {
+			log.Printf("Err %s\n", err.Error())
+			return
+		}
+
 		fmt.Println("header", hookSource)
+		fmt.Println("subscriptionID:", subscription.ID)
 
 		fmt.Fprintf(w, "Welcome to the HomePage!")
 		fmt.Println("Endpoint Hit: homePage")
