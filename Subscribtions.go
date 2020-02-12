@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	godbhelper "github.com/JojiiOfficial/GoDBHelper"
 	"github.com/fatih/color"
 )
 
@@ -11,9 +12,8 @@ func printSubscriberVersion() {
 	fmt.Printf("WebHook subscriber version: v%.1f\n", ServerVersion)
 }
 
-func subscribe() {
-	callbackURL := *subscribeWhACallbackURL
-	webhookID := *subscribeWhAID
+//Subscribe (config, hookCallbackURL, WebhookID)
+func Subscribe(db *godbhelper.DBhelper, config *ConfigStruct, callbackURL, webhookID string) {
 	remoteURL := config.Client.ServerURL
 
 	if len(callbackURL) == 0 && len(config.Server.CallbackURL) == 0 {
@@ -40,7 +40,8 @@ func subscribe() {
 	fmt.Printf("%s subscribed to '%s'\n", color.HiGreenString("Successfully"), webhookID)
 }
 
-func printSubsciptionList() {
+//ViewSubscriptions views subscriptions
+func ViewSubscriptions(db *godbhelper.DBhelper) {
 	subscriptions, err := getSubscriptions(db)
 	if err != nil {
 		log.Fatalln(err.Error())

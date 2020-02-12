@@ -8,7 +8,7 @@ func printServerVersion() {
 	fmt.Printf("Server running on: v%.1f\n", ServerVersion)
 }
 
-func runWHReceiverServer() {
+func runWHReceiverServer(config *ConfigStruct) {
 	//ToDo implement the server
 	fmt.Println("run the server")
 }

@@ -25,15 +25,14 @@ type ConfigStruct struct {
 	}
 }
 
-var config ConfigStruct
-
 func getDefaultConfig() string {
 	return path.Join(getDataPath(), DefaultConfigFile)
 }
 
 //InitConfig inits the config
 //Returns true if system should exit
-func InitConfig(confFile string, createMode bool) bool {
+func InitConfig(confFile string, createMode bool) (*ConfigStruct, bool) {
+	var config ConfigStruct
 	if len(confFile) == 0 {
 		confFile = getDefaultConfig()
 	}
@@ -41,37 +40,37 @@ func InitConfig(confFile string, createMode bool) bool {
 		s, err := os.Stat(confFile)
 		if err == nil {
 			log.Fatalln("This config already exists!")
-			return true
+			return nil, true
 		}
 		if s != nil && s.IsDir() {
 			log.Fatalln("This name is already taken by a folder")
-			return true
+			return nil, true
 		}
 		if !strings.HasSuffix(confFile, ".yml") {
 			log.Fatalln("The configfile must end with .yml")
-			return true
+			return nil, true
 		}
 	}
 
 	isDefault, err := configor.SetupConfig(&config, confFile, configor.NoChange)
 	if err != nil {
 		log.Fatalln(err.Error())
-		return true
+		return nil, true
 	}
 	if isDefault {
 		log.Println("New config created.")
 		if createMode {
 			log.Println("Exiting")
-			return true
+			return nil, true
 		}
 	}
 
 	if err = configor.Load(&config, confFile); err != nil {
 		log.Fatalln(err.Error())
-		return true
+		return nil, true
 	}
 
-	return false
+	return &config, false
 }
 
 //Check check the config file of logical errors

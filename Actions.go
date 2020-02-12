@@ -8,6 +8,7 @@ import (
 	"path"
 	"strings"
 
+	godbhelper "github.com/JojiiOfficial/GoDBHelper"
 	"github.com/fatih/color"
 )
 
@@ -16,7 +17,7 @@ var Actions = map[string]int8{
 	"github": 3, "gitlab": 1, "docker": 2, "script": 0,
 }
 
-func getWhIDFromHumanInput(input string) (int64, error) {
+func getWhIDFromHumanInput(db *godbhelper.DBhelper, input string) (int64, error) {
 	whID := int64(-1)
 	if len(input) > 0 && strings.Contains(input, "-") {
 		realID := strings.Trim(strings.Split(input, "-")[1], " ")
@@ -34,9 +35,9 @@ func getWhIDFromHumanInput(input string) (int64, error) {
 	return whID, nil
 }
 
-func addAction() {
-	mode := Actions[*actionCmdAddFAction]
-	actionName := *actionCmdAddName
+//AddAction adds a new action
+func AddAction(db *godbhelper.DBhelper, actionType, actionName, webhookName, actionFileDir string) {
+	mode := Actions[actionType]
 
 	hasAction, err := hasAction(db, actionName)
 	if err != nil {
@@ -48,18 +49,17 @@ func addAction() {
 		return
 	}
 
-	scriptPathAbs, exists := dirAbs((*actionCmdAddAPath))
+	scriptPathAbs, exists := dirAbs(actionFileDir)
 	if !exists {
 		log.Fatalf("Path '%s' does not exists", scriptPathAbs)
 		return
 	}
 
-	whName := *actionCmdAddWebhook
 	var whID int64
-	if len(whName) > 0 {
-		whID, err = getWhIDFromHumanInput(*actionCmdAddWebhook)
+	if len(webhookName) > 0 {
+		whID, err = getWhIDFromHumanInput(db, webhookName)
 		if err != nil {
-			fmt.Printf(color.HiYellowString("Warning")+" webhook '%s' not found\n", *actionCmdAddWebhook)
+			fmt.Printf(color.HiYellowString("Warning")+" webhook '%s' not found\n", webhookName)
 		}
 	}
 
@@ -70,10 +70,10 @@ func addAction() {
 	file := path.Join(scriptPathAbs, actionName+ending)
 
 	action := Action{
-		Mode:   mode,
-		File:   file,
-		HookID: whID,
-		Name:   actionName,
+		Mode:           mode,
+		File:           file,
+		SubscriptionID: whID,
+		Name:           actionName,
 	}
 
 	err = action.insert(db)
@@ -101,10 +101,11 @@ func addAction() {
 		}
 	}
 
-	fmt.Printf("Created action %s %s\n", *&actionName, color.HiGreenString("successfully"))
+	fmt.Printf("Created action %s %s\n", actionName, color.HiGreenString("successfully"))
 }
 
-func printActionList() {
+//ViewActions prints actions
+func ViewActions(db *godbhelper.DBhelper) {
 	actions, err := getActions(db)
 	if err != nil {
 		log.Fatalln(err.Error())
@@ -129,8 +130,8 @@ func printActionList() {
 	fmt.Println()
 }
 
-func delAction() {
-	actionIDs := (*actionCmdDeleteAID)
+//DeleteAction deletes an action
+func DeleteAction(db *godbhelper.DBhelper, actionIDs []string) {
 	for _, actionID := range actionIDs {
 		has, err := hasAction(db, actionID)
 		if err != nil {
@@ -150,12 +151,12 @@ func delAction() {
 	}
 }
 
-func actionSetWebhook() {
-	whs := *actionCmdSetWhWebhook
+//ActionSetWebhook sets webhook for an action
+func ActionSetWebhook(db *godbhelper.DBhelper, webhookName, actionName string) {
 	var whID int64
 	var err error
-	if whs != "na-" {
-		whID, err = getWhIDFromHumanInput(*actionCmdSetWhWebhook)
+	if webhookName != "na-" {
+		whID, err = getWhIDFromHumanInput(db, webhookName)
 		if err != nil {
 			fmt.Println("Error webhook-subscription", color.HiRedString("not found"))
 			return
@@ -163,7 +164,7 @@ func actionSetWebhook() {
 	} else {
 		whID = -1
 	}
-	aID, err := getActionFromName(db, *actionCmdSetWhAction)
+	aID, err := getActionFromName(db, actionName)
 	if err != nil {
 		fmt.Println("Error action", color.HiRedString("not found"))
 		return
@@ -173,5 +174,5 @@ func actionSetWebhook() {
 		log.Fatalln(err.Error())
 		return
 	}
-	fmt.Printf("Action %s updated %s", *actionCmdSetWhAction, color.HiGreenString("successfully"))
+	fmt.Printf("Action %s updated %s", actionName, color.HiGreenString("successfully"))
 }

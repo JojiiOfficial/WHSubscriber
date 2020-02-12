@@ -41,8 +41,8 @@ func getDBunparsed() string {
 }
 
 func hintListActionIDs() []string {
-	database = getDBunparsed()
-	if err := connectDB(); err != nil {
+	db, err := connectDB(getDBunparsed())
+	if err != nil {
 		fmt.Println(err.Error())
 	}
 	dat, err := getActionIDs(db, 9)
@@ -54,9 +54,9 @@ func hintListActionIDs() []string {
 }
 
 func hintListActions() []string {
-	database = getDBunparsed()
 	var ret []string
-	if err := connectDB(); err != nil {
+	db, err := connectDB(getDBunparsed())
+	if err != nil {
 		fmt.Println(err.Error())
 	}
 	actions, err := getActions(db)
@@ -71,8 +71,8 @@ func hintListActions() []string {
 }
 
 func hintSubscriptions() []string {
-	database = getDBunparsed()
-	if err := connectDB(); err != nil {
+	db, err := connectDB(getDBunparsed())
+	if err != nil {
 		fmt.Println(err.Error())
 	}
 	dat, err := getHooksHumanized(db, 9)

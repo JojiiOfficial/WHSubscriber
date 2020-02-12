@@ -10,18 +10,17 @@ func getDefaultDBFile() string {
 	return path.Join(getDataPath(), DefaultDatabaseFile)
 }
 
-func connectDB() error {
-	dab, err := godbhelper.NewDBHelper(godbhelper.Sqlite).Open(database)
+func connectDB(dbFile string) (*godbhelper.DBhelper, error) {
+	db, err := godbhelper.NewDBHelper(godbhelper.Sqlite).Open(dbFile)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	db = dab
 	db.Options.Debug = *appDebug
 	db.Options.UseColors = !(*appNoColor)
-	return updateDB()
+	return db, updateDB(db)
 }
 
-func updateDB() error {
+func updateDB(db *godbhelper.DBhelper) error {
 	db.AddQueryChain(getInitSQL())
 	return db.RunUpdate()
 }
