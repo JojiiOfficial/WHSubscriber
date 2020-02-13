@@ -55,7 +55,7 @@ func webhookPage(w http.ResponseWriter, r *http.Request) {
 		subscription, err := getSubscriptionFromID(dbs, hookSource)
 		if err != nil {
 			if err.Error() == "sql: no rows in result set" {
-				log.Printf("A brobably valid source sent you a webhook you have not subscripted: %s\n", hookSource)
+				log.Printf("A probably valid source sent you a webhook you have not subscripted: %s\n", hookSource)
 				sendNotSubscripted(w)
 				return
 			}

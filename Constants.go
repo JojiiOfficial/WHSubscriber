@@ -27,6 +27,7 @@ const (
 	//Source
 	EPSource       = "/source"
 	EPSourceCreate = EPSource + "/create"
+	EPSourceInfa   = EPSource + "/info"
 	EPSourceDelete = EPSource + "/delete"
 )
 
