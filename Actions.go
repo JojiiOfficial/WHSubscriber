@@ -43,7 +43,7 @@ func getWhIDFromHumanInput(db *dbhelper.DBhelper, input string) (int64, error) {
 }
 
 //AddAction adds a new action
-func AddAction(db *dbhelper.DBhelper, actionType, actionName, webhookName, actionFile string) {
+func AddAction(db *dbhelper.DBhelper, actionType, actionName, webhookName, actionFile string, createFile bool) {
 	mode := Actions[actionType]
 
 	hasAction, err := hasAction(db, actionName)
@@ -67,7 +67,7 @@ func AddAction(db *dbhelper.DBhelper, actionType, actionName, webhookName, actio
 	newFileString := gaw.FromString(actionFile)
 	absfile, _ := filepath.Abs(actionFile)
 
-	if !gaw.FileExists(newFileString.ToString()) && !(*appYes) {
+	if !gaw.FileExists(newFileString.ToString()) && !(*appYes) && !createFile {
 		y, i := gaw.ConfirmInput(color.HiYellowString("Warning: ")+"file or directory does'n exist! Continue anyway? [y/n]> ", bufio.NewReader(os.Stdin))
 		if i == -1 || !y {
 			fmt.Println("Abort")
@@ -91,28 +91,12 @@ func AddAction(db *dbhelper.DBhelper, actionType, actionName, webhookName, actio
 	if err != nil {
 		log.Println(err.Error())
 	}
-	/*
-		switch mode {
-		case 0:
-			{
-				f, err := os.Create(absfile)
-				if err != nil {
-					log.Fatalln(err.Error())
-					return
-				}
-				f.WriteString("#!/bin/bash\n")
-				f.Close()
-			}
-		case 3:
-			{
-				if err := createDefaultGithubFile(file); err != nil {
-					log.Fatalln(err.Error())
-					return
-				}
-			}
-		}
-	*/
+
 	fmt.Printf("Created action %s %s\n", actionName, color.HiGreenString("successfully"))
+
+	if createFile {
+		ActionCreateFile(db, &action)
+	}
 }
 
 //ViewActions prints actions
@@ -152,6 +136,26 @@ func DeleteAction(db *dbhelper.DBhelper, actionIDs []string) {
 		if !has {
 			fmt.Printf("Action '%s' does %s\n", actionID, color.RedString("not exist")+". Skipping...")
 			continue
+		}
+		action, e := getActionFromName(db, actionID)
+		if e != nil {
+			fmt.Println(e.Error())
+			continue
+		}
+
+		var delete bool
+		if gaw.FileExists(action.File) && !(*appYes) {
+			y, i := gaw.ConfirmInput("Delete action file for "+action.Name+"? [y/n]> ", bufio.NewReader(os.Stdin))
+			if i == -1 {
+				return
+			}
+			delete = y
+		}
+		if delete {
+			os.Remove(action.File)
+			if *appDebug {
+				fmt.Printf("File %s deleted\n", action.File)
+			}
 		}
 		err = deleteActionByID(db, actionID)
 		if err == nil {
@@ -241,14 +245,83 @@ func ActionSetFile(db *dbhelper.DBhelper, actionName, newMode, newFile string) {
 	}
 }
 
+//ActionCreateFileFromName creates the file for an action by its name given
+func ActionCreateFileFromName(db *dbhelper.DBhelper, actionName string) {
+	action, err := getActionFromName(db, actionName)
+	if err != nil {
+		fmt.Println("Action", color.RedString("not found"))
+		return
+	}
+	ActionCreateFile(db, action)
+}
+
+//ActionCreateFile creates the file for an action
+func ActionCreateFile(db *dbhelper.DBhelper, action *Action) {
+	if gaw.FileExists(action.File) && !(*appYes) {
+		y, i := gaw.ConfirmInput(color.HiYellowString("Warning: ")+"file already exist! Overwrite? [y/n]> ", bufio.NewReader(os.Stdin))
+		if i == -1 || !y {
+			fmt.Println("Abort")
+			return
+		}
+	}
+	switch action.Mode {
+	case 0:
+		{
+			f, err := os.Create(action.File)
+			if err != nil {
+				log.Fatalln(err.Error())
+				return
+			}
+			f.WriteString("#!/bin/bash\n")
+			f.Close()
+		}
+	case 1:
+		{
+			if err := createDefaultGitlabFile(action.File); err != nil {
+				log.Fatalln(err.Error())
+				return
+			}
+		}
+	case 3:
+		{
+			if err := createDefaultGithubFile(action.File); err != nil {
+				log.Fatalln(err.Error())
+				return
+			}
+		}
+	default:
+		return
+	}
+	fmt.Println("Action file created", color.HiGreenString("sucessfully"))
+}
+
 //Run an action
 func (action *Action) Run(hookFile string) {
-	if action.Mode == 0 {
-		b, err := exec.Command(action.File).Output()
-		if err != nil {
-			log.Printf("Error executing action '%s': %s\n", action.Name, err.Error())
-		} else if *appDebug {
-			log.Printf("Output from %s:\n%s\n", action.Name, string(b))
+	if !gaw.FileExists(action.File) {
+		log.Println("Error: Action file", action.File, "doesn't exist!")
+		return
+	}
+
+	switch action.Mode {
+	case 0:
+		{
+			//Script
+			b, err := exec.Command(action.File).Output()
+			if err != nil {
+				log.Printf("Error executing action '%s': %s\n", action.Name, err.Error())
+			} else if *appDebug {
+				log.Printf("Output from %s:\n%s\n", action.Name, string(b))
+			}
+		}
+	case 3:
+		{
+			//Github
+			ghAction, err := LoadGithubAction(action.File)
+			if err != nil {
+				log.Println(err.Error())
+				return
+			}
+			ghAction.Run(hookFile)
 		}
 	}
 }

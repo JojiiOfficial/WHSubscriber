@@ -10,7 +10,8 @@ import (
 type GitlabActionStruct struct {
 	Trigger string
 	Filter  map[string]string
-	Actions []string
+	EnvVars []string
+	Actions []ActionItem
 }
 
 func createDefaultGitlabFile(file string) error {
@@ -18,10 +19,22 @@ func createDefaultGitlabFile(file string) error {
 	if err == nil {
 		return nil
 	}
-	ghActionStruct := GithubActionStruct{
+	ghActionStruct := GitlabActionStruct{
 		Trigger: "push",
 		Filter:  map[string]string{"branch": "master"},
-		Actions: []string{"/a/script/here/to/run.sh"},
+		EnvVars: []string{
+			"PATH=/bin:/sbin:/usr/local/bin:/usr/local/sbin:/usr/sbin",
+		},
+		Actions: []ActionItem{
+			ActionItem{
+				Type:  ScriptActionItem,
+				Value: "/some/script/Here",
+			},
+			ActionItem{
+				Type:  CommandActionItem,
+				Value: "cat /bin/bash",
+			},
+		},
 	}
 	_, err = configor.SetupConfig(&ghActionStruct, file, configor.NoChange)
 	return err

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"os"
 
 	"github.com/JojiiOfficial/configor"
@@ -10,7 +12,8 @@ import (
 type GithubActionStruct struct {
 	Trigger string
 	Filter  map[string]string
-	Actions []string
+	EnvVars []string
+	Actions []ActionItem
 }
 
 func createDefaultGithubFile(file string) error {
@@ -21,8 +24,39 @@ func createDefaultGithubFile(file string) error {
 	ghActionStruct := GithubActionStruct{
 		Trigger: "push",
 		Filter:  map[string]string{"branch": "master"},
-		Actions: []string{"/a/script/here/to/run.sh"},
+		EnvVars: []string{
+			"PATH=/bin:/sbin:/usr/local/bin:/usr/local/sbin:/usr/sbin",
+		},
+		Actions: []ActionItem{
+			ActionItem{
+				Type:  ScriptActionItem,
+				Value: "/some/script/Here",
+			},
+			ActionItem{
+				Type:  CommandActionItem,
+				Value: "cat /bin/bash",
+			},
+		},
 	}
 	_, err = configor.SetupConfig(&ghActionStruct, file, configor.NoChange)
 	return err
+}
+
+//LoadGithubAction loads the action from a file
+func LoadGithubAction(file string) (*GithubActionStruct, error) {
+	action := GithubActionStruct{}
+	err := configor.Load(&action, file)
+	if err != nil {
+		return nil, err
+	}
+	return &action, nil
+}
+
+//Run runs the github action
+func (ghaction *GithubActionStruct) Run(payloadFile string) error {
+	if len(ghaction.Actions) == 0 {
+		return errors.New("no action defined")
+	}
+	fmt.Println(ghaction.Actions)
+	return nil
 }
