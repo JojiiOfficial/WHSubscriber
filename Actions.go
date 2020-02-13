@@ -267,6 +267,7 @@ func ActionCreateFile(db *dbhelper.DBhelper, action *Action) {
 	switch action.Mode {
 	case 0:
 		{
+			//Bash script
 			f, err := os.Create(action.File)
 			if err != nil {
 				log.Fatalln(err.Error())
@@ -277,6 +278,7 @@ func ActionCreateFile(db *dbhelper.DBhelper, action *Action) {
 		}
 	case 3, 1:
 		{
+			//Git(hub|lab)
 			remote := Github
 			if action.Mode == 1 {
 				remote = Gitlab
@@ -285,6 +287,11 @@ func ActionCreateFile(db *dbhelper.DBhelper, action *Action) {
 				log.Fatalln(err.Error())
 				return
 			}
+		}
+	case 2:
+		{
+			//Docker
+			//TODO implement create docker config
 		}
 	default:
 		return
@@ -312,13 +319,18 @@ func (action *Action) Run(hookFile string) {
 		}
 	case 3, 1:
 		{
-			//Git-server
+			//Git(hub|lab)
 			gitAction, err := LoadGitAction(action.File)
 			if err != nil {
 				log.Println(err.Error())
 				return
 			}
 			gitAction.Run(hookFile, action)
+		}
+	case 2:
+		{
+			//Docker
+			//TODO run docker action
 		}
 	}
 }

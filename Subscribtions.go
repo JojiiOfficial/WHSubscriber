@@ -34,6 +34,19 @@ func Subscribe(db *godbhelper.DBhelper, config *ConfigStruct, callbackURL, webho
 		return
 	}
 	fmt.Printf("%s subscribed to '%s'\n", color.HiGreenString("Successfully"), webhookID)
+	//TODO subscribe request
+}
+
+//Unsubscribe unsubscribe a subscription
+func Unsubscribe(db *godbhelper.DBhelper, id string) {
+	//TODO Unsubscribe
+	fmt.Println(id)
+}
+
+//ImportSubscription import a subscription
+func ImportSubscription(db *godbhelper.DBhelper, id string) {
+	//TODO Import subscripion
+	fmt.Println(id)
 }
 
 //ViewSubscriptions views subscriptions
@@ -56,14 +69,4 @@ func ViewSubscriptions(db *godbhelper.DBhelper) {
 		fmt.Println("No subscription yet")
 	}
 	fmt.Println()
-}
-
-//SubscriptionUnsubscribe unsubscribe a subscription
-func SubscriptionUnsubscribe(db *godbhelper.DBhelper, id string) {
-	fmt.Println(id)
-}
-
-//SubscriptionImport import a subscription
-func SubscriptionImport(db *godbhelper.DBhelper, id string) {
-	fmt.Println(id)
 }

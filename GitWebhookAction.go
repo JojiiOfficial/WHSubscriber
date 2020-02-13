@@ -96,16 +96,17 @@ func LoadGitAction(file string) (*GitActionStruct, error) {
 }
 
 //Run runs the github action
-func (ghaction *GitActionStruct) Run(payloadFile string, saction *Action) error {
-	if len(ghaction.Actions) == 0 {
+func (gitAction *GitActionStruct) Run(payloadFile string, saction *Action) error {
+	if len(gitAction.Actions) == 0 {
 		return errors.New("no action defined")
 	}
-	for _, action := range ghaction.Actions {
+	//TODO Filter action
+	for _, action := range gitAction.Actions {
 		if len(action.Value) == 0 {
 			continue
 
 		}
-		username := ghaction.Shell.User
+		username := gitAction.Shell.User
 		if len(username) == 0 {
 			user, err := user.Current()
 			if err != nil {
@@ -118,11 +119,11 @@ func (ghaction *GitActionStruct) Run(payloadFile string, saction *Action) error 
 		switch action.Type {
 		case ScriptActionItem:
 			{
-				runScript(action.Value, username, saction, ghaction.Shell.EnVars)
+				runScript(action.Value, username, saction, gitAction.Shell.EnVars)
 			}
 		case CommandActionItem:
 			{
-				runCommand(action.Value, username, saction, ghaction.Shell.EnVars)
+				runCommand(action.Value, username, saction, gitAction.Shell.EnVars)
 			}
 		}
 	}

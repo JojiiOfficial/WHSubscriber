@@ -157,12 +157,12 @@ func main() {
 	case subscribeDelete.FullCommand():
 		{
 			//whsub subscription unsubscribe
-			SubscriptionUnsubscribe(db, *subscribeDeleteID)
+			Unsubscribe(db, *subscribeDeleteID)
 		}
 	case subscribeImport.FullCommand():
 		{
 			//whsub subscription import
-			SubscriptionImport(db, *subscribeImportID)
+			ImportSubscription(db, *subscribeImportID)
 		}
 
 	//Actions --------------------
