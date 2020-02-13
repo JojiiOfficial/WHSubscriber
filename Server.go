@@ -54,21 +54,42 @@ func webhookPage(w http.ResponseWriter, r *http.Request) {
 
 		subscription, err := getSubscriptionFromID(dbs, hookSource)
 		if err != nil {
+			if err.Error() == "sql: no rows in result set" {
+				log.Printf("A brobably valid source sent you a webhook you have not subscripted: %s\n", hookSource)
+				sendNotSubscripted(w)
+				return
+			}
 			log.Printf("Err %s\n", err.Error())
 			return
 		}
 
 		actions, err := getActionsForSource(dbs, subscription.ID)
 		if err != nil {
-			log.Printf("Err %s\n", err.Error())
+			log.Printf("Your subscription '%s' was triggered but no action was found\n", subscription.Name)
+		} else {
+			//handle this webhook in a thread
+			go handleValidWebhook(subscription, actions, r)
 		}
+
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "OK")
+	} else {
+		log.Printf("Found request without correct headers from %s\n", gaw.GetIPFromHTTPrequest(r))
+		sendNotSubscripted(w)
+	}
+}
+
+func sendNotSubscripted(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusTeapot)
+	fmt.Fprintf(w, "Don't send me those dumb fucking requests!")
+}
+
+func handleValidWebhook(subscription *Subscription, actions []Action, request *http.Request) {
+	if len(actions) > 0 {
 		for _, action := range actions {
 			fmt.Println(action.Name, "-", action.File, "-", action.Mode)
 		}
-
-		fmt.Fprintf(w, "Welcome to the HomePage!")
-	} else {
-		log.Printf("Found request without correct headers from %s\n", gaw.GetIPFromHTTPrequest(r))
+		fmt.Print("handling actions")
 	}
 }
 
