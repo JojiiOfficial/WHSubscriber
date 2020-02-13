@@ -321,7 +321,7 @@ func (action *Action) Run(hookFile string) {
 				log.Println(err.Error())
 				return
 			}
-			ghAction.Run(hookFile)
+			ghAction.Run(hookFile, action.Name)
 		}
 	}
 }

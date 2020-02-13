@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/JojiiOfficial/configor"
@@ -23,11 +24,16 @@ func createDefaultGithubFile(file string) error {
 	if err == nil {
 		return nil
 	}
+	pwd, _ := filepath.Split(file)
+	if strings.HasSuffix(pwd, "/") {
+		pwd = pwd[:len(pwd)-1]
+	}
 	ghActionStruct := GithubActionStruct{
 		Trigger: "push",
 		Filter:  map[string]string{"branch": "master"},
 		EnVars: []string{
-			"PATH=/bin/",
+			"PATH=/bin:/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin",
+			"ACTION_PWD=" + pwd,
 		},
 		Actions: []ActionItem{
 			ActionItem{
@@ -55,38 +61,52 @@ func LoadGithubAction(file string) (*GithubActionStruct, error) {
 }
 
 //Run runs the github action
-func (ghaction *GithubActionStruct) Run(payloadFile string) error {
+func (ghaction *GithubActionStruct) Run(payloadFile, actionName string) error {
 	if len(ghaction.Actions) == 0 {
 		return errors.New("no action defined")
 	}
 	for _, action := range ghaction.Actions {
+		if len(action.Value) == 0 {
+			continue
+		}
 		switch action.Type {
 		case ScriptActionItem:
 			{
-
+				runScript(action.Value, actionName, ghaction.EnVars)
 			}
 		case CommandActionItem:
 			{
-				if len(strings.Trim(action.Value, " ")) > 0 {
-					runCommand(action.Value, ghaction.EnVars)
-				}
+				runCommand(action.Value, actionName, ghaction.EnVars)
 			}
 		}
 	}
 	return nil
 }
 
-func runCommand(command string, enVars []string) {
+func formatenvvars(enVars []string) string {
 	envStr := strings.Join(enVars, "; ")
 	if len(enVars) > 0 {
 		envStr += ";"
 	}
+	return envStr
+}
+
+func runCommand(command, actionName string, enVars []string) {
+	envStr := formatenvvars(enVars)
+	if *appDebug {
+		log.Println("sh -c '" + envStr + command + "'")
+	}
+
 	cmd, err := exec.Command("sh", "-c", envStr+command).Output()
 	if err != nil {
 		log.Printf("Err: %s", err.Error())
 		return
 	}
 	if *appDebug {
-		log.Println(string(cmd))
+		log.Println("Output from '" + actionName + "':\n" + string(cmd))
 	}
+}
+
+func runScript(file, actionName string, enVars []string) {
+
 }
