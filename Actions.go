@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"log"
@@ -167,7 +168,7 @@ func ActionSetWebhook(db *dbhelper.DBhelper, webhookName, actionName string) {
 	} else {
 		whID = -1
 	}
-	aID, err := getActionFromName(db, actionName)
+	aID, err := getActionIDFromName(db, actionName)
 	if err != nil {
 		fmt.Println("Error action", color.HiRedString("not found"))
 		return
@@ -186,7 +187,7 @@ func ActionSetFile(db *dbhelper.DBhelper, actionName, newMode, newFile string) {
 		fmt.Println("You need to set one of the flags:", color.HiRedString("--new-file"), "or", color.HiRedString("--new-mode"))
 		return
 	}
-	aID, err := getActionFromName(db, actionName)
+	action, err := getActionFromName(db, actionName)
 	if err != nil {
 		fmt.Println("Error action", color.HiRedString("not found"))
 		return
@@ -197,21 +198,34 @@ func ActionSetFile(db *dbhelper.DBhelper, actionName, newMode, newFile string) {
 		if !ok {
 			fmt.Printf("Mode '%s' doesn't exist!\nSkipping\n", newMode)
 		} else {
-			err = updateActionMode(db, aID, iMode)
+			err = updateActionMode(db, action.ID, iMode)
 			if err != nil {
 				log.Fatalln(err.Error())
 				return
 			}
+			action.Mode = iMode
 			fmt.Printf("Action '%s' %s updated to mode '%s'\n", actionName, color.HiGreenString("successfully"), color.HiGreenString(newMode))
 		}
 	}
 
 	if len(newFile) > 0 {
+		newFileString := gaw.FromString(newFile)
 		absfile, _ := filepath.Abs(newFile)
+
 		if !gaw.FileExists(newFile) {
-			fmt.Println(color.HiYellowString("Warning"), "file ", "'"+absfile+"' does'n exist!")
+			y, i := gaw.ConfirmInput(color.HiYellowString("Warning: ")+"file does'n exist! "+"Continue anyway? [y/n]> ", bufio.NewReader(os.Stdin))
+			if i == -1 || !y {
+				fmt.Println("Abort")
+				return
+			}
 		}
-		err = updateActionFile(db, aID, absfile)
+
+		if (newFileString.EndsWith(".sh") && action.Mode != 0) || ((newFileString.EndsWith(".yml") || newFileString.EndsWith(".yaml")) && action.Mode == 0) {
+			fmt.Println(color.HiRedString("Err:"), " If you file is a script it needs to end with '.sh'!")
+			return
+		}
+
+		err = updateActionFile(db, action.ID, absfile)
 		if err != nil {
 			log.Fatalln(err.Error())
 			return

@@ -88,7 +88,7 @@ func hasAction(db *godbhelper.DBhelper, actionName string) (bool, error) {
 	return c > 0, nil
 }
 
-func getActionFromName(db *godbhelper.DBhelper, actionName string) (int64, error) {
+func getActionIDFromName(db *godbhelper.DBhelper, actionName string) (int64, error) {
 	var c int64
 	err := db.QueryRowf(&c, "SELECT pkID FROM %s WHERE name=?", []string{TableActions}, actionName)
 	if err != nil {
@@ -103,6 +103,14 @@ func getActions(db *godbhelper.DBhelper) ([]Action, error) {
 	return actions, err
 }
 
+func getActionFromName(db *godbhelper.DBhelper, actionName string) (*Action, error) {
+	var action Action
+	err := db.QueryRowf(&action, "SELECT * FROM %s WHERE name=?", []string{TableActions}, actionName)
+	if err != nil {
+		return nil, err
+	}
+	return &action, nil
+}
 func getActionsForSource(db *godbhelper.DBhelper, sourceID int64) ([]Action, error) {
 	var actions []Action
 	err := db.QueryRowsf(&actions, "SELECT * FROM %s WHERE subscriptionID=? ORDER BY pkID ASC", []string{TableActions}, sourceID)
