@@ -13,6 +13,7 @@ const (
 	EnVarConfigFile   = "CONFIG"
 	EnVarDatabaseFile = "DATABASE"
 	EnVarNoColor      = "NOCOLOR"
+	EnVarYes          = "SKIP_CONFIRM"
 )
 
 func getEnVar(name string) string {

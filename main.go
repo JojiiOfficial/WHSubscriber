@@ -16,6 +16,7 @@ var (
 	app         = kingpin.New("whsub", "A WebHook subscriber")
 	appDebug    = app.Flag("debug", "Enable debug mode").Short('d').Bool()
 	appNoColor  = app.Flag("no-color", "Disable colors").Envar(getEnVar(EnVarNoColor)).Bool()
+	appYes      = app.Flag("yes", "Skips confirmations").Short('y').Envar(getEnVar(EnVarYes)).Bool()
 	appDatabase = app.Flag("database", "Path to the database to use").Default(getDefaultDBFile()).Envar(getEnVar(EnVarDatabaseFile)).String()
 	appCfgFile  = app.
 			Flag("config", "the configuration file for the subscriber").

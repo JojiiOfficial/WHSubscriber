@@ -212,8 +212,8 @@ func ActionSetFile(db *dbhelper.DBhelper, actionName, newMode, newFile string) {
 		newFileString := gaw.FromString(newFile)
 		absfile, _ := filepath.Abs(newFile)
 
-		if !gaw.FileExists(newFile) {
-			y, i := gaw.ConfirmInput(color.HiYellowString("Warning: ")+"file does'n exist! "+"Continue anyway? [y/n]> ", bufio.NewReader(os.Stdin))
+		if !gaw.FileExists(newFile) && !(*appYes) {
+			y, i := gaw.ConfirmInput(color.HiYellowString("Warning: ")+"file does'n exist! Continue anyway? [y/n]> ", bufio.NewReader(os.Stdin))
 			if i == -1 || !y {
 				fmt.Println("Abort")
 				return
