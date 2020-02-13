@@ -38,7 +38,12 @@ var (
 	subscribeWhCallbackURL = subscribeAddWh.Arg("url", "The callback URL to receive the notifications").Envar(getEnVar(EnVarReceiveURL)).String()
 	subscribeWhScript      = subscribeAddWh.Flag("script", "The script to run on a webhook call").Short('s').String()
 
-	subscribeImport = subscriptionCmd.Command("import", "Imports a subscription")
+	subscribeImport   = subscriptionCmd.Command("import", "Imports a subscription").Alias("load")
+	subscribeImportID = subscribeImport.Arg("id", "The ID of the subscription to import").Required().String()
+
+	//Subscription delete
+	subscribeDelete   = subscriptionCmd.Command("unsubscribe", "Delete/unsubscribe a subscription").Alias("rm").Alias("delete")
+	subscribeDeleteID = subscribeDelete.Arg("id", "The ID of the subscription to delete").HintAction(hintSubscriptions).Required().String()
 
 	//Config child command
 	configCmd           = app.Command("config", "Commands for the config file")
@@ -141,6 +146,16 @@ func main() {
 		{
 			//whsub subscriptions
 			ViewSubscriptions(db)
+		}
+	case subscribeDelete.FullCommand():
+		{
+			//whsub subscription unsubscribe
+			SubscriptionUnsubscribe(db, *subscribeDeleteID)
+		}
+	case subscribeImport.FullCommand():
+		{
+			//whsub subscription import
+			SubscriptionImport(db, *subscribeImportID)
 		}
 
 	//Actions --------------------

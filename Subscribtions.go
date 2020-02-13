@@ -57,3 +57,13 @@ func ViewSubscriptions(db *godbhelper.DBhelper) {
 	}
 	fmt.Println()
 }
+
+//SubscriptionUnsubscribe unsubscribe a subscription
+func SubscriptionUnsubscribe(db *godbhelper.DBhelper, id string) {
+	fmt.Println(id)
+}
+
+//SubscriptionImport import a subscription
+func SubscriptionImport(db *godbhelper.DBhelper, id string) {
+	fmt.Println(id)
+}
