@@ -275,16 +275,13 @@ func ActionCreateFile(db *dbhelper.DBhelper, action *Action) {
 			f.WriteString("#!/bin/bash\n")
 			f.Close()
 		}
-	case 1:
+	case 3, 1:
 		{
-			if err := createDefaultGitlabFile(action.File); err != nil {
-				log.Fatalln(err.Error())
-				return
+			remote := Github
+			if action.Mode == 1 {
+				remote = Gitlab
 			}
-		}
-	case 3:
-		{
-			if err := createDefaultGithubFile(action.File); err != nil {
+			if err := createDefaultGitFile(action.File, remote); err != nil {
 				log.Fatalln(err.Error())
 				return
 			}
@@ -313,15 +310,15 @@ func (action *Action) Run(hookFile string) {
 				log.Printf("Output from %s:\n%s\n", action.Name, string(b))
 			}
 		}
-	case 3:
+	case 3, 1:
 		{
-			//Github
-			ghAction, err := LoadGithubAction(action.File)
+			//Git-server
+			gitAction, err := LoadGitAction(action.File)
 			if err != nil {
 				log.Println(err.Error())
 				return
 			}
-			ghAction.Run(hookFile, action)
+			gitAction.Run(hookFile, action)
 		}
 	}
 }
