@@ -3,12 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/url"
 	"os"
 	"path"
 	"strings"
 
-	goHelper "github.com/JojiiOfficial/GoAwesomeHelper"
+	gaw "github.com/JojiiOfficial/GoAw"
 	"github.com/JojiiOfficial/configor"
 )
 
@@ -107,17 +106,17 @@ func (config *ConfigStruct) CheckServer() bool {
 		}
 
 		//Check SSL files
-		if !goHelper.FileExists(config.Server.SSLCert) {
+		if !gaw.FileExists(config.Server.SSLCert) {
 			log.Println("Can't find the SSL certificate. File not found")
 			return false
 		}
-		if !goHelper.FileExists(config.Server.SSLKey) {
+		if !gaw.FileExists(config.Server.SSLKey) {
 			log.Println("Can't find the SSL key. File not found")
 			return false
 		}
 	}
 
-	u, err := url.Parse(config.Client.CallbackURL)
+	u, err := gaw.ParseURL(config.Client.CallbackURL)
 	if err != nil {
 		log.Println("Can't parse CallbackURL:", err.Error())
 		return false

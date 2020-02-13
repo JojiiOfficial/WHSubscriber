@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	goHelper "github.com/JojiiOfficial/GoAwesomeHelper"
+	gaw "github.com/JojiiOfficial/GoAw"
 	godbhelper "github.com/JojiiOfficial/GoDBHelper"
 )
 
@@ -68,7 +68,7 @@ func webhookPage(w http.ResponseWriter, r *http.Request) {
 
 		fmt.Fprintf(w, "Welcome to the HomePage!")
 	} else {
-		log.Printf("Found request without correct headers from %s\n", goHelper.GetIPFromHTTPrequest(r))
+		log.Printf("Found request without correct headers from %s\n", gaw.GetIPFromHTTPrequest(r))
 	}
 }
 
