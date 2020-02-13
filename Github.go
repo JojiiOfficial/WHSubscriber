@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -61,7 +62,7 @@ func LoadGithubAction(file string) (*GithubActionStruct, error) {
 }
 
 //Run runs the github action
-func (ghaction *GithubActionStruct) Run(payloadFile, actionName string) error {
+func (ghaction *GithubActionStruct) Run(payloadFile string, saction *Action) error {
 	if len(ghaction.Actions) == 0 {
 		return errors.New("no action defined")
 	}
@@ -72,11 +73,11 @@ func (ghaction *GithubActionStruct) Run(payloadFile, actionName string) error {
 		switch action.Type {
 		case ScriptActionItem:
 			{
-				runScript(action.Value, actionName, ghaction.EnVars)
+				runScript(action.Value, saction, ghaction.EnVars)
 			}
 		case CommandActionItem:
 			{
-				runCommand(action.Value, actionName, ghaction.EnVars)
+				runCommand(action.Value, saction, ghaction.EnVars)
 			}
 		}
 	}
@@ -91,7 +92,7 @@ func formatenvvars(enVars []string) string {
 	return envStr
 }
 
-func runCommand(command, actionName string, enVars []string) {
+func runCommand(command string, action *Action, enVars []string) {
 	envStr := formatenvvars(enVars)
 	if *appDebug {
 		log.Println("sh -c '" + envStr + command + "'")
@@ -103,10 +104,16 @@ func runCommand(command, actionName string, enVars []string) {
 		return
 	}
 	if *appDebug {
-		log.Println("Output from '" + actionName + "':\n" + string(cmd))
+		log.Println("Output from '" + action.Name + "':\n" + string(cmd))
 	}
 }
 
-func runScript(file, actionName string, enVars []string) {
+func runScript(file string, action *Action, enVars []string) {
+	//Use actionfolder for relative file instead of binary-relative path
+	if strings.HasPrefix(file, "./") {
+		pah, _ := filepath.Split(action.File)
+		file = path.Join(pah, file)
+	}
 
+	runCommand(file, action, enVars)
 }
