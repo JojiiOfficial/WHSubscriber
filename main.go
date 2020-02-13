@@ -51,11 +51,11 @@ var (
 	//Action commands
 	actionCmd = app.Command("action", "Configure your actions for wehbooks")
 	//Action add
-	actionCmdAdd           = actionCmd.Command("add", "Adds an action for a webhook")
-	actionCmdAddActionType = actionCmdAdd.Flag("action", "The kind of action you want to add").HintAction(hintAvailableActions).Default("script").String()
-	actionCmdAddName       = actionCmdAdd.Flag("name", "The name of the action. To make it recycleable").HintAction(hintRandomNames).Default(getRandomName()).String()
-	actionCmdAddWebhook    = actionCmdAdd.Flag("webhook", "The webhook to add the action to").HintAction(hintSubscriptions).String()
-	actionCmdAddPath       = actionCmdAdd.Arg("dir", "The dir where the action-file should be created").HintAction(hintListCurrDir).Required().String()
+	actionCmdAdd        = actionCmd.Command("add", "Adds an action for a webhook")
+	actionCmdAddMode    = actionCmdAdd.Flag("mode", "The kind of action you want to add").HintAction(hintAvailableActions).Default("script").String()
+	actionCmdAddName    = actionCmdAdd.Flag("name", "The name of the action. To make it recycleable").HintAction(hintRandomNames).Default(getRandomName()).String()
+	actionCmdAddWebhook = actionCmdAdd.Flag("webhook", "The webhook to add the action to").HintAction(hintSubscriptions).String()
+	actionCmdAddFile    = actionCmdAdd.Arg("file", "The action-file. Either a bash script or an action-configuration").HintAction(hintListCurrDir).Required().String()
 	//Action set
 	actionCmdUpdate = actionCmd.Command("update", "Sets/Changes an action")
 	//Action set webhook
@@ -147,7 +147,7 @@ func main() {
 	case actionCmdAdd.FullCommand():
 		{
 			//whsub action add
-			AddAction(db, *actionCmdAddActionType, *actionCmdAddName, *actionCmdAddWebhook, *actionCmdAddPath)
+			AddAction(db, *actionCmdAddMode, *actionCmdAddName, *actionCmdAddWebhook, *actionCmdAddFile)
 		}
 	case actionCmdDelete.FullCommand():
 		{

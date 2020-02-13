@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"path"
 	"path/filepath"
 	"strings"
 
@@ -23,24 +22,28 @@ var Actions = map[string]int8{
 
 func getWhIDFromHumanInput(db *dbhelper.DBhelper, input string) (int64, error) {
 	whID := int64(-1)
+	realID := ""
 	if len(input) > 0 && strings.Contains(input, "-") {
-		realID := strings.Trim(strings.Split(input, "-")[1], " ")
-		if len(realID) > 0 {
-			var err error
-			whID, err = getSubscriptionID(db, realID)
-			if err != nil {
-				whID = -1
-				return whID, errors.New("no wh found")
-			}
-		}
+		realID = strings.Trim(strings.Split(input, "-")[1], " ")
 	} else if !strings.Contains(input, "-") {
+		realID = input
+	}
+
+	if len(realID) > 0 {
+		var err error
+		whID, err = getSubscriptionID(db, realID)
+		if err != nil {
+			whID = -1
+			return whID, errors.New("no wh found")
+		}
+	} else {
 		return -1, errors.New("no wh found")
 	}
 	return whID, nil
 }
 
 //AddAction adds a new action
-func AddAction(db *dbhelper.DBhelper, actionType, actionName, webhookName, actionFileDir string) {
+func AddAction(db *dbhelper.DBhelper, actionType, actionName, webhookName, actionFile string) {
 	mode := Actions[actionType]
 
 	hasAction, err := hasAction(db, actionName)
@@ -53,12 +56,6 @@ func AddAction(db *dbhelper.DBhelper, actionType, actionName, webhookName, actio
 		return
 	}
 
-	scriptPathAbs, exists := gaw.DirAbs(actionFileDir)
-	if !exists {
-		log.Fatalf("Path '%s' does not exists", scriptPathAbs)
-		return
-	}
-
 	var whID int64
 	if len(webhookName) > 0 {
 		whID, err = getWhIDFromHumanInput(db, webhookName)
@@ -67,15 +64,25 @@ func AddAction(db *dbhelper.DBhelper, actionType, actionName, webhookName, actio
 		}
 	}
 
-	ending := ".yml"
-	if mode == 0 {
-		ending = ".sh"
+	newFileString := gaw.FromString(actionFile)
+	absfile, _ := filepath.Abs(actionFile)
+
+	if !gaw.FileExists(newFileString.ToString()) && !(*appYes) {
+		y, i := gaw.ConfirmInput(color.HiYellowString("Warning: ")+"file or directory does'n exist! Continue anyway? [y/n]> ", bufio.NewReader(os.Stdin))
+		if i == -1 || !y {
+			fmt.Println("Abort")
+			return
+		}
 	}
-	file := path.Join(scriptPathAbs, actionName+ending)
+
+	if (newFileString.EndsWith(".sh") && mode != 0) || ((newFileString.EndsWith(".yml") || newFileString.EndsWith(".yaml")) && mode == 0) {
+		fmt.Println(color.HiRedString("Err:"), " If you file is a script it needs to end with '.sh'!")
+		return
+	}
 
 	action := Action{
 		Mode:           mode,
-		File:           file,
+		File:           absfile,
 		SubscriptionID: whID,
 		Name:           actionName,
 	}
@@ -84,27 +91,27 @@ func AddAction(db *dbhelper.DBhelper, actionType, actionName, webhookName, actio
 	if err != nil {
 		log.Println(err.Error())
 	}
-
-	switch mode {
-	case 0:
-		{
-			f, err := os.Create(file)
-			if err != nil {
-				log.Fatalln(err.Error())
-				return
+	/*
+		switch mode {
+		case 0:
+			{
+				f, err := os.Create(absfile)
+				if err != nil {
+					log.Fatalln(err.Error())
+					return
+				}
+				f.WriteString("#!/bin/bash\n")
+				f.Close()
 			}
-			f.WriteString("#!/bin/bash\n")
-			f.Close()
-		}
-	case 3:
-		{
-			if err := createDefaultGithubFile(file); err != nil {
-				log.Fatalln(err.Error())
-				return
+		case 3:
+			{
+				if err := createDefaultGithubFile(file); err != nil {
+					log.Fatalln(err.Error())
+					return
+				}
 			}
 		}
-	}
-
+	*/
 	fmt.Printf("Created action %s %s\n", actionName, color.HiGreenString("successfully"))
 }
 
