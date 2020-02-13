@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 
-	godbhelper "github.com/JojiiOfficial/GoDBHelper"
+	dbhelper "github.com/JojiiOfficial/GoDBHelper"
 
 	_ "github.com/mattn/go-sqlite3"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
@@ -88,7 +88,7 @@ func main() {
 	var (
 		database = *appDatabase
 		config   *ConfigStruct
-		db       *godbhelper.DBhelper
+		db       *dbhelper.DBhelper
 	)
 
 	if parsed != configCmdCreate.FullCommand() {

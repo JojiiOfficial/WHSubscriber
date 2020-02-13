@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	gaw "github.com/JojiiOfficial/GoAw"
-	godbhelper "github.com/JojiiOfficial/GoDBHelper"
+	dbhelper "github.com/JojiiOfficial/GoDBHelper"
 	"github.com/fatih/color"
 )
 
@@ -18,7 +18,7 @@ var Actions = map[string]int8{
 	"github": 3, "gitlab": 1, "docker": 2, "script": 0,
 }
 
-func getWhIDFromHumanInput(db *godbhelper.DBhelper, input string) (int64, error) {
+func getWhIDFromHumanInput(db *dbhelper.DBhelper, input string) (int64, error) {
 	whID := int64(-1)
 	if len(input) > 0 && strings.Contains(input, "-") {
 		realID := strings.Trim(strings.Split(input, "-")[1], " ")
@@ -37,7 +37,7 @@ func getWhIDFromHumanInput(db *godbhelper.DBhelper, input string) (int64, error)
 }
 
 //AddAction adds a new action
-func AddAction(db *godbhelper.DBhelper, actionType, actionName, webhookName, actionFileDir string) {
+func AddAction(db *dbhelper.DBhelper, actionType, actionName, webhookName, actionFileDir string) {
 	mode := Actions[actionType]
 
 	hasAction, err := hasAction(db, actionName)
@@ -106,7 +106,7 @@ func AddAction(db *godbhelper.DBhelper, actionType, actionName, webhookName, act
 }
 
 //ViewActions prints actions
-func ViewActions(db *godbhelper.DBhelper) {
+func ViewActions(db *dbhelper.DBhelper) {
 	actions, err := getActions(db)
 	if err != nil {
 		log.Fatalln(err.Error())
@@ -132,7 +132,7 @@ func ViewActions(db *godbhelper.DBhelper) {
 }
 
 //DeleteAction deletes an action
-func DeleteAction(db *godbhelper.DBhelper, actionIDs []string) {
+func DeleteAction(db *dbhelper.DBhelper, actionIDs []string) {
 	for _, actionID := range actionIDs {
 		has, err := hasAction(db, actionID)
 		if err != nil {
@@ -153,7 +153,7 @@ func DeleteAction(db *godbhelper.DBhelper, actionIDs []string) {
 }
 
 //ActionSetWebhook sets webhook for an action
-func ActionSetWebhook(db *godbhelper.DBhelper, webhookName, actionName string) {
+func ActionSetWebhook(db *dbhelper.DBhelper, webhookName, actionName string) {
 	var whID int64
 	var err error
 	if webhookName != "na-" {

@@ -3,15 +3,15 @@ package main
 import (
 	"path"
 
-	godbhelper "github.com/JojiiOfficial/GoDBHelper"
+	dbhelper "github.com/JojiiOfficial/GoDBHelper"
 )
 
 func getDefaultDBFile() string {
 	return path.Join(getDataPath(), DefaultDatabaseFile)
 }
 
-func connectDB(dbFile string) (*godbhelper.DBhelper, error) {
-	db, err := godbhelper.NewDBHelper(godbhelper.Sqlite).Open(dbFile)
+func connectDB(dbFile string) (*dbhelper.DBhelper, error) {
+	db, err := dbhelper.NewDBHelper(dbhelper.Sqlite).Open(dbFile)
 	if err != nil {
 		return nil, err
 	}
@@ -20,7 +20,7 @@ func connectDB(dbFile string) (*godbhelper.DBhelper, error) {
 	return db, updateDB(db)
 }
 
-func updateDB(db *godbhelper.DBhelper) error {
+func updateDB(db *dbhelper.DBhelper) error {
 	db.AddQueryChain(getInitSQL())
 	return db.RunUpdate()
 }

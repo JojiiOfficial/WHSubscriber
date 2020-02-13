@@ -4,23 +4,12 @@ import (
 	"log"
 	"os"
 	"path"
+
+	gaw "github.com/JojiiOfficial/GoAw"
 )
 
-func inPortValid(port uint16) bool {
-	return port > 0 && port < 65535
-}
-
-func getHome() string {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		log.Fatalln(err.Error())
-		return ""
-	}
-	return home
-}
-
 func getDataPath() string {
-	path := path.Join(getHome(), DataDir)
+	path := path.Join(gaw.GetHome(), DataDir)
 	s, err := os.Stat(path)
 	if err != nil {
 		err = os.Mkdir(path, 0770)
