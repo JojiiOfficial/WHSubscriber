@@ -13,5 +13,5 @@ const (
 	//CommandActionItem a single command to run
 	CommandActionItem ActionType = "command"
 	//ScriptActionItem a script to run
-	ScriptActionItem ActionType = "command"
+	ScriptActionItem ActionType = "script"
 )

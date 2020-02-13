@@ -2,8 +2,10 @@ package main
 
 import (
 	"errors"
-	"fmt"
+	"log"
 	"os"
+	"os/exec"
+	"strings"
 
 	"github.com/JojiiOfficial/configor"
 )
@@ -12,7 +14,7 @@ import (
 type GithubActionStruct struct {
 	Trigger string
 	Filter  map[string]string
-	EnvVars []string
+	EnVars  []string
 	Actions []ActionItem
 }
 
@@ -24,8 +26,8 @@ func createDefaultGithubFile(file string) error {
 	ghActionStruct := GithubActionStruct{
 		Trigger: "push",
 		Filter:  map[string]string{"branch": "master"},
-		EnvVars: []string{
-			"PATH=/bin:/sbin:/usr/local/bin:/usr/local/sbin:/usr/sbin",
+		EnVars: []string{
+			"PATH=/bin/",
 		},
 		Actions: []ActionItem{
 			ActionItem{
@@ -57,6 +59,34 @@ func (ghaction *GithubActionStruct) Run(payloadFile string) error {
 	if len(ghaction.Actions) == 0 {
 		return errors.New("no action defined")
 	}
-	fmt.Println(ghaction.Actions)
+	for _, action := range ghaction.Actions {
+		switch action.Type {
+		case ScriptActionItem:
+			{
+
+			}
+		case CommandActionItem:
+			{
+				if len(strings.Trim(action.Value, " ")) > 0 {
+					runCommand(action.Value, ghaction.EnVars)
+				}
+			}
+		}
+	}
 	return nil
+}
+
+func runCommand(command string, enVars []string) {
+	envStr := strings.Join(enVars, "; ")
+	if len(enVars) > 0 {
+		envStr += ";"
+	}
+	cmd, err := exec.Command("sh", "-c", envStr+command).Output()
+	if err != nil {
+		log.Printf("Err: %s", err.Error())
+		return
+	}
+	if *appDebug {
+		log.Println(string(cmd))
+	}
 }
