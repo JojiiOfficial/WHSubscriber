@@ -26,6 +26,7 @@ func StartReceiverServer(config *ConfigStruct, db *godbhelper.DBhelper, debug bo
 
 	//Start the server
 	if config.Server.UseTLS {
+		//Start TLS server in background
 		go (func() {
 			log.Fatal(http.ListenAndServeTLS(config.Server.ListenAddress, config.Server.SSLCert, config.Server.SSLKey, nil))
 		})()
@@ -33,6 +34,7 @@ func StartReceiverServer(config *ConfigStruct, db *godbhelper.DBhelper, debug bo
 			log.Printf("Started HTTPS server on address %s\n", config.Server.ListenAddress)
 		}
 	} else {
+		//Start HTTP server in background
 		go (func() {
 			log.Fatal(http.ListenAndServe(config.Server.ListenAddress, nil))
 		})()
@@ -40,6 +42,8 @@ func StartReceiverServer(config *ConfigStruct, db *godbhelper.DBhelper, debug bo
 			log.Printf("Started HTTP server on address %s\n", config.Server.ListenAddress)
 		}
 	}
+
+	//keep program running
 	for {
 		time.Sleep(1 * time.Hour)
 	}
@@ -49,31 +53,36 @@ func StartReceiverServer(config *ConfigStruct, db *godbhelper.DBhelper, debug bo
 func webhookPage(w http.ResponseWriter, r *http.Request) {
 	hookSource := r.Header.Get(HeaderSource)
 	hookReceivedTime := r.Header.Get(HeaderReceived)
+
 	if len(hookSource) > 0 && len(hookReceivedTime) > 0 {
-		fmt.Println("header", hookSource)
 
 		subscription, err := getSubscriptionFromID(dbs, hookSource)
 		if err != nil {
+			//Send not-subscribed message to server if source was not found in database
 			if err.Error() == "sql: no rows in result set" {
 				log.Printf("A probably valid source sent you a webhook you have not subscripted: %s\n", hookSource)
 				sendNotSubscripted(w)
 				return
 			}
+			//Log on different error
 			log.Printf("Err %s\n", err.Error())
 			return
 		}
 
 		actions, err := getActionsForSource(dbs, subscription.ID)
 		if err != nil {
+			//if no action was found
 			log.Printf("Your subscription '%s' was triggered but no action was found\n", subscription.Name)
 		} else {
 			//handle this webhook in a thread
 			go handleValidWebhook(subscription, actions, r)
 		}
 
+		//send OK
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintf(w, "OK")
 	} else {
+		//Request from sth else than the WeServer
 		log.Printf("Found request without correct headers from %s\n", gaw.GetIPFromHTTPrequest(r))
 		sendNotSubscripted(w)
 	}
