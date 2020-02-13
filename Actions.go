@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 
 	gaw "github.com/JojiiOfficial/GoAw"
@@ -156,7 +158,7 @@ func DeleteAction(db *dbhelper.DBhelper, actionIDs []string) {
 func ActionSetWebhook(db *dbhelper.DBhelper, webhookName, actionName string) {
 	var whID int64
 	var err error
-	if webhookName != "na-" {
+	if webhookName != "na" {
 		whID, err = getWhIDFromHumanInput(db, webhookName)
 		if err != nil {
 			fmt.Println("Error webhook-subscription", color.HiRedString("not found"))
@@ -176,4 +178,56 @@ func ActionSetWebhook(db *dbhelper.DBhelper, webhookName, actionName string) {
 		return
 	}
 	fmt.Printf("Action %s updated %s", actionName, color.HiGreenString("successfully"))
+}
+
+//ActionSetFile sets the actionfile for an action
+func ActionSetFile(db *dbhelper.DBhelper, actionName, newMode, newFile string) {
+	if len(newMode) == 0 && len(newFile) == 0 {
+		fmt.Println("You need to set one of the flags:", color.HiRedString("--new-file"), "or", color.HiRedString("--new-mode"))
+		return
+	}
+	aID, err := getActionFromName(db, actionName)
+	if err != nil {
+		fmt.Println("Error action", color.HiRedString("not found"))
+		return
+	}
+
+	if len(newMode) > 0 {
+		iMode, ok := Actions[newMode]
+		if !ok {
+			fmt.Printf("Mode '%s' doesn't exist!\nSkipping\n", newMode)
+		} else {
+			err = updateActionMode(db, aID, iMode)
+			if err != nil {
+				log.Fatalln(err.Error())
+				return
+			}
+			fmt.Printf("Action '%s' %s updated to mode '%s'\n", actionName, color.HiGreenString("successfully"), color.HiGreenString(newMode))
+		}
+	}
+
+	if len(newFile) > 0 {
+		absfile, _ := filepath.Abs(newFile)
+		if !gaw.FileExists(newFile) {
+			fmt.Println(color.HiYellowString("Warning"), "file ", "'"+absfile+"' does'n exist!")
+		}
+		err = updateActionFile(db, aID, absfile)
+		if err != nil {
+			log.Fatalln(err.Error())
+			return
+		}
+		fmt.Printf("Action '%s' %s updated to file '%s'\n", actionName, color.HiGreenString("successfully"), color.HiGreenString(absfile))
+	}
+}
+
+//Run an action
+func (action *Action) Run(hookFile string) {
+	if action.Mode == 0 {
+		b, err := exec.Command(action.File).Output()
+		if err != nil {
+			log.Printf("Error executing action '%s': %s\n", action.Name, err.Error())
+		} else if *appDebug {
+			log.Printf("Output from %s:\n%s\n", action.Name, string(b))
+		}
+	}
 }

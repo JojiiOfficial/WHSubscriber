@@ -147,6 +147,16 @@ func updateActionWebhook(db *godbhelper.DBhelper, aID, whID int64) error {
 	return err
 }
 
+func updateActionMode(db *godbhelper.DBhelper, aID int64, newMode int8) error {
+	_, err := db.Execf("UPDATE %s SET mode=? WHERE pkID=?", []string{TableActions}, newMode, aID)
+	return err
+}
+
+func updateActionFile(db *godbhelper.DBhelper, aID int64, newFile string) error {
+	_, err := db.Execf("UPDATE %s SET file=? WHERE pkID=?", []string{TableActions}, newFile, aID)
+	return err
+}
+
 // ---------------------------------- Deletions ------------------------------------
 
 func deleteActionByID(db *godbhelper.DBhelper, name string) error {

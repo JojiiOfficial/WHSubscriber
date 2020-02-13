@@ -80,7 +80,12 @@ func hintSubscriptions() []string {
 		log.Fatalln(err.Error())
 		return []string{}
 	}
-	return dat
+	data := make([]string, len(dat)+1)
+	for i, v := range dat {
+		data[i] = v
+	}
+	data[len(dat)] = "na"
+	return data
 }
 
 func hintAvailableActions() []string {

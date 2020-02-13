@@ -87,9 +87,11 @@ func sendNotSubscripted(w http.ResponseWriter) {
 func handleValidWebhook(subscription *Subscription, actions []Action, request *http.Request) {
 	if len(actions) > 0 {
 		for _, action := range actions {
-			fmt.Println(action.Name, "-", action.File, "-", action.Mode)
+			if *appDebug {
+				fmt.Println(action.Name, "-", action.File, "-", action.Mode)
+			}
+			action.Run("")
 		}
-		fmt.Print("handling actions")
 	}
 }
 

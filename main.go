@@ -55,10 +55,18 @@ var (
 	actionCmdAddName       = actionCmdAdd.Flag("name", "The name of the action. To make it recycleable").HintAction(hintRandomNames).Default(getRandomName()).String()
 	actionCmdAddWebhook    = actionCmdAdd.Flag("webhook", "The webhook to add the action to").HintAction(hintSubscriptions).String()
 	actionCmdAddPath       = actionCmdAdd.Arg("dir", "The dir where the action-file should be created").HintAction(hintListCurrDir).Required().String()
-	//Action setWebhook
-	actionCmdSetWh        = actionCmd.Command("setwebhook", "Sets/Changes the webhook for an action")
-	actionCmdSetWhAction  = actionCmdSetWh.Arg("action", "The action to change the webhook for").HintAction(hintListActions).Required().String()
-	actionCmdSetWhWebhook = actionCmdSetWh.Arg("webhook", "The new webhook").HintAction(hintSubscriptions).Required().String()
+	//Action set
+	actionCmdUpdate = actionCmd.Command("update", "Sets/Changes an action")
+	//Action set webhook
+	actionCmdUpdateWh        = actionCmdUpdate.Command("webhook", "Sets/Changes the webhook for an action")
+	actionCmdUpdateWhAction  = actionCmdUpdateWh.Arg("action", "The action to change the webhook for").HintAction(hintListActions).Required().String()
+	actionCmdUpdateWhWebhook = actionCmdUpdateWh.Arg("webhook", "The new webhook").HintAction(hintSubscriptions).Required().String()
+	//Action set file
+	actionCmdUpdateAction      = actionCmdUpdate.Command("action", "Sets/Changes the webhook for an action")
+	actionCmdUpdateFileAction  = actionCmdUpdateAction.Arg("action", "The action to change").HintAction(hintListActions).Required().String()
+	actionCmdUpdateFileType    = actionCmdUpdateAction.Flag("new-mode", "The new kind of action. Leave empty to keep current value").HintAction(hintAvailableActions).String()
+	actionCmdUpdateFileNewFile = actionCmdUpdateAction.Flag("new-file", "The new action-file").HintAction(hintListCurrDir).String()
+
 	//Action delete
 	actionCmdDelete     = actionCmd.Command("delete", "Deletes an action from a webhook").Alias("rm")
 	actionCmdDeleteName = actionCmdDelete.Arg("name", "The name of the action").HintAction(hintListActions).Required().Strings()
@@ -150,10 +158,15 @@ func main() {
 			//whsub actions
 			ViewActions(db)
 		}
-	case actionCmdSetWh.FullCommand():
+	case actionCmdUpdateWh.FullCommand():
 		{
-			//whsub	action setwebhook
-			ActionSetWebhook(db, *actionCmdSetWhWebhook, *actionCmdSetWhAction)
+			//whsub	action update webhook
+			ActionSetWebhook(db, *actionCmdUpdateWhWebhook, *actionCmdUpdateWhAction)
+		}
+	case actionCmdUpdateAction.FullCommand():
+		{
+			//whsub action update action
+			ActionSetFile(db, *actionCmdUpdateFileAction, *actionCmdUpdateFileType, *actionCmdUpdateFileNewFile)
 		}
 
 	//Config --------------------
