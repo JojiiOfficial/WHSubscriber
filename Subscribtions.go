@@ -66,9 +66,33 @@ func Subscribe(db *godbhelper.DBhelper, config *ConfigStruct, callbackURL, webho
 }
 
 //Unsubscribe unsubscribe a subscription
-func Unsubscribe(db *godbhelper.DBhelper, id string) {
-	//TODO Unsubscribe
-	fmt.Println(id)
+func Unsubscribe(config *ConfigStruct, db *godbhelper.DBhelper, id string) {
+	wdid, err := getWhIDFromHumanInput(db, id)
+	if err != nil {
+		fmt.Println("Err:", err.Error())
+		return
+	}
+	subscription, _ := getSubscriptionFromID(db, wdid)
+	//Request
+	req := unsubscribeRequest{
+		SubscriptionID: subscription.SubscriptionID,
+	}
+
+	var status Status
+	err = request(EPSubscriptionRemove, req, &status, config)
+	if err != nil {
+		fmt.Println("Err:", err.Error())
+		return
+	}
+	if status.StatusCode == ResponseSuccessStr {
+		err = deleteSubscribtion(db, wdid)
+		if err != nil {
+			fmt.Println("Err:", err.Error())
+		}
+		fmt.Println(color.HiGreenString("Successfully"), "unsubscribed from", subscription.Name)
+	} else {
+		fmt.Println("Error:", status.StatusMessage)
+	}
 }
 
 //ImportSubscription import a subscription

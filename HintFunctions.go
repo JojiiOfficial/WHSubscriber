@@ -70,7 +70,13 @@ func hintListActions() []string {
 	return ret
 }
 
+func hintSubscriptionsNoNa() []string {
+	return hintSubscriptionsB(false)
+}
 func hintSubscriptions() []string {
+	return hintSubscriptionsB(true)
+}
+func hintSubscriptionsB(add bool) []string {
 	db, err := connectDB(getDBunparsed())
 	if err != nil {
 		fmt.Println(err.Error())
@@ -80,11 +86,17 @@ func hintSubscriptions() []string {
 		log.Fatalln(err.Error())
 		return []string{}
 	}
-	data := make([]string, len(dat)+1)
+	ap := 0
+	if add {
+		ap = 1
+	}
+	data := make([]string, len(dat)+ap)
 	for i, v := range dat {
 		data[i] = v
 	}
-	data[len(dat)] = "na"
+	if add {
+		data[len(dat)] = "na"
+	}
 	return data
 }
 

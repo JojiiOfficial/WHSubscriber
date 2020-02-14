@@ -45,7 +45,7 @@ var (
 	subscribeImportID = subscribeImport.Arg("id", "The ID of the subscription to import").Required().String()
 	//Subscription delete
 	subscribeDelete   = subscriptionCmd.Command("unsubscribe", "Delete/unsubscribe a subscription").Alias("rm").Alias("delete")
-	subscribeDeleteID = subscribeDelete.Arg("id", "The ID of the subscription to delete").HintAction(hintSubscriptions).Required().String()
+	subscribeDeleteID = subscribeDelete.Arg("id", "The ID of the subscription to delete").HintAction(hintSubscriptionsNoNa).Required().String()
 
 	//Config commands
 	//Config create
@@ -163,7 +163,7 @@ func main() {
 	case subscribeDelete.FullCommand():
 		{
 			//whsub subscription unsubscribe
-			Unsubscribe(db, *subscribeDeleteID)
+			Unsubscribe(config, db, *subscribeDeleteID)
 		}
 	case subscribeImport.FullCommand():
 		{

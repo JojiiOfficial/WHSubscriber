@@ -40,6 +40,10 @@ type subscriptionRequest struct {
 	CallbackURL string `json:"cburl"`
 }
 
+type unsubscribeRequest struct {
+	SubscriptionID string `json:"sid"`
+}
+
 //-----> Responses
 
 type loginResponse struct {
@@ -58,4 +62,10 @@ type subscriptionResponse struct {
 	Message        string `json:"message,omitempty"`
 	SubscriptionID string `json:"sid"`
 	Name           string `json:"name"`
+}
+
+//Status a REST response status
+type Status struct {
+	StatusCode    string `json:"statusCode"`
+	StatusMessage string `json:"statusMessage"`
 }

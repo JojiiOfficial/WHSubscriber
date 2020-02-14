@@ -111,6 +111,7 @@ func getActionFromName(db *godbhelper.DBhelper, actionName string) (*Action, err
 	}
 	return &action, nil
 }
+
 func getActionsForSource(db *godbhelper.DBhelper, sourceID int64) ([]Action, error) {
 	var actions []Action
 	err := db.QueryRowsf(&actions, "SELECT * FROM %s WHERE subscriptionID=? ORDER BY pkID ASC", []string{TableActions}, sourceID)
@@ -130,7 +131,16 @@ func getSubscriptionsHumanized(db *godbhelper.DBhelper, limit int) ([]string, er
 	return hooks, err
 }
 
-func getSubscriptionFromID(db *godbhelper.DBhelper, sid string) (*Subscription, error) {
+func getSubscriptionFromID(db *godbhelper.DBhelper, sid int64) (*Subscription, error) {
+	var subscription Subscription
+	err := db.QueryRowf(&subscription, "SELECT * FROM %s WHERE pkID=?", []string{TableSubscriptions}, sid)
+	if err != nil {
+		return nil, err
+	}
+	return &subscription, nil
+}
+
+func getSubscriptionFromSourceID(db *godbhelper.DBhelper, sid string) (*Subscription, error) {
 	var subscription Subscription
 	err := db.QueryRowf(&subscription, "SELECT * FROM %s WHERE sourceID=?", []string{TableSubscriptions}, sid)
 	if err != nil {
@@ -146,6 +156,11 @@ func getSubscriptionID(db *godbhelper.DBhelper, sid string) (int64, error) {
 		return 0, err
 	}
 	return id, nil
+}
+
+func deleteSubscribtion(db *godbhelper.DBhelper, sourceID int64) error {
+	_, err := db.Execf("DELETE FROM %s WHERE pkID=?", []string{TableSubscriptions}, sourceID)
+	return err
 }
 
 // ---------------------------------- Updates ------------------------------------

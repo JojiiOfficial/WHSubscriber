@@ -56,7 +56,7 @@ func webhookPage(w http.ResponseWriter, r *http.Request) {
 
 	if len(hookSource) > 0 && len(hookReceivedTime) > 0 {
 
-		subscription, err := getSubscriptionFromID(dbs, hookSource)
+		subscription, err := getSubscriptionFromSourceID(dbs, hookSource)
 		if err != nil {
 			//Send not-subscribed message to server if source was not found in database
 			if err.Error() == "sql: no rows in result set" {
