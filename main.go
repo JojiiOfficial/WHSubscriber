@@ -87,7 +87,8 @@ var (
 	//Sources
 	sourceCmd = app.Command("source", "Source command")
 	//Sources
-	sourcesCmd = app.Command("sources", "List your sources")
+	sourcesCmd   = app.Command("sources", "List your sources")
+	sourcesCmdID = app.Flag("source", "View one specific source").String()
 	//Infos for source
 	sourceCmdInfos   = sourceCmd.Command("info", "Shows information for source")
 	sourceCmdInfosID = sourceCmdInfos.Arg("sourceID", "The ID of the source to display informations for").String()
@@ -231,7 +232,7 @@ func main() {
 	case sourcesCmd.FullCommand():
 		{
 			//whsub sources
-			SourceList(db, config)
+			SourceList(db, config, *sourcesCmdID)
 		}
 
 	//Login
