@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"path"
+
+	"github.com/fatih/color"
 )
 
 //Remote endpoints
@@ -61,4 +64,26 @@ func RestRequest(file string, data interface{}, config *ConfigStruct) (string, e
 	}
 
 	return string(d), nil
+}
+
+func request(file string, inpData interface{}, outputdata interface{}, config *ConfigStruct) error {
+	resp, err := RestRequest(EPSourceCreate, inpData, config)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal([]byte(resp), &outputdata)
+}
+
+//Returns true if success
+func checkResponse(str string, arg ...string) bool {
+	if str == ResponseErrorStr {
+		if len(arg) > 0 {
+			fmt.Print(arg[0])
+		} else {
+			fmt.Println(color.RedString("Error"), "doing request!")
+		}
+		return false
+	}
+
+	return true
 }

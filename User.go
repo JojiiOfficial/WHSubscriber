@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"syscall"
@@ -39,6 +40,7 @@ func LoginCommand(config *ConfigStruct, usernameArg string) {
 	resp, err := RestRequest(EPLogin, login, config)
 	if err != nil {
 		fmt.Println("Err:", err.Error())
+		return
 	}
 	var response loginResponse
 	err = json.Unmarshal([]byte(resp), &response)
@@ -46,10 +48,11 @@ func LoginCommand(config *ConfigStruct, usernameArg string) {
 		fmt.Printf("Can't parse response '%s'\n", response)
 		return
 	}
-	if response.Status == "Error" {
-		fmt.Println("Error logging in. Check credentials and try again")
+
+	if !checkResponse(response.Status, "Error logging in. Check credentials and try again") {
 		return
 	}
+
 	if response.Status == "success" && len(response.Token) > 0 {
 		config.User = struct {
 			Username     string
@@ -78,15 +81,13 @@ func credentials(buser string) (string, string) {
 		fmt.Print("Enter Username: ")
 		username, _ = reader.ReadString('\n')
 	}
-
 	fmt.Print("Enter Password: ")
 	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
 	if err != nil {
-		fmt.Println("Error:", err.Error())
+		log.Fatalln("Error:", err.Error())
+		return "", ""
 	}
-	password := string(bytePassword)
-
-	return strings.TrimSpace(username), strings.TrimSpace(password)
+	return strings.TrimSpace(username), strings.TrimSpace(string(bytePassword))
 }
 
 //SHA512 hashes using sha1 algorithm

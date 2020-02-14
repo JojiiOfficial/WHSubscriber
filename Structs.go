@@ -23,6 +23,10 @@ type Action struct {
 
 //-----> Requests
 type sourceAddRequest struct {
+	Token       string `json:"token"`
+	Name        string `json:"name"`
+	Description string `json:"descr"`
+	Private     bool   `json:"private"`
 }
 
 type loginRequest struct {
@@ -35,4 +39,10 @@ type loginRequest struct {
 type loginResponse struct {
 	Status string `json:"status"`
 	Token  string `json:"token"`
+}
+
+type sourceAddResponse struct {
+	Status   string `json:"status"`
+	Secret   string `json:"secret"`
+	SourceID string `json:"id"`
 }
