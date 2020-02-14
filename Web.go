@@ -67,7 +67,7 @@ func RestRequest(file string, data interface{}, config *ConfigStruct) (string, e
 }
 
 func request(file string, inpData interface{}, outputdata interface{}, config *ConfigStruct) error {
-	resp, err := RestRequest(EPSourceCreate, inpData, config)
+	resp, err := RestRequest(file, inpData, config)
 	if err != nil {
 		return err
 	}
@@ -85,5 +85,5 @@ func checkResponse(str string, arg ...string) bool {
 		return false
 	}
 
-	return true
+	return str == ResponseSuccessStr
 }

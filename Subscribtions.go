@@ -21,6 +21,10 @@ func Subscribe(db *godbhelper.DBhelper, config *ConfigStruct, callbackURL, webho
 		return
 	}
 
+	if len(callbackURL) == 0 {
+		callbackURL = config.Client.CallbackURL
+	}
+
 	if *appDebug {
 		fmt.Printf("Trying to subscribe to '%s' using callback URL '%s' and remote '%s'\n", webhookID, callbackURL, remoteURL)
 	}
@@ -28,13 +32,37 @@ func Subscribe(db *godbhelper.DBhelper, config *ConfigStruct, callbackURL, webho
 	wh := Subscription{
 		SourceID: webhookID,
 	}
-	err := wh.insert(db)
+
+	//Request subscription
+	token := "-"
+	if isLoggedIn(config) {
+		token = config.User.SessionToken
+	}
+	subsRequest := subscriptionRequest{
+		CallbackURL: callbackURL,
+		SourceID:    webhookID,
+		Token:       token,
+	}
+	var subscrResponse subscriptionResponse
+	err := request(EPSubscriptionAdd, subsRequest, &subscrResponse, config)
+	if err != nil {
+		fmt.Println("Err:", err.Error())
+		return
+	}
+
+	if !checkResponse(subscrResponse.Status, "Error subscribing: "+subscrResponse.Message) {
+		return
+	}
+
+	wh.SubscriptionID = subscrResponse.SubscriptionID
+	wh.Name = subscrResponse.Name
+
+	err = wh.insert(db)
 	if err != nil {
 		log.Printf(err.Error())
 		return
 	}
 	fmt.Printf("%s subscribed to '%s'\n", color.HiGreenString("Successfully"), webhookID)
-	//TODO subscribe request
 }
 
 //Unsubscribe unsubscribe a subscription

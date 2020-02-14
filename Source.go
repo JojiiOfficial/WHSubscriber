@@ -32,7 +32,7 @@ func CreateSource(config *ConfigStruct, name, description string, private bool) 
 	if !checkResponse(createResponse.Status, "Error creating source!") {
 		return
 	}
-	fmt.Println(color.HiGreenString("Success!"), fmt.Sprintf("Source create successfully.\nThe ID is '%s' and the secret is '%s'", createResponse.SourceID, createResponse.Secret))
+	fmt.Println(color.HiGreenString("Success!"), fmt.Sprintf("Source create successfully.\nID:\t%s\nSecret:\t%s", createResponse.SourceID, createResponse.Secret))
 }
 
 //SourceInfo shows informations for a source

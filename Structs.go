@@ -34,6 +34,12 @@ type loginRequest struct {
 	Password string `json:"pass"`
 }
 
+type subscriptionRequest struct {
+	Token       string `json:"token"`
+	SourceID    string `json:"sid"`
+	CallbackURL string `json:"cburl"`
+}
+
 //-----> Responses
 
 type loginResponse struct {
@@ -45,4 +51,11 @@ type sourceAddResponse struct {
 	Status   string `json:"status"`
 	Secret   string `json:"secret"`
 	SourceID string `json:"id"`
+}
+
+type subscriptionResponse struct {
+	Status         string `json:"status"`
+	Message        string `json:"message,omitempty"`
+	SubscriptionID string `json:"sid"`
+	Name           string `json:"name"`
 }
