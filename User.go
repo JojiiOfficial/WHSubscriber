@@ -49,7 +49,7 @@ func LoginCommand(config *ConfigStruct, usernameArg string) {
 		return
 	}
 
-	if !checkResponse(response.Status, "Error logging in. Check credentials and try again") {
+	if !checkResponse(response.Status, color.New(color.FgHiRed).Sprintf("Failure\n")+"Check credentials and try again") {
 		return
 	}
 
@@ -66,7 +66,7 @@ func LoginCommand(config *ConfigStruct, usernameArg string) {
 			fmt.Println("Error saving config:", err.Error())
 			return
 		}
-		fmt.Println(color.HiGreenString("Success!"), "Logged in as", username)
+		fmt.Println(color.HiGreenString("Success!"), "\nLogged in as", username)
 	} else {
 		fmt.Println("Unexpected error occured!")
 	}

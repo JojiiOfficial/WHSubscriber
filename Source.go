@@ -37,11 +37,6 @@ func CreateSource(config *ConfigStruct, name, description string, private bool) 
 	fmt.Println(color.HiGreenString("Success!"), fmt.Sprintf("Source create successfully.\nID:\t%s\nSecret:\t%s", createResponse.SourceID, createResponse.Secret))
 }
 
-//SourceInfo shows informations for a source
-func SourceInfo() {
-	//TODO SourceInfo
-}
-
 //DeleteSource deletes a source
 func DeleteSource() {
 	//TODO DeleteSource

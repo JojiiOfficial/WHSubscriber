@@ -89,9 +89,6 @@ var (
 	//Sources
 	sourcesCmd   = app.Command("sources", "List your sources")
 	sourcesCmdID = app.Flag("source", "View one specific source").String()
-	//Infos for source
-	sourceCmdInfos   = sourceCmd.Command("info", "Shows information for source")
-	sourceCmdInfosID = sourceCmdInfos.Arg("sourceID", "The ID of the source to display informations for").String()
 	//Create source
 	sourceCmdCreate            = sourceCmd.Command("create", "Create a new source")
 	sourceCmdCreateName        = sourceCmdCreate.Arg("name", "The name of the source").Required().String()
@@ -223,11 +220,6 @@ func main() {
 		{
 			//whsub source delete
 			DeleteSource()
-		}
-	case sourceCmdInfos.FullCommand():
-		{
-			//whsub source info
-			SourceInfo()
 		}
 	case sourcesCmd.FullCommand():
 		{
