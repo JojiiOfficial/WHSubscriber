@@ -86,6 +86,8 @@ var (
 	//Source commands
 	//Sources
 	sourceCmd = app.Command("source", "Source command")
+	//Sources
+	sourcesCmd = app.Command("sources", "List your sources")
 	//Infos for source
 	sourceCmdInfos   = sourceCmd.Command("info", "Shows information for source")
 	sourceCmdInfosID = sourceCmdInfos.Arg("sourceID", "The ID of the source to display informations for").String()
@@ -158,7 +160,7 @@ func main() {
 	case subscribtionsCmd:
 		{
 			//whsub subscriptions
-			ViewSubscriptions(db)
+			ViewSubscriptions(db, config)
 		}
 	case subscribeDelete.FullCommand():
 		{
@@ -226,7 +228,13 @@ func main() {
 			//whsub source info
 			SourceInfo()
 		}
-		//Login
+	case sourcesCmd.FullCommand():
+		{
+			//whsub sources
+			SourceList(db, config)
+		}
+
+	//Login
 	case loginCmd.FullCommand():
 		{
 			LoginCommand(config, *loginCmdUser)

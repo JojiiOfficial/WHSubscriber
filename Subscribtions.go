@@ -102,7 +102,7 @@ func ImportSubscription(db *godbhelper.DBhelper, id string) {
 }
 
 //ViewSubscriptions views subscriptions
-func ViewSubscriptions(db *godbhelper.DBhelper) {
+func ViewSubscriptions(db *godbhelper.DBhelper, config *ConfigStruct) {
 	subscriptions, err := getSubscriptions(db)
 	if err != nil {
 		log.Fatalln(err.Error())
