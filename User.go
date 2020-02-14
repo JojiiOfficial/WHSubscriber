@@ -7,39 +7,29 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
+	"syscall"
 
 	gaw "github.com/JojiiOfficial/GoAw"
 	"github.com/JojiiOfficial/configor"
 	"github.com/fatih/color"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 //LoginCommand login into the server
 func LoginCommand(config *ConfigStruct, usernameArg string) {
 	inpReader := bufio.NewReader(os.Stdin)
-	if isLoggedIn(config) {
+	if isLoggedIn(config) && !*appYes {
 		i, e := gaw.ConfirmInput("You are already logged in. Overwrite session? [y/n]> ", inpReader)
 		if e == -1 || !i {
 			return
 		}
 	}
 
-	var username, password string
-	if len(usernameArg) > 0 {
-		username = usernameArg
-	} else {
-		i, text := gaw.WaitForMessage("Username: ", inpReader)
-		if i != 1 {
-			fmt.Println("Abort")
-		}
-		username = text
-	}
-	i, text := gaw.WaitForMessage("Password: ", inpReader)
-	if i != 1 {
-		fmt.Println("Abort")
-	}
+	username, pass := credentials(usernameArg)
+
 	// You salty baby
-	password = SHA512(text + SHA512(text)[:8])
-	fmt.Println(password)
+	password := SHA512(pass + SHA512(pass)[:8])
 
 	login := loginRequest{
 		Password: password,
@@ -77,6 +67,26 @@ func LoginCommand(config *ConfigStruct, usernameArg string) {
 	} else {
 		fmt.Println("Unexpected error occured!")
 	}
+}
+
+func credentials(buser string) (string, string) {
+	reader := bufio.NewReader(os.Stdin)
+	var username string
+	if len(buser) > 0 {
+		username = buser
+	} else {
+		fmt.Print("Enter Username: ")
+		username, _ = reader.ReadString('\n')
+	}
+
+	fmt.Print("Enter Password: ")
+	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
+	if err != nil {
+		fmt.Println("Error:", err.Error())
+	}
+	password := string(bytePassword)
+
+	return strings.TrimSpace(username), strings.TrimSpace(password)
 }
 
 //SHA512 hashes using sha1 algorithm
