@@ -94,6 +94,9 @@ var (
 	//Delete source
 	sourceCmdDelete   = sourceCmd.Command("delete", "Delete a source")
 	sourceCmdDeleteID = sourceCmdDelete.Arg("sourceID", "The ID of the source to delete").String()
+
+	loginCmd     = app.Command("login", "login")
+	loginCmdUser = loginCmd.Flag("username", "Your username").String()
 )
 
 func main() {
@@ -219,6 +222,11 @@ func main() {
 		{
 			//whsub source info
 			SourceInfo()
+		}
+		//Login
+	case loginCmd.FullCommand():
+		{
+			LoginCommand(config, *loginCmdUser)
 		}
 	}
 }

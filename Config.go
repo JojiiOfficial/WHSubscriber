@@ -13,9 +13,16 @@ import (
 
 //ConfigStruct the structure of the configfile
 type ConfigStruct struct {
+	File string `yml:"-"`
+
+	User struct {
+		Username     string
+		SessionToken string
+	}
 	Client struct {
 		ServerURL   string `default:"https://wh-share.de/"`
 		CallbackURL string `default:"https://yourCallbackDomain.de/"`
+		IgnoreCert  bool   `default:"false"`
 	}
 
 	Server struct {
@@ -71,7 +78,7 @@ func InitConfig(confFile string, createMode bool) (*ConfigStruct, bool) {
 		log.Fatalln(err.Error())
 		return nil, true
 	}
-
+	config.File = confFile
 	return &config, false
 }
 

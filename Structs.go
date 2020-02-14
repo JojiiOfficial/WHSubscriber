@@ -18,3 +18,21 @@ type Action struct {
 	File           string `db:"file"`
 	HookName       string `db:"hookName" orm:"-"`
 }
+
+// ------------------ Request structs ------------------
+
+//-----> Requests
+type sourceAddRequest struct {
+}
+
+type loginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"pass"`
+}
+
+//-----> Responses
+
+type loginResponse struct {
+	Status string `json:"status"`
+	Token  string `json:"token"`
+}

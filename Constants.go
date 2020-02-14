@@ -12,25 +12,6 @@ var (
 	DefaultDatabaseFile = "data.db"
 )
 
-//Remote endpoints
-const (
-	//Subscriptions
-	EPSubscription         = "/sub"
-	EPSubscriptionAdd      = EPSubscription + "/add"
-	EPSubscriptionActivate = EPSubscription + "/activate"
-	EPSubscriptionRemove   = EPSubscription + "/remove"
-
-	//User
-	EPUser       = "/user"
-	EPUserCreate = EPUser + "/create"
-
-	//Source
-	EPSource       = "/source"
-	EPSourceCreate = EPSource + "/create"
-	EPSourceInfa   = EPSource + "/info"
-	EPSourceDelete = EPSource + "/delete"
-)
-
 //Local endpoints
 const (
 //Webhooks
