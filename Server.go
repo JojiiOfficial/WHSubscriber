@@ -59,7 +59,6 @@ func StartReceiverServer(config *ConfigStruct, db *dbhelper.DBhelper, debug bool
 }
 
 func pingHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ll")
 	ip := gaw.GetIPFromHTTPrequest(r)
 	match, err := matchIPHost(ip, configs.Client.ServerURL)
 	if err != nil {
@@ -74,7 +73,6 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	hookSourceID := r.Header.Get(HeaderSource)
 	hookSubsID := r.Header.Get(HeaderSubsID)
-	fmt.Println(hookSourceID, hookSubsID)
 	if len(hookSourceID) > 0 && len(hookSubsID) > 0 {
 		has, err := hasSubscribted(dbs, hookSubsID, hookSourceID)
 		if err != nil {
@@ -86,7 +84,9 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprintf(w, "OK")
-			fmt.Println("Ping success")
+			if *appDebug {
+				fmt.Println("Ping success")
+			}
 			return
 		}
 	}

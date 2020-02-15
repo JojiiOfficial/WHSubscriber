@@ -183,7 +183,7 @@ func validateSubscription(db *dbhelper.DBhelper, subscriptionID string) error {
 }
 
 func removeInvalidSubs(db *dbhelper.DBhelper, subscriptionID string) error {
-	_, err := db.Execf("DELETE FROM %s WHERE sourceID=?", []string{TableSubscriptions}, subscriptionID)
+	_, err := db.Execf("DELETE FROM %s WHERE sourceID=? AND valid=0", []string{TableSubscriptions}, subscriptionID)
 	return err
 }
 

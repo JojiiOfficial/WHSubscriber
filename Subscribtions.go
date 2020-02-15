@@ -118,7 +118,7 @@ func ViewSubscriptions(db *dbhelper.DBhelper, config *ConfigStruct) {
 	for _, subscription := range subscriptions {
 		hookID := subscription.SourceID
 		//var colorFunc color
-		cs := color.New(color.FgWhite)
+		cs := color.New(color.FgHiWhite)
 		if !subscription.IsValid {
 			cs = color.New(color.FgMagenta)
 		}
