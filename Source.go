@@ -3,8 +3,11 @@ package main
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"strconv"
+	"strings"
 
+	gaw "github.com/JojiiOfficial/GoAw"
 	godbhelper "github.com/JojiiOfficial/GoDBHelper"
 	"github.com/fatih/color"
 )
@@ -40,6 +43,16 @@ func CreateSource(config *ConfigStruct, name, description, mode string, private 
 
 	if response.Status == ResponseSuccess {
 		fmt.Println(color.HiGreenString("Success!"), fmt.Sprintf("Source create successfully.\nID:\t%s\nSecret:\t%s", respData.SourceID, respData.Secret))
+		surl, err := gaw.ParseURL(config.Client.ServerURL)
+		if err == nil {
+			surl.JoinPath(fmt.Sprintf("/webhook/post/%s/%s/", respData.SourceID, respData.Secret))
+			u := (url.URL)(*surl)
+			ur := u.String()
+			if !strings.HasSuffix(ur, "/") {
+				ur += "/"
+			}
+			fmt.Printf("\nWebhook URL: %s\n", ur)
+		}
 	} else {
 		fmt.Println("Err:", response.Message)
 	}

@@ -100,7 +100,7 @@ func (gitAction *GitActionStruct) Run(payloadFile string, saction *Action) error
 	if len(gitAction.Actions) == 0 {
 		return errors.New("no action defined")
 	}
-	//TODO Filter action
+	//TODO Filter the incomming action
 	for _, action := range gitAction.Actions {
 		if len(action.Value) == 0 {
 			continue
