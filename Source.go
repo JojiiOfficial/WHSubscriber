@@ -10,10 +10,16 @@ import (
 )
 
 //CreateSource creates a new source for webhooks
-func CreateSource(config *ConfigStruct, name, description string, private bool) {
+func CreateSource(config *ConfigStruct, name, description, mode string, private bool) {
 	if !checkLoggedIn(config) {
 		return
 	}
+	m, has := Modes[mode]
+	if !has {
+		fmt.Printf("Mode not known '%s'\n", mode)
+		return
+	}
+
 	if len(description) == 0 {
 		description = "NULL"
 	}
@@ -21,6 +27,7 @@ func CreateSource(config *ConfigStruct, name, description string, private bool) 
 		Description: description,
 		Name:        name,
 		Private:     private,
+		Mode:        m,
 		Token:       config.User.SessionToken,
 	}
 

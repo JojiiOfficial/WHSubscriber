@@ -179,7 +179,7 @@ func updateActionSource(db *godbhelper.DBhelper, aID, subscriptionID int64) erro
 	return err
 }
 
-func updateActionMode(db *godbhelper.DBhelper, aID int64, newMode int8) error {
+func updateActionMode(db *godbhelper.DBhelper, aID int64, newMode uint8) error {
 	_, err := db.Execf("UPDATE %s SET mode=? WHERE pkID=?", []string{TableActions}, newMode, aID)
 	return err
 }

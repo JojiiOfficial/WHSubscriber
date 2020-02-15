@@ -22,7 +22,7 @@ func getDataPath() string {
 	return path
 }
 
-func mapKeyByValue(val int8, m map[string]int8) string {
+func mapKeyByValue(val uint8, m map[string]uint8) string {
 	for k, v := range m {
 		if v == val {
 			return k

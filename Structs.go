@@ -14,7 +14,7 @@ type Action struct {
 	ID             int64  `db:"pkID" orm:"pk,ai"`
 	Name           string `db:"name"`
 	SubscriptionID int64  `db:"subscriptionID"`
-	Mode           int8   `db:"mode"`
+	Mode           uint8  `db:"mode"`
 	File           string `db:"file"`
 	HookName       string `db:"hookName" orm:"-"`
 }
@@ -27,6 +27,7 @@ type sourceAddRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"descr"`
 	Private     bool   `json:"private"`
+	Mode        uint8  `json:"mode"`
 }
 
 type sourceRequest struct {

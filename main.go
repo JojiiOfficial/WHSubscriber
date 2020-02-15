@@ -92,6 +92,7 @@ var (
 	//Create source
 	sourceCmdCreate            = sourceCmd.Command("create", "Create a new source").Alias("add")
 	sourceCmdCreateName        = sourceCmdCreate.Arg("name", "The name of the source").Required().String()
+	sourceCmdCreateMode        = sourceCmdCreate.Flag("mode", "The mode of the source").HintAction(hintAvailableActionsForSource).Required().String()
 	sourceCmdCreateDescription = sourceCmdCreate.Arg("description", "The description of the source").String()
 	sourceCmdCreatePrivate     = sourceCmdCreate.Flag("private", "If the source should be private").Default("false").Bool()
 	//Delete source
@@ -216,7 +217,7 @@ func main() {
 	case sourceCmdCreate.FullCommand():
 		{
 			//whsub source create
-			CreateSource(config, *sourceCmdCreateName, *sourceCmdCreateDescription, *sourceCmdCreatePrivate)
+			CreateSource(config, *sourceCmdCreateName, *sourceCmdCreateDescription, *sourceCmdCreateMode, *sourceCmdCreatePrivate)
 		}
 	case sourceCmdDelete.FullCommand():
 		{

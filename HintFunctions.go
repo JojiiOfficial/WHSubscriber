@@ -102,7 +102,18 @@ func hintSubscriptionsB(add bool) []string {
 
 func hintAvailableActions() []string {
 	s := []string{}
-	for action := range Actions {
+	for action := range Modes {
+		s = append(s, action)
+	}
+	return s
+}
+
+func hintAvailableActionsForSource() []string {
+	s := []string{}
+	for action := range Modes {
+		if action == "script" {
+			action = "custom"
+		}
 		s = append(s, action)
 	}
 	return s

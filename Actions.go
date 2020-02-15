@@ -15,8 +15,8 @@ import (
 	"github.com/fatih/color"
 )
 
-//Actions the available actions
-var Actions = map[string]int8{
+//Modes the available actions
+var Modes = map[string]uint8{
 	"github": 3, "gitlab": 1, "docker": 2, "script": 0,
 }
 
@@ -44,7 +44,7 @@ func getWhIDFromHumanInput(db *dbhelper.DBhelper, input string) (int64, error) {
 
 //AddAction adds a new action
 func AddAction(db *dbhelper.DBhelper, actionType, actionName, webhookName, actionFile string, createFile bool) {
-	mode := Actions[actionType]
+	mode := Modes[actionType]
 
 	hasAction, err := hasAction(db, actionName)
 	if err != nil {
@@ -109,7 +109,7 @@ func ViewActions(db *dbhelper.DBhelper) {
 	headingColor := color.New(color.FgHiGreen, color.Underline, color.Bold)
 	headingColor.Println("ID\tName\t\tWebhook\t\t\tMode\tFile")
 	for _, action := range actions {
-		mode := mapKeyByValue(action.Mode, Actions)
+		mode := mapKeyByValue(action.Mode, Modes)
 		name := action.Name
 		if len(name) < 8 {
 			name += "\t"
@@ -205,7 +205,7 @@ func ActionSetFile(db *dbhelper.DBhelper, actionName, newMode, newFile string) {
 	}
 
 	if len(newMode) > 0 {
-		iMode, ok := Actions[newMode]
+		iMode, ok := Modes[newMode]
 		if !ok {
 			fmt.Printf("Mode '%s' doesn't exist!\nSkipping\n", newMode)
 		} else {
