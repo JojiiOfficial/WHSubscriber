@@ -90,7 +90,7 @@ var (
 	sourcesCmd   = app.Command("sources", "List your sources")
 	sourcesCmdID = app.Flag("source", "View one specific source").String()
 	//Create source
-	sourceCmdCreate            = sourceCmd.Command("create", "Create a new source")
+	sourceCmdCreate            = sourceCmd.Command("create", "Create a new source").Alias("add")
 	sourceCmdCreateName        = sourceCmdCreate.Arg("name", "The name of the source").Required().String()
 	sourceCmdCreateDescription = sourceCmdCreate.Arg("description", "The description of the source").String()
 	sourceCmdCreatePrivate     = sourceCmdCreate.Flag("private", "If the source should be private").Default("false").Bool()
@@ -100,6 +100,8 @@ var (
 
 	loginCmd     = app.Command("login", "login")
 	loginCmdUser = loginCmd.Flag("username", "Your username").String()
+
+	registerCmd = app.Command("register", "Create an account")
 )
 
 func main() {
@@ -227,10 +229,16 @@ func main() {
 			ListSources(db, config, *sourcesCmdID)
 		}
 
-	//Login
+	//User
 	case loginCmd.FullCommand():
 		{
+			//whsub login
 			LoginCommand(config, *loginCmdUser)
+		}
+	case registerCmd.FullCommand():
+		{
+			//whsub register
+			RegisterCommand(config)
 		}
 	}
 }

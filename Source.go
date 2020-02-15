@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -78,12 +79,14 @@ func getSources(db *godbhelper.DBhelper, config *ConfigStruct, args ...string) (
 
 	response, err := RestRequest(EPSources, req, &res, config)
 
-	if err != nil || response.Status != ResponseSuccess {
+	if err != nil {
 		return []sourceResponse{}, err
 	}
 
 	if response.Status == ResponseSuccess {
 		return res.Sources, nil
+	} else if response.Status == ResponseError {
+		return []sourceResponse{}, errors.New(response.Message)
 	}
 
 	return []sourceResponse{}, nil

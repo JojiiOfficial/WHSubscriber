@@ -26,7 +26,7 @@ func LoginCommand(config *ConfigStruct, usernameArg string) {
 		}
 	}
 
-	username, pass := credentials(usernameArg)
+	username, pass := credentials(usernameArg, false)
 
 	// You salty baby
 	password := SHA512(pass + SHA512(pass)[:8])
@@ -64,7 +64,12 @@ func LoginCommand(config *ConfigStruct, usernameArg string) {
 	}
 }
 
-func credentials(buser string) (string, string) {
+//RegisterCommand create a new account
+func RegisterCommand(config *ConfigStruct) {
+
+}
+
+func credentials(buser string, repeat bool) (string, string) {
 	reader := bufio.NewReader(os.Stdin)
 	var username string
 	if len(buser) > 0 {
@@ -82,7 +87,7 @@ func credentials(buser string) (string, string) {
 	return strings.TrimSpace(username), strings.TrimSpace(string(bytePassword))
 }
 
-//SHA512 hashes using sha1 algorithm
+//SHA512 hashes using sha512 algorithm
 func SHA512(text string) string {
 	algorithm := sha512.New()
 	algorithm.Write([]byte(text))

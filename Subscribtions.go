@@ -112,13 +112,10 @@ func ViewSubscriptions(db *godbhelper.DBhelper, config *ConfigStruct) {
 		return
 	}
 	headingColor := color.New(color.FgHiGreen, color.Underline, color.Bold)
-	headingColor.Println("ID\tHookID\t\t\tName")
+	headingColor.Println("ID\tHookID\t\t\t\t\tName")
 	for _, subscription := range subscriptions {
 		hookID := subscription.SourceID
-		if len(hookID) < 8 {
-			hookID += "\t"
-		}
-		fmt.Printf("%d\t%s\t\t%s\n", subscription.ID, hookID, subscription.Name)
+		fmt.Printf("%d\t%s\t%s\n", subscription.ID, hookID, subscription.Name)
 	}
 	if len(subscriptions) == 0 {
 		fmt.Println("No subscription yet")
