@@ -149,24 +149,33 @@ func getSubscriptionFromSourceID(db *godbhelper.DBhelper, sid string) (*Subscrip
 	return &subscription, nil
 }
 
-func getSubscriptionID(db *godbhelper.DBhelper, sid string) (int64, error) {
+func getSubscriptionID(db *godbhelper.DBhelper, sourceID string) (int64, error) {
 	var id int64
-	err := db.QueryRowf(&id, "SELECT pkID FROM %s WHERE sourceID=?", []string{TableSubscriptions}, sid)
+	err := db.QueryRowf(&id, "SELECT pkID FROM %s WHERE sourceID=?", []string{TableSubscriptions}, sourceID)
 	if err != nil {
 		return 0, err
 	}
 	return id, nil
 }
 
-func deleteSubscribtion(db *godbhelper.DBhelper, sourceID int64) error {
-	_, err := db.Execf("DELETE FROM %s WHERE pkID=?", []string{TableSubscriptions}, sourceID)
+func deleteSubscribtion(db *godbhelper.DBhelper, pkID int64) error {
+	_, err := db.Execf("DELETE FROM %s WHERE pkID=?", []string{TableSubscriptions}, pkID)
+	return err
+}
+
+func deleteSubscribtionByID(db *godbhelper.DBhelper, sourceID string) error {
+	_, err := db.Execf("DELETE FROM %s WHERE sourceID=?", []string{TableSubscriptions}, sourceID)
 	return err
 }
 
 // ---------------------------------- Updates ------------------------------------
 
-func updateActionWebhook(db *godbhelper.DBhelper, aID, whID int64) error {
-	_, err := db.Execf("UPDATE %s SET subscriptionID=? WHERE pkID=?", []string{TableActions}, whID, aID)
+func removeActionSource(db *godbhelper.DBhelper, subscriptionID int64) error {
+	_, err := db.Execf("UPDATE %s SET subscriptionID=0 WHERE subscriptionID=?", []string{TableActions}, subscriptionID)
+	return err
+}
+func updateActionSource(db *godbhelper.DBhelper, aID, subscriptionID int64) error {
+	_, err := db.Execf("UPDATE %s SET subscriptionID=? WHERE pkID=?", []string{TableActions}, subscriptionID, aID)
 	return err
 }
 

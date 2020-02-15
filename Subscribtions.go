@@ -46,7 +46,7 @@ func Subscribe(db *godbhelper.DBhelper, config *ConfigStruct, callbackURL, webho
 	}
 
 	var subscrResponse subscriptionResponse
-	response, err := RestRequest2(EPSubscriptionAdd, subsRequest, &subscrResponse, config)
+	response, err := RestRequest(EPSubscriptionAdd, subsRequest, &subscrResponse, config)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -80,7 +80,7 @@ func Unsubscribe(config *ConfigStruct, db *godbhelper.DBhelper, id string) {
 	req := unsubscribeRequest{
 		SubscriptionID: subscription.SubscriptionID,
 	}
-	response, err := RestRequest2(EPSubscriptionRemove, req, nil, config)
+	response, err := RestRequest(EPSubscriptionRemove, req, nil, config)
 	if err != nil {
 		fmt.Println("Err:", err.Error())
 		return

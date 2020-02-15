@@ -21,7 +21,7 @@ type Action struct {
 
 // ------------------ Request structs ------------------
 
-//-----> Requests
+// -------> Sources
 type sourceAddRequest struct {
 	Token       string `json:"token"`
 	Name        string `json:"name"`
@@ -29,11 +29,18 @@ type sourceAddRequest struct {
 	Private     bool   `json:"private"`
 }
 
+type sourceRequest struct {
+	Token    string `json:"token"`
+	SourceID string `json:"sid,omitempty"`
+}
+
+// -------> User
 type loginRequest struct {
 	Username string `json:"username"`
 	Password string `json:"pass"`
 }
 
+// -------> Subscriptions
 type subscriptionRequest struct {
 	Token       string `json:"token"`
 	SourceID    string `json:"sid"`
@@ -42,9 +49,4 @@ type subscriptionRequest struct {
 
 type unsubscribeRequest struct {
 	SubscriptionID string `json:"sid"`
-}
-
-type listSourcesRequest struct {
-	Token    string `json:"token"`
-	SourceID string `json:"sid,omitempty"`
 }

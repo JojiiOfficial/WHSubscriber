@@ -95,7 +95,7 @@ var (
 	sourceCmdCreateDescription = sourceCmdCreate.Arg("description", "The description of the source").String()
 	sourceCmdCreatePrivate     = sourceCmdCreate.Flag("private", "If the source should be private").Default("false").Bool()
 	//Delete source
-	sourceCmdDelete   = sourceCmd.Command("delete", "Delete a source")
+	sourceCmdDelete   = sourceCmd.Command("delete", "Delete a source").Alias("rm").Alias("del")
 	sourceCmdDeleteID = sourceCmdDelete.Arg("sourceID", "The ID of the source to delete").String()
 
 	loginCmd     = app.Command("login", "login")
@@ -224,7 +224,7 @@ func main() {
 	case sourcesCmd.FullCommand():
 		{
 			//whsub sources
-			SourceList(db, config, *sourcesCmdID)
+			ListSources(db, config, *sourcesCmdID)
 		}
 
 	//Login

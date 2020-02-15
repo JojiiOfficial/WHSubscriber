@@ -23,10 +23,3 @@ const (
 	//HeaderReceived the unixtime when the hook was received
 	HeaderReceived = "W_S_Source"
 )
-
-const (
-	//ResponseErrorStr an error from a response
-	ResponseErrorStr = "error"
-	//ResponseSuccessStr success response
-	ResponseSuccessStr = "success"
-)

@@ -24,7 +24,7 @@ func CreateSource(config *ConfigStruct, name, description string, private bool) 
 	}
 
 	var respData sourceAddResponse
-	response, err := RestRequest2(EPSourceCreate, req, &respData, config)
+	response, err := RestRequest(EPSourceCreate, req, &respData, config)
 	if err != nil {
 		fmt.Println("Err:", err.Error())
 		return
@@ -43,6 +43,25 @@ func DeleteSource(db *godbhelper.DBhelper, config *ConfigStruct, sourceID string
 		return
 	}
 
+	req := sourceRequest{
+		SourceID: sourceID,
+		Token:    config.User.SessionToken,
+	}
+	response, err := RestRequest(EPSourceDelete, req, nil, config)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	if response.Status == ResponseSuccess {
+		id, err := getSubscriptionID(db, sourceID)
+		if err == nil {
+			removeActionSource(db, id)
+			deleteSubscribtionByID(db, sourceID)
+		}
+		fmt.Println("Source deleted", color.HiGreenString("successfully"))
+	} else {
+		fmt.Println("Error:", response.Message)
+	}
 }
 
 func getSources(db *godbhelper.DBhelper, config *ConfigStruct, args ...string) ([]sourceResponse, error) {
@@ -51,13 +70,13 @@ func getSources(db *godbhelper.DBhelper, config *ConfigStruct, args ...string) (
 		sid = args[0]
 	}
 
-	req := listSourcesRequest{
+	req := sourceRequest{
 		SourceID: sid,
 		Token:    config.User.SessionToken,
 	}
 	var res listSourcesResponse
 
-	response, err := RestRequest2(EPSources, req, &res, config)
+	response, err := RestRequest(EPSources, req, &res, config)
 
 	if err != nil || response.Status != ResponseSuccess {
 		return []sourceResponse{}, err
@@ -70,8 +89,8 @@ func getSources(db *godbhelper.DBhelper, config *ConfigStruct, args ...string) (
 	return []sourceResponse{}, nil
 }
 
-//SourceList lists your sources
-func SourceList(db *godbhelper.DBhelper, config *ConfigStruct, id string) {
+//ListSources lists your sources
+func ListSources(db *godbhelper.DBhelper, config *ConfigStruct, id string) {
 	if !checkLoggedIn(config) {
 		return
 	}

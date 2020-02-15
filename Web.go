@@ -4,14 +4,11 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"path"
 	"strconv"
-
-	"github.com/fatih/color"
 )
 
 //Endpoint a remote url-path
@@ -34,12 +31,11 @@ const (
 	EPSource       Endpoint = "/source"
 	EPSources      Endpoint = EPSource + "s"
 	EPSourceCreate Endpoint = EPSource + "/create"
-	EPSourceInfa   Endpoint = EPSource + "/info"
 	EPSourceDelete Endpoint = EPSource + "/delete"
 )
 
-//RestRequest2 a better request method
-func RestRequest2(endpoint Endpoint, payload interface{}, retVar interface{}, config *ConfigStruct) (*RestResponse, error) {
+//RestRequest a better request method
+func RestRequest(endpoint Endpoint, payload interface{}, retVar interface{}, config *ConfigStruct) (*RestResponse, error) {
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
@@ -101,18 +97,4 @@ func RestRequest2(endpoint Endpoint, payload interface{}, retVar interface{}, co
 	}
 
 	return response, nil
-}
-
-//Returns true if success
-func checkResponse(str string, arg ...string) bool {
-	if str == ResponseErrorStr {
-		if len(arg) > 0 {
-			fmt.Print(arg[0])
-		} else {
-			fmt.Println(color.RedString("Error"), "doing request!")
-		}
-		return false
-	}
-
-	return str == ResponseSuccessStr
 }

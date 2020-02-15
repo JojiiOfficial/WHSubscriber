@@ -37,7 +37,7 @@ func LoginCommand(config *ConfigStruct, usernameArg string) {
 	}
 
 	var response loginResponse
-	resp, err := RestRequest2(EPLogin, login, &response, config)
+	resp, err := RestRequest(EPLogin, login, &response, config)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -90,7 +90,7 @@ func SHA512(text string) string {
 }
 
 func isLoggedIn(config *ConfigStruct) bool {
-	return len(config.User.Username) > 0 && len(config.User.SessionToken) > 0
+	return len(config.User.Username) > 0 && len(config.User.SessionToken) == 64
 }
 
 //return true if is logged in

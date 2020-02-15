@@ -184,7 +184,7 @@ func ActionSetWebhook(db *dbhelper.DBhelper, webhookName, actionName string) {
 		fmt.Println("Error action", color.HiRedString("not found"))
 		return
 	}
-	err = updateActionWebhook(db, aID, whID)
+	err = updateActionSource(db, aID, whID)
 	if err != nil {
 		log.Fatalln(err.Error())
 		return
