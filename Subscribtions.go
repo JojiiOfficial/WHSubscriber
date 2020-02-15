@@ -39,6 +39,8 @@ func Subscribe(db *dbhelper.DBhelper, config *ConfigStruct, callbackURL, sourceI
 		token = config.User.SessionToken
 	}
 
+	removeInvalidSubs(db, sourceID)
+
 	subsRequest := subscriptionRequest{
 		CallbackURL: callbackURL,
 		SourceID:    sourceID,
@@ -115,7 +117,13 @@ func ViewSubscriptions(db *dbhelper.DBhelper, config *ConfigStruct) {
 	headingColor.Println("ID\tHookID\t\t\t\t\tName")
 	for _, subscription := range subscriptions {
 		hookID := subscription.SourceID
-		fmt.Printf("%d\t%s\t%s\n", subscription.ID, hookID, subscription.Name)
+		//var colorFunc color
+		cs := color.New(color.FgWhite)
+		if !subscription.IsValid {
+			cs = color.New(color.FgMagenta)
+		}
+
+		cs.Printf("%d\t%s\t%s\n", subscription.ID, hookID, subscription.Name)
 	}
 	if len(subscriptions) == 0 {
 		fmt.Println("No subscription yet")

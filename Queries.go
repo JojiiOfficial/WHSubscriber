@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"strconv"
 
 	dbhelper "github.com/JojiiOfficial/GoDBHelper"
@@ -180,7 +179,11 @@ func hasSubscribted(db *dbhelper.DBhelper, subscriptionID, sourceID string) (boo
 
 func validateSubscription(db *dbhelper.DBhelper, subscriptionID string) error {
 	_, err := db.Execf("UPDATE %s SET valid=1 WHERE subsID=?", []string{TableSubscriptions}, subscriptionID)
-	fmt.Printf("UPDATE %s SET valid=1 WHERE subsID=%s", TableSubscriptions, subscriptionID)
+	return err
+}
+
+func removeInvalidSubs(db *dbhelper.DBhelper, subscriptionID string) error {
+	_, err := db.Execf("DELETE FROM %s WHERE sourceID=?", []string{TableSubscriptions}, subscriptionID)
 	return err
 }
 
