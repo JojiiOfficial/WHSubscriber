@@ -54,15 +54,15 @@ func (webhook *Subscription) insert(db *dbhelper.DBhelper) error {
 }
 
 func (action *Action) insert(db *dbhelper.DBhelper) error {
-	var rs *sql.Result
+	var rs sql.Result
 	var err error
 	var id int64
 
-	if rs, err = db.Insert(*action, TableActions); err != nil || rs == nil {
+	if rs, err = db.Execf("INSERT INTO %s (name, subscriptionID, mode, file) VALUES(?,?,?,?)", []string{TableActions}, action.Name, action.SubscriptionID, action.Mode, action.File); err != nil || rs == nil {
 		return err
 	}
 
-	if id, err = (*rs).LastInsertId(); err != nil {
+	if id, err = rs.LastInsertId(); err != nil {
 		return err
 	}
 
