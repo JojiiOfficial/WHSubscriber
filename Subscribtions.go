@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	dbhelper "github.com/JojiiOfficial/GoDBHelper"
 	"github.com/fatih/color"
@@ -45,6 +46,8 @@ func Subscribe(db *dbhelper.DBhelper, config *ConfigStruct, callbackURL, webhook
 		Token:       token,
 	}
 
+	subSourceIDtemp = webhookID
+
 	var subscrResponse subscriptionResponse
 	response, err := RestRequest(EPSubscriptionAdd, subsRequest, &subscrResponse, config)
 	if err != nil {
@@ -65,6 +68,14 @@ func Subscribe(db *dbhelper.DBhelper, config *ConfigStruct, callbackURL, webhook
 	} else {
 		fmt.Println(color.HiRedString("Error:"), response.Message)
 	}
+
+	//Reset subSourceTemp
+	go (func() {
+		<-time.After(9 * time.Second)
+		if len(subSourceIDtemp) > 0 {
+			subSourceIDtemp = ""
+		}
+	})()
 }
 
 //Unsubscribe unsubscribe a subscription

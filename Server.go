@@ -20,8 +20,9 @@ func printServerVersion() {
 // ------------------ Receiver SERVER ----------------
 
 var (
-	dbs     *dbhelper.DBhelper
-	configs *ConfigStruct
+	dbs             *dbhelper.DBhelper
+	configs         *ConfigStruct
+	subSourceIDtemp string
 )
 
 //StartReceiverServer starts the receiver server
@@ -72,14 +73,9 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	hookSourceID := r.Header.Get(HeaderSource)
-	hookSubscriptionID := r.Header.Get(HeaderSubsID)
-	if len(hookSourceID) > 0 && len(hookSubscriptionID) > 0 {
-		has, err := hasSubscripted(dbs, hookSubscriptionID, hookSourceID)
-		if err != nil {
-			fmt.Println(err.Error())
-			return
-		}
-		if has {
+	if len(hookSourceID) > 0 {
+		if hookSourceID == subSourceIDtemp {
+			subSourceIDtemp = ""
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprintf(w, "OK")
 			fmt.Println("Ping success")
