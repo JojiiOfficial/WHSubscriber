@@ -10,7 +10,7 @@ import (
 	"time"
 
 	gaw "github.com/JojiiOfficial/GoAw"
-	godbhelper "github.com/JojiiOfficial/GoDBHelper"
+	dbhelper "github.com/JojiiOfficial/GoDBHelper"
 )
 
 func printServerVersion() {
@@ -19,13 +19,19 @@ func printServerVersion() {
 
 // ------------------ Receiver SERVER ----------------
 
-var dbs *godbhelper.DBhelper
+var (
+	dbs     *dbhelper.DBhelper
+	configs *ConfigStruct
+)
 
 //StartReceiverServer starts the receiver server
-func StartReceiverServer(config *ConfigStruct, db *godbhelper.DBhelper, debug bool) {
+func StartReceiverServer(config *ConfigStruct, db *dbhelper.DBhelper, debug bool) {
 	dbs = db
+	configs = config
+
 	//Always listen only on /
 	http.HandleFunc("/", webhookPage)
+	http.HandleFunc("/ping", pingHandler)
 
 	//Start the server
 	if config.Server.UseTLS {
@@ -50,6 +56,38 @@ func StartReceiverServer(config *ConfigStruct, db *godbhelper.DBhelper, debug bo
 	for {
 		time.Sleep(1 * time.Hour)
 	}
+}
+
+func pingHandler(w http.ResponseWriter, r *http.Request) {
+	ip := gaw.GetIPFromHTTPrequest(r)
+	match, err := matchIPHost(ip, configs.Client.ServerURL)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	if !match {
+		w.WriteHeader(http.StatusNotImplemented)
+		fmt.Fprintf(w, "not implemented")
+		return
+	}
+	hookSourceID := r.Header.Get(HeaderSource)
+	hookSubscriptionID := r.Header.Get(HeaderSubsID)
+	if len(hookSourceID) > 0 && len(hookSubscriptionID) > 0 {
+		has, err := hasSubscripted(dbs, hookSubscriptionID, hookSourceID)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+		if has {
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprintf(w, "OK")
+			fmt.Println("Ping success")
+			return
+		}
+	}
+	w.WriteHeader(http.StatusNotImplemented)
+	fmt.Fprintf(w, "not implemented")
 }
 
 //OnWebhookReceived

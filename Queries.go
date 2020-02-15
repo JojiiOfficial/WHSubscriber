@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"strconv"
 
-	godbhelper "github.com/JojiiOfficial/GoDBHelper"
+	dbhelper "github.com/JojiiOfficial/GoDBHelper"
 )
 
 //Tables
@@ -15,16 +15,16 @@ const (
 	TableActions = "actions"
 )
 
-func getInitSQL() godbhelper.QueryChain {
-	return godbhelper.QueryChain{
+func getInitSQL() dbhelper.QueryChain {
+	return dbhelper.QueryChain{
 		Name:  "initChain",
 		Order: 0,
-		Queries: godbhelper.CreateInitVersionSQL(
-			godbhelper.InitSQL{
+		Queries: dbhelper.CreateInitVersionSQL(
+			dbhelper.InitSQL{
 				Query:   "CREATE TABLE %s (`pkID` INTEGER PRIMARY KEY AUTOINCREMENT, `sourceID` TEXT, `hookName` TEXT, `subsID` TEXT)",
 				FParams: []string{TableSubscriptions},
 			},
-			godbhelper.InitSQL{
+			dbhelper.InitSQL{
 				Query:   "CREATE TABLE %s (`pkID` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT, `subscriptionID` INTEGER, `mode` INTEGER, `file` TEXT)",
 				FParams: []string{TableActions},
 			},
@@ -36,7 +36,7 @@ func getInitSQL() godbhelper.QueryChain {
 
 // ---------------------------------- Inserts ------------------------------------
 
-func (webhook *Subscription) insert(db *godbhelper.DBhelper) error {
+func (webhook *Subscription) insert(db *dbhelper.DBhelper) error {
 	var rs *sql.Result
 	var err error
 	var id int64
@@ -53,7 +53,7 @@ func (webhook *Subscription) insert(db *godbhelper.DBhelper) error {
 	return nil
 }
 
-func (action *Action) insert(db *godbhelper.DBhelper) error {
+func (action *Action) insert(db *dbhelper.DBhelper) error {
 	var rs *sql.Result
 	var err error
 	var id int64
@@ -73,13 +73,13 @@ func (action *Action) insert(db *godbhelper.DBhelper) error {
 // ---------------------------------- Selects ------------------------------------
 
 //-->  Actions ----------------
-func getActionIDs(db *godbhelper.DBhelper, limit int) ([]string, error) {
+func getActionIDs(db *dbhelper.DBhelper, limit int) ([]string, error) {
 	var hooks []string
 	err := db.QueryRowsf(&hooks, "SELECT pkID FROM %s LIMIT %s", []string{TableActions, strconv.Itoa(limit)})
 	return hooks, err
 }
 
-func hasAction(db *godbhelper.DBhelper, actionName string) (bool, error) {
+func hasAction(db *dbhelper.DBhelper, actionName string) (bool, error) {
 	var c int
 	err := db.QueryRowf(&c, "SELECT COUNT(*) FROM %s WHERE name=?", []string{TableActions}, actionName)
 	if err != nil {
@@ -88,7 +88,7 @@ func hasAction(db *godbhelper.DBhelper, actionName string) (bool, error) {
 	return c > 0, nil
 }
 
-func getActionIDFromName(db *godbhelper.DBhelper, actionName string) (int64, error) {
+func getActionIDFromName(db *dbhelper.DBhelper, actionName string) (int64, error) {
 	var c int64
 	err := db.QueryRowf(&c, "SELECT pkID FROM %s WHERE name=?", []string{TableActions}, actionName)
 	if err != nil {
@@ -97,13 +97,13 @@ func getActionIDFromName(db *godbhelper.DBhelper, actionName string) (int64, err
 	return c, nil
 }
 
-func getActions(db *godbhelper.DBhelper) ([]Action, error) {
+func getActions(db *dbhelper.DBhelper) ([]Action, error) {
 	var actions []Action
 	err := db.QueryRowsf(&actions, "SELECT %s.*,IFNULL(%s.hookName,'- na -')as hookName FROM %s LEFT JOIN %s ON (%s.pkID = %s.subscriptionID) ORDER BY pkID DESC", []string{TableActions, TableSubscriptions, TableActions, TableSubscriptions, TableSubscriptions, TableActions})
 	return actions, err
 }
 
-func getActionFromName(db *godbhelper.DBhelper, actionName string) (*Action, error) {
+func getActionFromName(db *dbhelper.DBhelper, actionName string) (*Action, error) {
 	var action Action
 	err := db.QueryRowf(&action, "SELECT * FROM %s WHERE name=?", []string{TableActions}, actionName)
 	if err != nil {
@@ -112,26 +112,26 @@ func getActionFromName(db *godbhelper.DBhelper, actionName string) (*Action, err
 	return &action, nil
 }
 
-func getActionsForSource(db *godbhelper.DBhelper, sourceID int64) ([]Action, error) {
+func getActionsForSource(db *dbhelper.DBhelper, sourceID int64) ([]Action, error) {
 	var actions []Action
 	err := db.QueryRowsf(&actions, "SELECT * FROM %s WHERE subscriptionID=? ORDER BY pkID ASC", []string{TableActions}, sourceID)
 	return actions, err
 }
 
 //-->  Subscriptions ---------------------
-func getSubscriptions(db *godbhelper.DBhelper) ([]Subscription, error) {
+func getSubscriptions(db *dbhelper.DBhelper) ([]Subscription, error) {
 	var subscriptions []Subscription
 	err := db.QueryRowsf(&subscriptions, "SELECT * FROM %s ORDER BY pkID DESC", []string{TableSubscriptions})
 	return subscriptions, err
 }
 
-func getSubscriptionsHumanized(db *godbhelper.DBhelper, limit int) ([]string, error) {
+func getSubscriptionsHumanized(db *dbhelper.DBhelper, limit int) ([]string, error) {
 	var hooks []string
 	err := db.QueryRowsf(&hooks, "SELECT hookName || '-' || sourceID FROM %s WHERE hookName != ''", []string{TableSubscriptions})
 	return hooks, err
 }
 
-func getSubscriptionFromID(db *godbhelper.DBhelper, sid int64) (*Subscription, error) {
+func getSubscriptionFromID(db *dbhelper.DBhelper, sid int64) (*Subscription, error) {
 	var subscription Subscription
 	err := db.QueryRowf(&subscription, "SELECT * FROM %s WHERE pkID=?", []string{TableSubscriptions}, sid)
 	if err != nil {
@@ -140,7 +140,7 @@ func getSubscriptionFromID(db *godbhelper.DBhelper, sid int64) (*Subscription, e
 	return &subscription, nil
 }
 
-func getSubscriptionFromSourceID(db *godbhelper.DBhelper, sid string) (*Subscription, error) {
+func getSubscriptionFromSourceID(db *dbhelper.DBhelper, sid string) (*Subscription, error) {
 	var subscription Subscription
 	err := db.QueryRowf(&subscription, "SELECT * FROM %s WHERE sourceID=?", []string{TableSubscriptions}, sid)
 	if err != nil {
@@ -149,7 +149,7 @@ func getSubscriptionFromSourceID(db *godbhelper.DBhelper, sid string) (*Subscrip
 	return &subscription, nil
 }
 
-func getSubscriptionID(db *godbhelper.DBhelper, sourceID string) (int64, error) {
+func getSubscriptionID(db *dbhelper.DBhelper, sourceID string) (int64, error) {
 	var id int64
 	err := db.QueryRowf(&id, "SELECT pkID FROM %s WHERE sourceID=?", []string{TableSubscriptions}, sourceID)
 	if err != nil {
@@ -158,40 +158,49 @@ func getSubscriptionID(db *godbhelper.DBhelper, sourceID string) (int64, error) 
 	return id, nil
 }
 
-func deleteSubscribtion(db *godbhelper.DBhelper, pkID int64) error {
+func deleteSubscription(db *dbhelper.DBhelper, pkID int64) error {
 	_, err := db.Execf("DELETE FROM %s WHERE pkID=?", []string{TableSubscriptions}, pkID)
 	return err
 }
 
-func deleteSubscribtionByID(db *godbhelper.DBhelper, sourceID string) error {
+func deleteSubscriptionByID(db *dbhelper.DBhelper, sourceID string) error {
 	_, err := db.Execf("DELETE FROM %s WHERE sourceID=?", []string{TableSubscriptions}, sourceID)
 	return err
 }
 
+func hasSubscripted(db *dbhelper.DBhelper, subscriptionID, sourceID string) (bool, error) {
+	var c int
+	err := db.QueryRowf(&c, "SELECT COUNT(*) FROM %s WHERE subsID=? AND sourceID=?", []string{TableSubscriptions}, subscriptionID, sourceID)
+	if err != nil {
+		return false, err
+	}
+	return c > 0, nil
+}
+
 // ---------------------------------- Updates ------------------------------------
 
-func removeActionSource(db *godbhelper.DBhelper, subscriptionID int64) error {
+func removeActionSource(db *dbhelper.DBhelper, subscriptionID int64) error {
 	_, err := db.Execf("UPDATE %s SET subscriptionID=0 WHERE subscriptionID=?", []string{TableActions}, subscriptionID)
 	return err
 }
-func updateActionSource(db *godbhelper.DBhelper, aID, subscriptionID int64) error {
+func updateActionSource(db *dbhelper.DBhelper, aID, subscriptionID int64) error {
 	_, err := db.Execf("UPDATE %s SET subscriptionID=? WHERE pkID=?", []string{TableActions}, subscriptionID, aID)
 	return err
 }
 
-func updateActionMode(db *godbhelper.DBhelper, aID int64, newMode uint8) error {
+func updateActionMode(db *dbhelper.DBhelper, aID int64, newMode uint8) error {
 	_, err := db.Execf("UPDATE %s SET mode=? WHERE pkID=?", []string{TableActions}, newMode, aID)
 	return err
 }
 
-func updateActionFile(db *godbhelper.DBhelper, aID int64, newFile string) error {
+func updateActionFile(db *dbhelper.DBhelper, aID int64, newFile string) error {
 	_, err := db.Execf("UPDATE %s SET file=? WHERE pkID=?", []string{TableActions}, newFile, aID)
 	return err
 }
 
 // ---------------------------------- Deletions ------------------------------------
 
-func deleteActionByID(db *godbhelper.DBhelper, name string) error {
+func deleteActionByID(db *dbhelper.DBhelper, name string) error {
 	_, err := db.Execf("DELETE FROM %s WHERE name=?", []string{TableActions}, name)
 	return err
 }

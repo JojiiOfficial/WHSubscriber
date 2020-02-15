@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	gaw "github.com/JojiiOfficial/GoAw"
-	godbhelper "github.com/JojiiOfficial/GoDBHelper"
+	dbhelper "github.com/JojiiOfficial/GoDBHelper"
 	"github.com/fatih/color"
 )
 
@@ -59,7 +59,7 @@ func CreateSource(config *ConfigStruct, name, description, mode string, private 
 }
 
 //DeleteSource deletes a source
-func DeleteSource(db *godbhelper.DBhelper, config *ConfigStruct, sourceID string) {
+func DeleteSource(db *dbhelper.DBhelper, config *ConfigStruct, sourceID string) {
 	if !checkLoggedIn(config) {
 		return
 	}
@@ -77,7 +77,7 @@ func DeleteSource(db *godbhelper.DBhelper, config *ConfigStruct, sourceID string
 		id, err := getSubscriptionID(db, sourceID)
 		if err == nil {
 			removeActionSource(db, id)
-			deleteSubscribtionByID(db, sourceID)
+			deleteSubscriptionByID(db, sourceID)
 		}
 		fmt.Println("Source deleted", color.HiGreenString("successfully"))
 	} else {
@@ -85,7 +85,7 @@ func DeleteSource(db *godbhelper.DBhelper, config *ConfigStruct, sourceID string
 	}
 }
 
-func getSources(db *godbhelper.DBhelper, config *ConfigStruct, args ...string) ([]sourceResponse, error) {
+func getSources(db *dbhelper.DBhelper, config *ConfigStruct, args ...string) ([]sourceResponse, error) {
 	sid := ""
 	if len(args) > 0 {
 		sid = args[0]
@@ -113,7 +113,7 @@ func getSources(db *godbhelper.DBhelper, config *ConfigStruct, args ...string) (
 }
 
 //ListSources lists your sources
-func ListSources(db *godbhelper.DBhelper, config *ConfigStruct, id string) {
+func ListSources(db *dbhelper.DBhelper, config *ConfigStruct, id string) {
 	if !checkLoggedIn(config) {
 		return
 	}

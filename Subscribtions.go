@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	godbhelper "github.com/JojiiOfficial/GoDBHelper"
+	dbhelper "github.com/JojiiOfficial/GoDBHelper"
 	"github.com/fatih/color"
 )
 
@@ -13,7 +13,7 @@ func printSubscriberVersion() {
 }
 
 //Subscribe (config, hookCallbackURL, WebhookID)
-func Subscribe(db *godbhelper.DBhelper, config *ConfigStruct, callbackURL, webhookID string) {
+func Subscribe(db *dbhelper.DBhelper, config *ConfigStruct, callbackURL, webhookID string) {
 	remoteURL := config.Client.ServerURL
 
 	if len(callbackURL) == 0 && len(config.Client.CallbackURL) == 0 {
@@ -68,7 +68,7 @@ func Subscribe(db *godbhelper.DBhelper, config *ConfigStruct, callbackURL, webho
 }
 
 //Unsubscribe unsubscribe a subscription
-func Unsubscribe(config *ConfigStruct, db *godbhelper.DBhelper, id string) {
+func Unsubscribe(config *ConfigStruct, db *dbhelper.DBhelper, id string) {
 	wdid, err := getWhIDFromHumanInput(db, id)
 	if err != nil {
 		fmt.Println("Err:", err.Error())
@@ -87,7 +87,7 @@ func Unsubscribe(config *ConfigStruct, db *godbhelper.DBhelper, id string) {
 	}
 
 	if response.Status == ResponseSuccess {
-		err = deleteSubscribtion(db, wdid)
+		err = deleteSubscription(db, wdid)
 		if err != nil {
 			fmt.Println("Err:", err.Error())
 			return
@@ -99,12 +99,12 @@ func Unsubscribe(config *ConfigStruct, db *godbhelper.DBhelper, id string) {
 }
 
 //ImportSubscription import a subscription
-func ImportSubscription(db *godbhelper.DBhelper, id string) {
+func ImportSubscription(db *dbhelper.DBhelper, id string) {
 	fmt.Println(id)
 }
 
 //ViewSubscriptions views subscriptions
-func ViewSubscriptions(db *godbhelper.DBhelper, config *ConfigStruct) {
+func ViewSubscriptions(db *dbhelper.DBhelper, config *ConfigStruct) {
 	subscriptions, err := getSubscriptions(db)
 	if err != nil {
 		log.Fatalln(err.Error())

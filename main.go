@@ -31,11 +31,11 @@ var (
 	serverCmdStart = serverCmd.Command("start", "Start the server")
 
 	//Subscription commands
-	//Subsciption
-	subscriptionCmd = app.Command("subscription", "Subscription command")
 	//Subscriptions
-	subscribtionsCmd = app.Command("subscriptions", "Lists your subscriptions").FullCommand()
-	//Subsrcibe child command
+	subscriptionsCmd = app.Command("subscriptions", "Lists your subscriptions").FullCommand()
+	//Subscription
+	subscriptionCmd = app.Command("subscription", "Subscription command")
+	//Subscribe child command
 	subscribeAddWh         = subscriptionCmd.Command("add", "Subscribe to a webhook")
 	subscribeWhID          = subscribeAddWh.Arg("webhookID", "Which webhook you want to subscribe").Required().String()
 	subscribeWhCallbackURL = subscribeAddWh.Arg("url", "The callback URL to receive the notifications").Envar(getEnVar(EnVarReceiveURL)).String()
@@ -55,15 +55,15 @@ var (
 
 	//Action commands
 	//Action
-	actionCmd = app.Command("action", "Configure your actions for wehbooks")
+	actionCmd = app.Command("action", "Configure your actions for webhooks")
 	//Actions
 	actionsCmd = app.Command("actions", "List you actions").FullCommand()
 	//Action add
 	actionCmdAdd        = actionCmd.Command("add", "Adds an action for a webhook")
 	actionCmdAddMode    = actionCmdAdd.Flag("mode", "The kind of action you want to add").HintAction(hintAvailableActions).Default("script").String()
-	actionCmdAddName    = actionCmdAdd.Flag("name", "The name of the action. To make it recycleable").HintAction(hintRandomNames).Default(getRandomName()).String()
+	actionCmdAddName    = actionCmdAdd.Flag("name", "The name of the action. To make it easier to use again").HintAction(hintRandomNames).Default(getRandomName()).String()
 	actionCmdAddWebhook = actionCmdAdd.Flag("webhook", "The webhook to add the action to").HintAction(hintSubscriptionsNoNa).String()
-	actionCmdAddFile    = actionCmdAdd.Arg("file", "The action-file. Either a bash script or an action-configuration").HintAction(hintListCurrDir).Required().String()
+	actionCmdAddFile    = actionCmdAdd.Arg("file", "The action-file. Either a bash script or an action-configuration").HintAction(hintListCurDir).Required().String()
 	actionCmdAddCreate  = actionCmdAdd.Flag("create", "Create the file for the action").Default("false").Bool()
 	//Action set
 	actionCmdUpdate = actionCmd.Command("update", "Sets/Changes an action")
@@ -78,7 +78,7 @@ var (
 	actionCmdUpdateAction      = actionCmdUpdate.Command("action", "Sets/Changes the webhook for an action")
 	actionCmdUpdateFileAction  = actionCmdUpdateAction.Arg("action", "The action to change").HintAction(hintListActions).Required().String()
 	actionCmdUpdateFileType    = actionCmdUpdateAction.Flag("new-mode", "The new kind of action. Leave empty to keep current value").HintAction(hintAvailableActions).String()
-	actionCmdUpdateFileNewFile = actionCmdUpdateAction.Flag("new-file", "The new action-file").HintAction(hintListCurrDir).String()
+	actionCmdUpdateFileNewFile = actionCmdUpdateAction.Flag("new-file", "The new action-file").HintAction(hintListCurDir).String()
 	//Action delete
 	actionCmdDelete     = actionCmd.Command("delete", "Deletes an action from a webhook").Alias("rm")
 	actionCmdDeleteName = actionCmdDelete.Arg("name", "The name of the action").HintAction(hintListActions).Required().Strings()
@@ -158,7 +158,7 @@ func main() {
 			//whsub subscription add
 			Subscribe(db, config, *subscribeWhCallbackURL, *subscribeWhID)
 		}
-	case subscribtionsCmd:
+	case subscriptionsCmd:
 		{
 			//whsub subscriptions
 			ViewSubscriptions(db, config)

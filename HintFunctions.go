@@ -7,10 +7,10 @@ import (
 	"os"
 )
 
-func hintListCurrDir() []string {
+func hintListCurDir() []string {
 	files, err := ioutil.ReadDir("./")
 	if err != nil {
-		fmt.Println("Error listing curr dir:", err.Error())
+		fmt.Println("Error listing cur dir:", err.Error())
 		return []string{}
 	}
 	var s []string

@@ -12,14 +12,11 @@ var (
 	DefaultDatabaseFile = "data.db"
 )
 
-//Local endpoints
 const (
-//Webhooks
-)
-
-const (
-	//HeaderSource the sourceID of the incomming hook
+	//HeaderSubsID the sourceID of the incoming hook
+	HeaderSubsID = "W_S_SubsID"
+	//HeaderSource the sourceID of the incoming hook
 	HeaderSource = "W_S_Source"
-	//HeaderReceived the unixtime when the hook was received
+	//HeaderReceived the unix time when the hook was received
 	HeaderReceived = "W_S_Source"
 )

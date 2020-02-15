@@ -1,7 +1,10 @@
 package main
 
 import (
+	"errors"
 	"log"
+	"net"
+	"net/url"
 	"os"
 	"path"
 
@@ -17,7 +20,7 @@ func getDataPath() string {
 			log.Fatalln(err.Error())
 		}
 	} else if s != nil && !s.IsDir() {
-		log.Fatalln("Datapath-name already taken by a file!")
+		log.Fatalln("DataPath-name already taken by a file!")
 	}
 	return path
 }
@@ -29,4 +32,28 @@ func mapKeyByValue(val uint8, m map[string]uint8) string {
 		}
 	}
 	return ""
+}
+
+//Looks if ip is assigned to host
+func matchIPHost(ip, host string) (bool, error) {
+	u, err := url.Parse(host)
+	if err == nil && len(u.Hostname()) > 0 {
+		host = u.Hostname()
+	}
+
+	trial := net.ParseIP(ip)
+	if trial.To4() == nil {
+		return false, errors.New("NoIP")
+	}
+	ips, err := net.LookupHost(host)
+	if err != nil {
+		return false, err
+	}
+
+	for _, ipa := range ips {
+		if ipa == ip {
+			return true, nil
+		}
+	}
+	return false, nil
 }

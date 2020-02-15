@@ -68,7 +68,7 @@ func AddAction(db *dbhelper.DBhelper, actionType, actionName, webhookName, actio
 	absfile, _ := filepath.Abs(actionFile)
 
 	if !gaw.FileExists(newFileString.ToString()) && !(*appYes) && !createFile {
-		y, i := gaw.ConfirmInput(color.HiYellowString("Warning: ")+"file or directory does'n exist! Continue anyway? [y/n]> ", bufio.NewReader(os.Stdin))
+		y, i := gaw.ConfirmInput(color.HiYellowString("Warning: ")+"file or directory doesn't exist! Continue anyway? [y/n]> ", bufio.NewReader(os.Stdin))
 		if i == -1 || !y {
 			fmt.Println("Abort")
 			return
@@ -130,7 +130,7 @@ func DeleteAction(db *dbhelper.DBhelper, actionIDs []string) {
 	for _, actionID := range actionIDs {
 		has, err := hasAction(db, actionID)
 		if err != nil {
-			fmt.Println("An error occured:", err.Error())
+			fmt.Println("An error occurred:", err.Error())
 			return
 		}
 		if !has {
@@ -224,7 +224,7 @@ func ActionSetFile(db *dbhelper.DBhelper, actionName, newMode, newFile string) {
 		absfile, _ := filepath.Abs(newFile)
 
 		if !gaw.FileExists(newFile) && !(*appYes) {
-			y, i := gaw.ConfirmInput(color.HiYellowString("Warning: ")+"file does'n exist! Continue anyway? [y/n]> ", bufio.NewReader(os.Stdin))
+			y, i := gaw.ConfirmInput(color.HiYellowString("Warning: ")+"file doesn't exist! Continue anyway? [y/n]> ", bufio.NewReader(os.Stdin))
 			if i == -1 || !y {
 				fmt.Println("Abort")
 				return
@@ -296,7 +296,7 @@ func ActionCreateFile(db *dbhelper.DBhelper, action *Action) {
 	default:
 		return
 	}
-	fmt.Println("Action file created", color.HiGreenString("sucessfully"))
+	fmt.Println("Action file created", color.HiGreenString("successfully"))
 }
 
 //Run an action
