@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"time"
 
 	dbhelper "github.com/JojiiOfficial/GoDBHelper"
 	"github.com/fatih/color"
@@ -14,7 +13,7 @@ func printSubscriberVersion() {
 }
 
 //Subscribe (config, hookCallbackURL, WebhookID)
-func Subscribe(db *dbhelper.DBhelper, config *ConfigStruct, callbackURL, webhookID string) {
+func Subscribe(db *dbhelper.DBhelper, config *ConfigStruct, callbackURL, sourceID string) {
 	remoteURL := config.Client.ServerURL
 
 	if len(callbackURL) == 0 && len(config.Client.CallbackURL) == 0 {
@@ -27,11 +26,11 @@ func Subscribe(db *dbhelper.DBhelper, config *ConfigStruct, callbackURL, webhook
 	}
 
 	if *appDebug {
-		fmt.Printf("Trying to subscribe to '%s' using callback URL '%s' and remote '%s'\n", webhookID, callbackURL, remoteURL)
+		fmt.Printf("Trying to subscribe to '%s' using callback URL '%s' and remote '%s'\n", sourceID, callbackURL, remoteURL)
 	}
 
 	wh := Subscription{
-		SourceID: webhookID,
+		SourceID: sourceID,
 	}
 
 	//Request subscription
@@ -42,11 +41,9 @@ func Subscribe(db *dbhelper.DBhelper, config *ConfigStruct, callbackURL, webhook
 
 	subsRequest := subscriptionRequest{
 		CallbackURL: callbackURL,
-		SourceID:    webhookID,
+		SourceID:    sourceID,
 		Token:       token,
 	}
-
-	subSourceIDtemp = webhookID
 
 	var subscrResponse subscriptionResponse
 	response, err := RestRequest(EPSubscriptionAdd, subsRequest, &subscrResponse, config)
@@ -64,18 +61,11 @@ func Subscribe(db *dbhelper.DBhelper, config *ConfigStruct, callbackURL, webhook
 			log.Printf(err.Error())
 			return
 		}
-		fmt.Printf("%s subscribed to '%s'\n", color.HiGreenString("Successfully"), webhookID)
+		fmt.Printf("%s subscribed to '%s'\n", color.HiGreenString("Successfully"), sourceID)
 	} else {
 		fmt.Println(color.HiRedString("Error:"), response.Message)
 	}
 
-	//Reset subSourceTemp
-	go (func() {
-		<-time.After(9 * time.Second)
-		if len(subSourceIDtemp) > 0 {
-			subSourceIDtemp = ""
-		}
-	})()
 }
 
 //Unsubscribe unsubscribe a subscription

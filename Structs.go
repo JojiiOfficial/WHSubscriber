@@ -6,6 +6,7 @@ type Subscription struct {
 	Name           string `db:"hookName"`
 	SourceID       string `db:"sourceID"`
 	SubscriptionID string `db:"subsID"`
+	IsValid        bool   `db:"valid"`
 }
 
 //Action webhook struct

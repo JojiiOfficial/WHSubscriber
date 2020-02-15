@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"strconv"
 
 	dbhelper "github.com/JojiiOfficial/GoDBHelper"
@@ -21,7 +22,7 @@ func getInitSQL() dbhelper.QueryChain {
 		Order: 0,
 		Queries: dbhelper.CreateInitVersionSQL(
 			dbhelper.InitSQL{
-				Query:   "CREATE TABLE %s (`pkID` INTEGER PRIMARY KEY AUTOINCREMENT, `sourceID` TEXT, `hookName` TEXT, `subsID` TEXT)",
+				Query:   "CREATE TABLE %s (`pkID` INTEGER PRIMARY KEY AUTOINCREMENT, `sourceID` TEXT, `hookName` TEXT, `subsID` TEXT, `valid` INTEGER DEFAULT 0)",
 				FParams: []string{TableSubscriptions},
 			},
 			dbhelper.InitSQL{
@@ -168,13 +169,19 @@ func deleteSubscriptionByID(db *dbhelper.DBhelper, sourceID string) error {
 	return err
 }
 
-func hasSubscripted(db *dbhelper.DBhelper, subscriptionID, sourceID string) (bool, error) {
+func hasSubscribted(db *dbhelper.DBhelper, subscriptionID, sourceID string) (bool, error) {
 	var c int
 	err := db.QueryRowf(&c, "SELECT COUNT(*) FROM %s WHERE subsID=? AND sourceID=?", []string{TableSubscriptions}, subscriptionID, sourceID)
 	if err != nil {
 		return false, err
 	}
 	return c > 0, nil
+}
+
+func validateSubscription(db *dbhelper.DBhelper, subscriptionID string) error {
+	_, err := db.Execf("UPDATE %s SET valid=1 WHERE subsID=?", []string{TableSubscriptions}, subscriptionID)
+	fmt.Printf("UPDATE %s SET valid=1 WHERE subsID=%s", TableSubscriptions, subscriptionID)
+	return err
 }
 
 // ---------------------------------- Updates ------------------------------------

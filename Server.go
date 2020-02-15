@@ -20,9 +20,8 @@ func printServerVersion() {
 // ------------------ Receiver SERVER ----------------
 
 var (
-	dbs             *dbhelper.DBhelper
-	configs         *ConfigStruct
-	subSourceIDtemp string
+	dbs     *dbhelper.DBhelper
+	configs *ConfigStruct
 )
 
 //StartReceiverServer starts the receiver server
@@ -60,6 +59,7 @@ func StartReceiverServer(config *ConfigStruct, db *dbhelper.DBhelper, debug bool
 }
 
 func pingHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("ll")
 	ip := gaw.GetIPFromHTTPrequest(r)
 	match, err := matchIPHost(ip, configs.Client.ServerURL)
 	if err != nil {
@@ -73,9 +73,17 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	hookSourceID := r.Header.Get(HeaderSource)
-	if len(hookSourceID) > 0 {
-		if hookSourceID == subSourceIDtemp {
-			subSourceIDtemp = ""
+	hookSubsID := r.Header.Get(HeaderSubsID)
+	fmt.Println(hookSourceID, hookSubsID)
+	if len(hookSourceID) > 0 && len(hookSubsID) > 0 {
+		has, err := hasSubscribted(dbs, hookSubsID, hookSourceID)
+		if err != nil {
+			fmt.Println(err.Error())
+		} else if has {
+			err = validateSubscription(dbs, hookSubsID)
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprintf(w, "OK")
 			fmt.Println("Ping success")
