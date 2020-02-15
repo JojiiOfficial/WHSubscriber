@@ -92,3 +92,12 @@ func SHA512(text string) string {
 func isLoggedIn(config *ConfigStruct) bool {
 	return len(config.User.Username) > 0 && len(config.User.SessionToken) > 0
 }
+
+//return true if is logged in
+func checkLoggedIn(config *ConfigStruct) bool {
+	if isLoggedIn(config) {
+		return true
+	}
+	fmt.Println("You need to be logged in to use this feature")
+	return false
+}

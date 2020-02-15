@@ -10,8 +10,7 @@ import (
 
 //CreateSource creates a new source for webhooks
 func CreateSource(config *ConfigStruct, name, description string, private bool) {
-	if !isLoggedIn(config) {
-		fmt.Println("You need to be logged in to create sources!")
+	if !checkLoggedIn(config) {
 		return
 	}
 	if len(description) == 0 {
@@ -39,8 +38,11 @@ func CreateSource(config *ConfigStruct, name, description string, private bool) 
 }
 
 //DeleteSource deletes a source
-func DeleteSource() {
-	//TODO DeleteSource
+func DeleteSource(db *godbhelper.DBhelper, config *ConfigStruct, sourceID string) {
+	if !checkLoggedIn(config) {
+		return
+	}
+
 }
 
 func getSources(db *godbhelper.DBhelper, config *ConfigStruct, args ...string) ([]sourceResponse, error) {
@@ -70,8 +72,7 @@ func getSources(db *godbhelper.DBhelper, config *ConfigStruct, args ...string) (
 
 //SourceList lists your sources
 func SourceList(db *godbhelper.DBhelper, config *ConfigStruct, id string) {
-	if !isLoggedIn(config) {
-		fmt.Println("You need to be logged in to use this feature")
+	if !checkLoggedIn(config) {
 		return
 	}
 	sources, err := getSources(db, config, id)

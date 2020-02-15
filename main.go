@@ -219,7 +219,7 @@ func main() {
 	case sourceCmdDelete.FullCommand():
 		{
 			//whsub source delete
-			DeleteSource()
+			DeleteSource(db, config, *sourceCmdDeleteID)
 		}
 	case sourcesCmd.FullCommand():
 		{
