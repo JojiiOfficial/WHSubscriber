@@ -100,7 +100,6 @@ func Unsubscribe(config *ConfigStruct, db *godbhelper.DBhelper, id string) {
 
 //ImportSubscription import a subscription
 func ImportSubscription(db *godbhelper.DBhelper, id string) {
-	//TODO Import subscripion
 	fmt.Println(id)
 }
 

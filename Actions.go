@@ -310,7 +310,7 @@ func (action *Action) Run(hookFile string) {
 	case 0:
 		{
 			//Script
-			b, err := exec.Command(action.File).Output()
+			b, err := exec.Command(action.File, hookFile).Output()
 			if err != nil {
 				log.Printf("Error executing action '%s': %s\n", action.Name, err.Error())
 			} else if *appDebug {

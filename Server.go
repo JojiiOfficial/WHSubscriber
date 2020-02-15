@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	gaw "github.com/JojiiOfficial/GoAw"
@@ -75,7 +78,9 @@ func webhookPage(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Your subscription '%s' was triggered but no action was found\n", subscription.Name)
 		} else {
 			//handle this webhook in a thread
-			go handleValidWebhook(subscription, actions, r)
+			c := make(chan bool, 1)
+			go handleValidWebhook(c, subscription, actions, r)
+			<-c
 		}
 
 		//send OK
@@ -83,7 +88,7 @@ func webhookPage(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "OK")
 	} else {
 		//Request from sth else than the WeServer
-		log.Printf("Found request without correct headers from %s\n", gaw.GetIPFromHTTPrequest(r))
+		log.Printf("Found request without correct headers (%s,%s) from %s\n", hookSource, hookReceivedTime, gaw.GetIPFromHTTPrequest(r))
 		sendNotSubscripted(w)
 	}
 }
@@ -93,15 +98,42 @@ func sendNotSubscripted(w http.ResponseWriter) {
 	fmt.Fprintf(w, "Don't send me those dumb fucking requests!")
 }
 
-func handleValidWebhook(subscription *Subscription, actions []Action, request *http.Request) {
+func handleValidWebhook(c chan bool, subscription *Subscription, actions []Action, r *http.Request) {
 	if len(actions) > 0 {
+		//Read input
+		b, err := ioutil.ReadAll(io.LimitReader(r.Body, 100000))
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		r.Body.Close()
+		c <- true
+
+		//Create temp file
+		tmpFile, err := ioutil.TempFile(os.TempDir(), "whsubaction-")
+		if err != nil {
+			log.Println("Cannot create temporary file:", err)
+			return
+		}
+		//Write tempfile
+		_, err = tmpFile.Write(b)
+		if err != nil {
+			log.Printf("Error writing temp file '%s': %s\n", tmpFile.Name(), err.Error())
+			return
+		}
+		file := tmpFile.Name()
+
+		//Run actions
 		for _, action := range actions {
 			if *appDebug {
 				fmt.Println(action.Name, "-", action.File, "-", action.Mode)
 			}
-			//TODO save webhook payload to tmp file
-			action.Run("")
+
+			fmt.Println("temp file:", file)
+			action.Run(file)
 		}
+	} else {
+		c <- true
 	}
 }
 
