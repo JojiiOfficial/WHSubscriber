@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"crypto/sha512"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -37,23 +36,16 @@ func LoginCommand(config *ConfigStruct, usernameArg string) {
 		Username: username,
 	}
 
-	resp, err := RestRequest(EPLogin, login, config)
-	if err != nil {
-		fmt.Println("Err:", err.Error())
-		return
-	}
 	var response loginResponse
-	err = json.Unmarshal([]byte(resp), &response)
+	resp, err := RestRequest2(EPLogin, login, &response, config)
 	if err != nil {
-		fmt.Printf("Can't parse response '%s'\n", response)
+		fmt.Println(err.Error())
 		return
 	}
 
-	if !checkResponse(response.Status, color.New(color.FgHiRed).Sprintf("Failure\n")+"Check credentials and try again") {
-		return
-	}
-
-	if response.Status == "success" && len(response.Token) > 0 {
+	if resp.Status == ResponseError && resp.HTTPCode == 403 {
+		fmt.Println(color.HiRedString("Failure"))
+	} else if resp.Status == ResponseSuccess && len(response.Token) > 0 {
 		config.User = struct {
 			Username     string
 			SessionToken string

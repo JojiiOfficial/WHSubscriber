@@ -62,7 +62,7 @@ var (
 	actionCmdAdd        = actionCmd.Command("add", "Adds an action for a webhook")
 	actionCmdAddMode    = actionCmdAdd.Flag("mode", "The kind of action you want to add").HintAction(hintAvailableActions).Default("script").String()
 	actionCmdAddName    = actionCmdAdd.Flag("name", "The name of the action. To make it recycleable").HintAction(hintRandomNames).Default(getRandomName()).String()
-	actionCmdAddWebhook = actionCmdAdd.Flag("webhook", "The webhook to add the action to").HintAction(hintSubscriptions).String()
+	actionCmdAddWebhook = actionCmdAdd.Flag("webhook", "The webhook to add the action to").HintAction(hintSubscriptionsNoNa).String()
 	actionCmdAddFile    = actionCmdAdd.Arg("file", "The action-file. Either a bash script or an action-configuration").HintAction(hintListCurrDir).Required().String()
 	actionCmdAddCreate  = actionCmdAdd.Flag("create", "Create the file for the action").Default("false").Bool()
 	//Action set

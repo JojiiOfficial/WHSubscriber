@@ -9,70 +9,98 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"strconv"
 
 	"github.com/fatih/color"
 )
 
+//Endpoint a remote url-path
+type Endpoint string
+
 //Remote endpoints
 const (
 	//Subscriptions
-	EPSubscription         = "/sub"
-	EPSubscriptionAdd      = EPSubscription + "/add"
-	EPSubscriptionActivate = EPSubscription + "/activate"
-	EPSubscriptionRemove   = EPSubscription + "/remove"
+	EPSubscription         Endpoint = "/sub"
+	EPSubscriptionAdd      Endpoint = EPSubscription + "/add"
+	EPSubscriptionActivate Endpoint = EPSubscription + "/activate"
+	EPSubscriptionRemove   Endpoint = EPSubscription + "/remove"
 
 	//User
-	EPUser       = "/user"
-	EPUserCreate = EPUser + "/create"
-	EPLogin      = "/login"
+	EPUser       Endpoint = "/user"
+	EPUserCreate Endpoint = EPUser + "/create"
+	EPLogin      Endpoint = "/login"
 
 	//Source
-	EPSource       = "/source"
-	EPSources      = EPSource + "s"
-	EPSourceCreate = EPSource + "/create"
-	EPSourceInfa   = EPSource + "/info"
-	EPSourceDelete = EPSource + "/delete"
+	EPSource       Endpoint = "/source"
+	EPSources      Endpoint = EPSource + "s"
+	EPSourceCreate Endpoint = EPSource + "/create"
+	EPSourceInfa   Endpoint = EPSource + "/info"
+	EPSourceDelete Endpoint = EPSource + "/delete"
 )
 
-//RestRequest requests
-func RestRequest(file string, data interface{}, config *ConfigStruct) (string, error) {
-	tr := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: config.Client.IgnoreCert}}
-	client := &http.Client{Transport: tr}
+//RestRequest2 a better request method
+func RestRequest2(endpoint Endpoint, payload interface{}, retVar interface{}, config *ConfigStruct) (*RestResponse, error) {
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: config.Client.IgnoreCert,
+			},
+		},
+	}
 
 	//Build url
 	u, err := url.Parse(config.Client.ServerURL)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	u.Path = path.Join(u.Path, file)
+	u.Path = path.Join(u.Path, string(endpoint))
 
 	//Encode data
-	bda, err := json.Marshal(data)
+	bda, err := json.Marshal(payload)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	//Make request
 	resp, err := client.Post(u.String(), "application/json", bytes.NewBuffer(bda))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	//Read respons
-	d, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
+	//Read and validate headers
+	statusStr := resp.Header.Get(HeaderStatus)
+	statusMessage := resp.Header.Get(HeaderStatusMessage)
+
+	if len(statusStr) == 0 {
+		return nil, ErrorInvalidHeaders
+	}
+	statusInt, err := strconv.Atoi(statusStr)
+	if err != nil || (statusInt > 1 || statusInt < 0) {
+		return nil, ErrorInvalidHeaders
+	}
+	status := (ResponseStatus)(uint8(statusInt))
+
+	response := &RestResponse{
+		HTTPCode: resp.StatusCode,
+		Message:  statusMessage,
+		Status:   status,
 	}
 
-	return string(d), nil
-}
-
-func request(file string, inpData interface{}, outputdata interface{}, config *ConfigStruct) error {
-	resp, err := RestRequest(file, inpData, config)
-	if err != nil {
-		return err
+	//Only fill retVar if response was successful
+	if status == ResponseSuccess && retVar != nil {
+		//Read response
+		d, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		//Parse response into retVar
+		err = json.Unmarshal(d, &retVar)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return json.Unmarshal([]byte(resp), &outputdata)
+
+	return response, nil
 }
 
 //Returns true if success

@@ -38,31 +38,33 @@ func Subscribe(db *godbhelper.DBhelper, config *ConfigStruct, callbackURL, webho
 	if isLoggedIn(config) {
 		token = config.User.SessionToken
 	}
+
 	subsRequest := subscriptionRequest{
 		CallbackURL: callbackURL,
 		SourceID:    webhookID,
 		Token:       token,
 	}
+
 	var subscrResponse subscriptionResponse
-	err := request(EPSubscriptionAdd, subsRequest, &subscrResponse, config)
+	response, err := RestRequest2(EPSubscriptionAdd, subsRequest, &subscrResponse, config)
 	if err != nil {
-		fmt.Println("Err:", err.Error())
+		fmt.Println(err.Error())
 		return
 	}
 
-	if !checkResponse(subscrResponse.Status, "Error subscribing: "+subscrResponse.Message) {
-		return
-	}
+	if response.Status == ResponseSuccess {
+		wh.SubscriptionID = subscrResponse.SubscriptionID
+		wh.Name = subscrResponse.Name
 
-	wh.SubscriptionID = subscrResponse.SubscriptionID
-	wh.Name = subscrResponse.Name
-
-	err = wh.insert(db)
-	if err != nil {
-		log.Printf(err.Error())
-		return
+		err = wh.insert(db)
+		if err != nil {
+			log.Printf(err.Error())
+			return
+		}
+		fmt.Printf("%s subscribed to '%s'\n", color.HiGreenString("Successfully"), webhookID)
+	} else {
+		fmt.Println(color.HiRedString("Error:"), response.Message)
 	}
-	fmt.Printf("%s subscribed to '%s'\n", color.HiGreenString("Successfully"), webhookID)
 }
 
 //Unsubscribe unsubscribe a subscription
@@ -73,25 +75,26 @@ func Unsubscribe(config *ConfigStruct, db *godbhelper.DBhelper, id string) {
 		return
 	}
 	subscription, _ := getSubscriptionFromID(db, wdid)
+
 	//Request
 	req := unsubscribeRequest{
 		SubscriptionID: subscription.SubscriptionID,
 	}
-
-	var status Status
-	err = request(EPSubscriptionRemove, req, &status, config)
+	response, err := RestRequest2(EPSubscriptionRemove, req, nil, config)
 	if err != nil {
 		fmt.Println("Err:", err.Error())
 		return
 	}
-	if status.StatusCode == ResponseSuccessStr {
+
+	if response.Status == ResponseSuccess {
 		err = deleteSubscribtion(db, wdid)
 		if err != nil {
 			fmt.Println("Err:", err.Error())
+			return
 		}
 		fmt.Println(color.HiGreenString("Successfully"), "unsubscribed from", subscription.Name)
 	} else {
-		fmt.Println("Error:", status.StatusMessage)
+		fmt.Println("Error:", response.Message)
 	}
 }
 

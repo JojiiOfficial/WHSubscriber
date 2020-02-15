@@ -24,17 +24,18 @@ func CreateSource(config *ConfigStruct, name, description string, private bool) 
 		Token:       config.User.SessionToken,
 	}
 
-	var createResponse sourceAddResponse
-	err := request(EPSourceCreate, req, &createResponse, config)
+	var respData sourceAddResponse
+	response, err := RestRequest2(EPSourceCreate, req, &respData, config)
 	if err != nil {
 		fmt.Println("Err:", err.Error())
 		return
 	}
 
-	if !checkResponse(createResponse.Status, "Error creating source!") {
-		return
+	if response.Status == ResponseSuccess {
+		fmt.Println(color.HiGreenString("Success!"), fmt.Sprintf("Source create successfully.\nID:\t%s\nSecret:\t%s", respData.SourceID, respData.Secret))
+	} else {
+		fmt.Println("Err:", response.Message)
 	}
-	fmt.Println(color.HiGreenString("Success!"), fmt.Sprintf("Source create successfully.\nID:\t%s\nSecret:\t%s", createResponse.SourceID, createResponse.Secret))
 }
 
 //DeleteSource deletes a source
@@ -53,14 +54,18 @@ func getSources(db *godbhelper.DBhelper, config *ConfigStruct, args ...string) (
 		Token:    config.User.SessionToken,
 	}
 	var res listSourcesResponse
-	err := request(EPSources, req, &res, config)
-	if err != nil {
+
+	response, err := RestRequest2(EPSources, req, &res, config)
+
+	if err != nil || response.Status != ResponseSuccess {
 		return []sourceResponse{}, err
 	}
-	if !checkResponse(res.Status, "Err") {
-		return []sourceResponse{}, nil
+
+	if response.Status == ResponseSuccess {
+		return res.Sources, nil
 	}
-	return res.Sources, nil
+
+	return []sourceResponse{}, nil
 }
 
 //SourceList lists your sources
@@ -91,6 +96,9 @@ func SourceList(db *godbhelper.DBhelper, config *ConfigStruct, id string) {
 		headingColor.Println("SourceID\t\t\t\tName\t\t\tCreation\t\tSecret")
 		for _, source := range sources {
 			name := source.Name
+			if len(name) < 8 {
+				name += "\t"
+			}
 			if len(name) < 12 {
 				name += "\t"
 			}
