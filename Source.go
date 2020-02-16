@@ -163,4 +163,5 @@ func ListSources(db *dbhelper.DBhelper, config *ConfigStruct, idFlag, idArg stri
 	} else {
 		fmt.Println("You don't have sources")
 	}
+	fmt.Println()
 }

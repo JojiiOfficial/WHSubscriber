@@ -40,6 +40,11 @@ func mapKeyByValue(val uint8, m map[string]uint8) string {
 
 //Looks if ip is assigned to host
 func matchIPHost(ip, host string) (bool, error) {
+	//return true if is local IP. Otherwise bogonAsCallback wouldn't work
+	if is, _ := gaw.IsIPReserved(ip); is || ip == "[::1]" {
+		return true, nil
+	}
+
 	u, err := url.Parse(host)
 	if err == nil && len(u.Hostname()) > 0 {
 		host = u.Hostname()
