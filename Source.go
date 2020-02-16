@@ -149,13 +149,13 @@ func ListSources(db *dbhelper.DBhelper, config *ConfigStruct, idFlag, idArg stri
 		}
 	} else if len(sources) > 1 {
 		headingColor := color.New(color.FgHiGreen, color.Underline, color.Bold)
-		headingColor.Println("SourceID\t\t\t\tName\t\t\tCreation\t\tSecret")
+		headingColor.Println("SourceID\t\t\t\tName\t\t\tCreated\t\t\tSecret")
 		for _, source := range sources {
 			name := source.Name
 			if len(name) < 8 {
 				name += "\t"
 			}
-			if len(name) < 12 {
+			if len(name) < 16 {
 				name += "\t"
 			}
 			fmt.Printf("%s\t%s\t%s\t%s\n", source.SourceID, name, source.CreationTime, source.Secret)
