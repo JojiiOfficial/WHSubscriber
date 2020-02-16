@@ -87,8 +87,9 @@ var (
 	//Sources
 	sourceCmd = app.Command("source", "Source command")
 	//Sources
-	sourcesCmd   = app.Command("sources", "List your sources")
-	sourcesCmdID = app.Flag("source", "View one specific source").String()
+	sourcesCmd    = app.Command("sources", "List your sources")
+	sourcesCmdAID = sourcesCmd.Arg("source", "View one specific source").String()
+	sourcesCmdID  = sourcesCmd.Flag("source", "View one specific source").String()
 	//Create source
 	sourceCmdCreate            = sourceCmd.Command("create", "Create a new source").Alias("add")
 	sourceCmdCreateName        = sourceCmdCreate.Arg("name", "The name of the source").Required().String()
@@ -227,7 +228,7 @@ func main() {
 	case sourcesCmd.FullCommand():
 		{
 			//whsub sources
-			ListSources(db, config, *sourcesCmdID)
+			ListSources(db, config, *sourcesCmdID, *sourcesCmdAID)
 		}
 
 	//User

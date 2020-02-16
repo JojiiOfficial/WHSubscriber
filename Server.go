@@ -115,7 +115,7 @@ func webhookPage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		actions, err := getActionsForSource(dbs, subscription.ID)
-		if err != nil {
+		if err != nil || len(actions) == 0 {
 			//if no action was found
 			log.Printf("Your subscription '%s' was triggered but no action was found\n", subscription.Name)
 		} else {
@@ -152,12 +152,13 @@ func handleValidWebhook(c chan bool, subscription *Subscription, actions []Actio
 		c <- true
 
 		//Create temp file
-		tmpFile, err := ioutil.TempFile(os.TempDir(), "whsubaction-")
+		tmpFile, err := ioutil.TempFile(os.TempDir(), "WhSubAction-")
 		if err != nil {
 			log.Println("Cannot create temporary file:", err)
 			return
 		}
-		//Write tempfile
+
+		//Write temp-file
 		_, err = tmpFile.Write(b)
 		if err != nil {
 			log.Printf("Error writing temp file '%s': %s\n", tmpFile.Name(), err.Error())
@@ -171,7 +172,6 @@ func handleValidWebhook(c chan bool, subscription *Subscription, actions []Actio
 				fmt.Println(action.Name, "-", action.File, "-", action.Mode)
 			}
 
-			fmt.Println("temp file:", file)
 			action.Run(file)
 		}
 	} else {

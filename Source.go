@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
-	"strings"
 
 	gaw "github.com/JojiiOfficial/GoAw"
 	dbhelper "github.com/JojiiOfficial/GoDBHelper"
@@ -17,6 +16,11 @@ func CreateSource(config *ConfigStruct, name, description, mode string, private 
 	if !checkLoggedIn(config) {
 		return
 	}
+
+	if mode == "custom" {
+		mode = "script"
+	}
+
 	m, has := Modes[mode]
 	if !has {
 		fmt.Printf("Mode not known '%s'\n", mode)
@@ -43,19 +47,19 @@ func CreateSource(config *ConfigStruct, name, description, mode string, private 
 
 	if response.Status == ResponseSuccess {
 		fmt.Println(color.HiGreenString("Success!"), fmt.Sprintf("Source create successfully.\nID:\t%s\nSecret:\t%s", respData.SourceID, respData.Secret))
-		surl, err := gaw.ParseURL(config.Client.ServerURL)
 		if err == nil {
-			surl.JoinPath(fmt.Sprintf("/webhook/post/%s/%s/", respData.SourceID, respData.Secret))
-			u := (url.URL)(*surl)
-			ur := u.String()
-			if !strings.HasSuffix(ur, "/") {
-				ur += "/"
-			}
-			fmt.Printf("\nWebhook URL: %s\n", ur)
+			fmt.Printf("\nWebhook URL: %s\n", getURLFromSource(config, respData.SourceID, respData.Secret))
 		}
 	} else {
 		fmt.Println("Err:", response.Message)
 	}
+}
+
+func getURLFromSource(config *ConfigStruct, sourceID, secret string) string {
+	surl, _ := gaw.ParseURL(config.Client.ServerURL)
+	surl.JoinPath(fmt.Sprintf("/webhook/post/%s/%s/", sourceID, secret))
+	u := (url.URL)(*surl)
+	return u.String()
 }
 
 //DeleteSource deletes a source
@@ -113,10 +117,18 @@ func getSources(db *dbhelper.DBhelper, config *ConfigStruct, args ...string) ([]
 }
 
 //ListSources lists your sources
-func ListSources(db *dbhelper.DBhelper, config *ConfigStruct, id string) {
+func ListSources(db *dbhelper.DBhelper, config *ConfigStruct, idFlag, idArg string) {
 	if !checkLoggedIn(config) {
 		return
 	}
+
+	//Allow to use flag or arg
+	id := idFlag
+	if len(id) == 0 {
+		id = idArg
+	}
+
+	//Get Sources from server
 	sources, err := getSources(db, config, id)
 	if err != nil {
 		fmt.Println("Err:", err.Error())
@@ -134,6 +146,7 @@ func ListSources(db *dbhelper.DBhelper, config *ConfigStruct, id string) {
 			fmt.Println(color.HiGreenString("Secret:\t ") + source.Secret)
 		}
 		fmt.Println(color.HiGreenString("Private: ") + strconv.FormatBool(source.IsPrivate))
+		fmt.Println(color.HiGreenString("URL:\t ") + getURLFromSource(config, source.SourceID, source.Secret))
 	} else if len(sources) > 1 {
 		headingColor := color.New(color.FgHiGreen, color.Underline, color.Bold)
 		headingColor.Println("SourceID\t\t\t\tName\t\t\tCreation\t\tSecret")

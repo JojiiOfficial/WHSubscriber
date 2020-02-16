@@ -17,7 +17,7 @@ import (
 type GitActionStruct struct {
 	Git     GitActionItem
 	Shell   ShellActionItem
-	Actions []ActionItem
+	Actions []string
 }
 
 //GitRemoteServer remote server for git (github/gitlab/etc...)
@@ -70,15 +70,8 @@ func createDefaultGitFile(file string, gitServer GitRemoteServer) error {
 				"ACTION_PWD=" + pwd,
 			},
 		},
-		Actions: []ActionItem{
-			ActionItem{
-				Type:  ScriptActionItem,
-				Value: "/some/script/Here",
-			},
-			ActionItem{
-				Type:  CommandActionItem,
-				Value: "cat /bin/bash",
-			},
+		Actions: []string{
+			"/some/script/Here",
 		},
 	}
 	_, err = configor.SetupConfig(&gitActionStruct, file, configor.NoChange)
@@ -104,7 +97,7 @@ func (gitAction *GitActionStruct) Run(payloadFile string, saction *Action) error
 	//TODO Parse the incoming action
 
 	for _, action := range gitAction.Actions {
-		if len(action.Value) == 0 {
+		if len(action) == 0 {
 			continue
 
 		}
@@ -117,17 +110,8 @@ func (gitAction *GitActionStruct) Run(payloadFile string, saction *Action) error
 			}
 			username = user.Username
 		}
+		runCommand(action, username, saction, gitAction.Shell.EnVars)
 
-		switch action.Type {
-		case ScriptActionItem:
-			{
-				runScript(action.Value, username, saction, gitAction.Shell.EnVars)
-			}
-		case CommandActionItem:
-			{
-				runCommand(action.Value, username, saction, gitAction.Shell.EnVars)
-			}
-		}
 	}
 	return nil
 }
@@ -141,27 +125,32 @@ func formatenvvars(enVars []string) string {
 }
 
 func runCommand(command, username string, action *Action, enVars []string) {
+	command = replaceRelativePath(command, action)
 	envStr := formatenvvars(enVars)
-	if *appDebug {
-		log.Println("su " + username + " -c '" + envStr + command + "'")
-	}
 
-	cmd, err := exec.Command("su", username, "-c", envStr+command).Output()
+	var execCommand string
+	var args []string
+	if os.Getuid() == 0 {
+		execCommand = "su"
+		args = []string{username, "-c", envStr + command}
+	} else {
+		execCommand = "sh"
+		args = []string{"-c", envStr + command}
+	}
+	cmd, err := exec.Command(execCommand, args...).Output()
+
 	if err != nil {
 		log.Printf("Err: %s", err.Error())
-		return
-	}
-	if *appDebug {
+	} else if *appDebug {
 		log.Println("Output from '" + action.Name + "':\n" + string(cmd))
 	}
 }
 
-func runScript(file, username string, action *Action, enVars []string) {
-	//Use actionfolder for relative file instead of binary-relative path
+//Use action-folder for relative file instead of binary-relative path
+func replaceRelativePath(file string, action *Action) string {
 	if strings.HasPrefix(file, "./") {
 		pah, _ := filepath.Split(action.File)
 		file = path.Join(pah, file)
 	}
-
-	runCommand(file, username, action, enVars)
+	return file
 }
