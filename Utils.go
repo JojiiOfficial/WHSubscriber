@@ -6,7 +6,9 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"os/user"
 	"path"
+	"strings"
 
 	gaw "github.com/JojiiOfficial/GoAw"
 )
@@ -56,4 +58,24 @@ func matchIPHost(ip, host string) (bool, error) {
 		}
 	}
 	return false, nil
+}
+
+func getUsername(custUser ...string) string {
+	if len(custUser) > 0 && len(custUser[0]) > 0 {
+		return custUser[0]
+	}
+
+	user, err := user.Current()
+	if err == nil {
+		return user.Username
+	}
+	return ""
+}
+
+func formatBashEnVars(enVars []string) string {
+	envStr := strings.Join(enVars, "; ")
+	if len(enVars) > 0 {
+		envStr += ";"
+	}
+	return envStr
 }

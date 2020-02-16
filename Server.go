@@ -166,6 +166,8 @@ func handleValidWebhook(c chan bool, subscription *Subscription, actions []Actio
 		}
 		file := tmpFile.Name()
 
+		//TODO Parse the incoming action
+
 		//Run actions
 		for _, action := range actions {
 			if *appDebug {

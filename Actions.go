@@ -277,38 +277,24 @@ func ActionCreateFile(db *dbhelper.DBhelper, action *Action) {
 			return
 		}
 	}
-	switch action.Mode {
-	case 0:
-		{
-			//Bash script
-			f, err := os.Create(action.File)
-			if err != nil {
-				log.Fatalln(err.Error())
-				return
-			}
-			f.WriteString("#!/bin/bash\n")
-			f.Close()
+
+	if action.Mode == 0 {
+		//Bash script
+		f, err := os.Create(action.File)
+		if err != nil {
+			log.Fatalln(err.Error())
+			return
 		}
-	case 3, 1:
-		{
-			//Git(hub|lab)
-			remote := Github
-			if action.Mode == 1 {
-				remote = Gitlab
-			}
-			if err := createDefaultGitFile(action.File, remote); err != nil {
-				log.Fatalln(err.Error())
-				return
-			}
+		f.WriteString("#!/bin/bash\n")
+		f.Close()
+	} else {
+		//Action-file
+		if err := createDefaultActionFile(action.File); err != nil {
+			log.Fatalln(err.Error())
+			return
 		}
-	case 2:
-		{
-			//Docker
-			//TODO implement create docker config
-		}
-	default:
-		return
 	}
+
 	fmt.Println("Action file created", color.HiGreenString("successfully"))
 }
 
@@ -319,31 +305,21 @@ func (action *Action) Run(hookFile string) {
 		return
 	}
 
-	switch action.Mode {
-	case 0:
-		{
-			//Script
-			b, err := exec.Command(action.File, hookFile).Output()
-			if err != nil {
-				log.Printf("Error executing action '%s': %s\n", action.Name, err.Error())
-			} else if *appDebug {
-				log.Printf("Output from %s:\n%s\n", action.Name, string(b))
-			}
+	if action.Mode == 0 {
+		//Script
+		b, err := exec.Command(action.File, hookFile).Output()
+		if err != nil {
+			log.Printf("Error executing action '%s': %s\n", action.Name, err.Error())
+		} else if *appDebug {
+			log.Printf("Output from %s:\n%s\n", action.Name, string(b))
 		}
-	case 3, 1:
-		{
-			//Git(hub|lab)
-			gitAction, err := LoadGitAction(action.File)
-			if err != nil {
-				log.Println(err.Error())
-				return
-			}
-			gitAction.Run(hookFile, action)
+	} else {
+		//Action-file
+		actionConf, err := LoadActionFile(action.File)
+		if err != nil {
+			log.Println(err.Error())
+			return
 		}
-	case 2:
-		{
-			//Docker
-			//TODO run docker action
-		}
+		actionConf.Run(hookFile, action)
 	}
 }
