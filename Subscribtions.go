@@ -115,7 +115,7 @@ func ViewSubscriptions(db *dbhelper.DBhelper, config *ConfigStruct) {
 		return
 	}
 	headingColor := color.New(color.FgHiGreen, color.Underline, color.Bold)
-	headingColor.Println("ID\tHookID\t\t\t\t\tName")
+	headingColor.Println("ID\tSourceID\t\t\t\tName")
 	for _, subscription := range subscriptions {
 		hookID := subscription.SourceID
 		//var colorFunc color

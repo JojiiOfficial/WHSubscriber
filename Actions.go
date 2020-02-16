@@ -120,11 +120,14 @@ func ViewActions(db *dbhelper.DBhelper) {
 		return
 	}
 	headingColor := color.New(color.FgHiGreen, color.Underline, color.Bold)
-	headingColor.Println("ID\tName\t\tWebhook\t\t\tMode\tFile")
+	headingColor.Println("ID\tName\t\t\tWebhook\t\t\tMode\tFile")
 	for _, action := range actions {
 		mode := mapKeyByValue(action.Mode, Modes)
 		name := action.Name
-		if len(name) < 8 {
+		if len(name) < 7 {
+			name += "\t"
+		}
+		if len(name) < 16 {
 			name += "\t"
 		}
 		if len(action.HookName) < 8 {
