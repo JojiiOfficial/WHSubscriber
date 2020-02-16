@@ -49,6 +49,7 @@ type subscriptionResponse struct {
 	Message        string `json:"message,omitempty"`
 	SubscriptionID string `json:"sid"`
 	Name           string `json:"name"`
+	Mode           uint8  `json:"mode"`
 }
 
 type listSourcesResponse struct {

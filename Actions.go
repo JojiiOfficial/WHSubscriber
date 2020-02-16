@@ -43,8 +43,8 @@ func getWhIDFromHumanInput(db *dbhelper.DBhelper, input string) (int64, error) {
 }
 
 //AddAction adds a new action
-func AddAction(db *dbhelper.DBhelper, actionType, actionName, webhookName, actionFile string, createFile bool) {
-	mode := Modes[actionType]
+func AddAction(db *dbhelper.DBhelper, actionMode, actionName, webhookName, actionFile string, createFile bool) {
+	mode := uint8(0)
 
 	hasAction, err := hasAction(db, actionName)
 	if err != nil {
@@ -62,6 +62,19 @@ func AddAction(db *dbhelper.DBhelper, actionType, actionName, webhookName, actio
 		if err != nil {
 			fmt.Printf(color.HiYellowString("Warning")+" webhook '%s' not found\n", webhookName)
 		}
+	}
+
+	if len(actionMode) == 0 {
+		if whID > 0 {
+			subs, err := getSubscriptionFromID(db, whID)
+			if err != nil {
+				fmt.Println(err.Error())
+			} else {
+				mode = subs.Mode
+			}
+		}
+	} else {
+		mode = Modes[actionMode]
 	}
 
 	newFileString := gaw.FromString(actionFile)
@@ -192,7 +205,7 @@ func ActionSetWebhook(db *dbhelper.DBhelper, webhookName, actionName string) {
 	fmt.Printf("Action %s updated %s", actionName, color.HiGreenString("successfully"))
 }
 
-//ActionSetFile sets the actionfile for an action
+//ActionSetFile sets the action-file for an action
 func ActionSetFile(db *dbhelper.DBhelper, actionName, newMode, newFile string) {
 	if len(newMode) == 0 && len(newFile) == 0 {
 		fmt.Println("You need to set one of the flags:", color.HiRedString("--new-file"), "or", color.HiRedString("--new-mode"))

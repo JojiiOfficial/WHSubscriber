@@ -21,7 +21,7 @@ func getInitSQL() dbhelper.QueryChain {
 		Order: 0,
 		Queries: dbhelper.CreateInitVersionSQL(
 			dbhelper.InitSQL{
-				Query:   "CREATE TABLE %s (`pkID` INTEGER PRIMARY KEY AUTOINCREMENT, `sourceID` TEXT, `hookName` TEXT, `subsID` TEXT, `valid` INTEGER DEFAULT 0)",
+				Query:   "CREATE TABLE %s (`pkID` INTEGER PRIMARY KEY AUTOINCREMENT, `sourceID` TEXT, `hookName` TEXT, `subsID` TEXT, `valid` INTEGER DEFAULT 0, `mode` INTEGER)",
 				FParams: []string{TableSubscriptions},
 			},
 			dbhelper.InitSQL{
@@ -36,20 +36,20 @@ func getInitSQL() dbhelper.QueryChain {
 
 // ---------------------------------- Inserts ------------------------------------
 
-func (webhook *Subscription) insert(db *dbhelper.DBhelper) error {
-	var rs *sql.Result
+func (subs *Subscription) insert(db *dbhelper.DBhelper) error {
+	var rs sql.Result
 	var err error
 	var id int64
 
-	if rs, err = db.Insert(*webhook, TableSubscriptions); err != nil || rs == nil {
+	if rs, err = db.Execf("INSERT INTO %s (hookName, sourceID, subsID, mode) VALUES(?,?,?,?)", []string{TableSubscriptions}, subs.Name, subs.SourceID, subs.SubscriptionID, subs.Mode); err != nil || rs == nil {
 		return err
 	}
 
-	if id, err = (*rs).LastInsertId(); err != nil {
+	if id, err = rs.LastInsertId(); err != nil {
 		return err
 	}
 
-	webhook.ID = id
+	subs.ID = id
 	return nil
 }
 

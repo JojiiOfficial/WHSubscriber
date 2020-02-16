@@ -60,10 +60,10 @@ var (
 	actionsCmd = app.Command("actions", "List you actions").FullCommand()
 	//Action add
 	actionCmdAdd        = actionCmd.Command("add", "Adds an action for a webhook")
-	actionCmdAddMode    = actionCmdAdd.Flag("mode", "The kind of action you want to add").HintAction(hintAvailableActions).Default("script").String()
+	actionCmdAddMode    = actionCmdAdd.Flag("mode", "The kind of action you want to add").HintAction(hintAvailableActions).String()
+	actionCmdAddFile    = actionCmdAdd.Arg("file", "The action-file. Either a bash script or an action-configuration").HintAction(hintListCurDir).Required().String()
 	actionCmdAddName    = actionCmdAdd.Flag("name", "The name of the action. To make it easier to use again").HintAction(hintRandomNames).Default(getRandomName()).String()
 	actionCmdAddWebhook = actionCmdAdd.Flag("webhook", "The webhook to add the action to").HintAction(hintSubscriptionsNoNa).String()
-	actionCmdAddFile    = actionCmdAdd.Arg("file", "The action-file. Either a bash script or an action-configuration").HintAction(hintListCurDir).Required().String()
 	actionCmdAddCreate  = actionCmdAdd.Flag("create", "Create the file for the action").Default("false").Bool()
 	//Action set
 	actionCmdUpdate = actionCmd.Command("update", "Sets/Changes an action")

@@ -29,7 +29,7 @@ func Subscribe(db *dbhelper.DBhelper, config *ConfigStruct, callbackURL, sourceI
 		fmt.Printf("Trying to subscribe to '%s' using callback URL '%s' and remote '%s'\n", sourceID, callbackURL, remoteURL)
 	}
 
-	wh := Subscription{
+	subscription := Subscription{
 		SourceID: sourceID,
 	}
 
@@ -55,10 +55,11 @@ func Subscribe(db *dbhelper.DBhelper, config *ConfigStruct, callbackURL, sourceI
 	}
 
 	if response.Status == ResponseSuccess {
-		wh.SubscriptionID = subscrResponse.SubscriptionID
-		wh.Name = subscrResponse.Name
+		subscription.SubscriptionID = subscrResponse.SubscriptionID
+		subscription.Name = subscrResponse.Name
+		subscription.Mode = subscrResponse.Mode
 
-		err = wh.insert(db)
+		err = subscription.insert(db)
 		if err != nil {
 			log.Printf(err.Error())
 			return
