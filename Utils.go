@@ -8,6 +8,8 @@ import (
 	"os"
 	"os/user"
 	"path"
+	"reflect"
+	"strconv"
 	"strings"
 
 	gaw "github.com/JojiiOfficial/GoAw"
@@ -78,4 +80,22 @@ func formatBashEnVars(enVars []string) string {
 		envStr += ";"
 	}
 	return envStr
+}
+
+func reflectToString(field reflect.Value) string {
+	switch field.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return strconv.FormatInt(field.Int(), 10)
+	case reflect.String:
+		return field.String()
+	case reflect.Float64:
+		return strconv.FormatFloat(field.Float(), 'f', 5, 64)
+	case reflect.Float32:
+		return strconv.FormatFloat(field.Float(), 'f', 5, 32)
+	case reflect.Bool:
+		return strconv.FormatBool(field.Bool())
+	default:
+		log.Printf("Kind %s not found!\n", field.String())
+		return ""
+	}
 }

@@ -299,7 +299,7 @@ func ActionCreateFile(db *dbhelper.DBhelper, action *Action) {
 }
 
 //Run an action
-func (action *Action) Run(hookFile string) {
+func (action *Action) Run(hookFile string, subscription *Subscription, webhookData *WebhookData) {
 	if !gaw.FileExists(action.File) {
 		log.Println("Error: Action file", action.File, "doesn't exist!")
 		return
@@ -320,6 +320,6 @@ func (action *Action) Run(hookFile string) {
 			log.Println(err.Error())
 			return
 		}
-		actionConf.Run(hookFile, action)
+		actionConf.Run(hookFile, action, subscription, webhookData)
 	}
 }

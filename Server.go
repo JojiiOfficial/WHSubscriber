@@ -141,43 +141,43 @@ func sendNotSubscripted(w http.ResponseWriter) {
 }
 
 func handleValidWebhook(c chan bool, subscription *Subscription, actions []Action, r *http.Request) {
-	if len(actions) > 0 {
-		//Read input
-		b, err := ioutil.ReadAll(io.LimitReader(r.Body, 100000))
-		if err != nil {
-			log.Println(err.Error())
-			return
+	//Read input
+	b, err := ioutil.ReadAll(io.LimitReader(r.Body, 100000))
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	parsedWebhook := WebhookData{
+		Header:  r.Header,
+		Payload: string(b),
+	}
+
+	r.Body.Close()
+	c <- true
+
+	//Create temp file
+	tmpFile, err := ioutil.TempFile(os.TempDir(), "WhSubAction-")
+	if err != nil {
+		log.Println("Cannot create temporary file:", err)
+		return
+	}
+
+	//Write temp-file
+	_, err = tmpFile.Write(b)
+	if err != nil {
+		log.Printf("Error writing temp file '%s': %s\n", tmpFile.Name(), err.Error())
+		return
+	}
+	file := tmpFile.Name()
+
+	//Run actions
+	for _, action := range actions {
+		if *appDebug {
+			fmt.Println(action.Name, "-", action.File, "-", action.Mode)
 		}
-		r.Body.Close()
-		c <- true
 
-		//Create temp file
-		tmpFile, err := ioutil.TempFile(os.TempDir(), "WhSubAction-")
-		if err != nil {
-			log.Println("Cannot create temporary file:", err)
-			return
-		}
-
-		//Write temp-file
-		_, err = tmpFile.Write(b)
-		if err != nil {
-			log.Printf("Error writing temp file '%s': %s\n", tmpFile.Name(), err.Error())
-			return
-		}
-		file := tmpFile.Name()
-
-		//TODO Parse the incoming action
-
-		//Run actions
-		for _, action := range actions {
-			if *appDebug {
-				fmt.Println(action.Name, "-", action.File, "-", action.Mode)
-			}
-
-			action.Run(file)
-		}
-	} else {
-		c <- true
+		action.Run(file, subscription, &parsedWebhook)
 	}
 }
 

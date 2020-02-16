@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"path"
@@ -11,6 +12,12 @@ import (
 
 	"github.com/JojiiOfficial/configor"
 )
+
+//WebhookData contains the parsed webhook
+type WebhookData struct {
+	Header  http.Header
+	Payload string
+}
 
 //ActionFileStruct the struct for action files
 type ActionFileStruct struct {
@@ -79,8 +86,58 @@ func LoadActionFile(file string) (*ActionFileStruct, error) {
 	return &action, nil
 }
 
+//GetVariablesFromCommand gets all variablenames from actions
+func GetVariablesFromCommand(inp string) []string {
+	variables := []string{}
+	tmp := ""
+	inAdd := false
+	for _, t := range []rune(inp) {
+		if t == '%' {
+			if inAdd {
+				inAdd = false
+				variables = append(variables, tmp)
+				tmp = ""
+			} else {
+				inAdd = true
+			}
+			continue
+		} else {
+			if inAdd {
+				tmp += string(t)
+			}
+		}
+	}
+	return variables
+}
+
+//GetVariables gets all variablenames from actions
+func (action *ActionFileStruct) GetVariables() []string {
+	variables := []string{}
+	for _, action := range action.Actions {
+		tmp := ""
+		inAdd := false
+		for _, t := range []rune(action) {
+			if t == '%' {
+				if inAdd {
+					inAdd = false
+					variables = append(variables, tmp)
+					tmp = ""
+				} else {
+					inAdd = true
+				}
+				continue
+			} else {
+				if inAdd {
+					tmp += string(t)
+				}
+			}
+		}
+	}
+	return variables
+}
+
 //Run runs the action-file
-func (action *ActionFileStruct) Run(payloadFile string, saction *Action) error {
+func (action *ActionFileStruct) Run(payloadFile string, sAction *Action, subscription *Subscription, webhookData *WebhookData) error {
 	if len(action.Actions) == 0 {
 		return errors.New("No action defined")
 	}
@@ -90,9 +147,18 @@ func (action *ActionFileStruct) Run(payloadFile string, saction *Action) error {
 			continue
 		}
 
-		username := getUsername(action.Shell.User)
+		isReqValid, hitTrigger := formatAction(subscription, webhookData, &actionCmd)
+		if !isReqValid {
+			log.Println("Request was not valid")
+			return nil
+		}
+		if !hitTrigger {
+			log.Println("Didn't hit trigger!")
+			continue
+		}
 
-		runCommand(actionCmd, username, saction, action.Shell.EnVars)
+		username := getUsername(action.Shell.User)
+		runCommand(actionCmd, username, sAction, action.Shell.EnVars)
 	}
 
 	return nil
