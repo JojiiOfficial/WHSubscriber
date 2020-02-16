@@ -15,7 +15,13 @@ var requiredHeadersForMode map[uint8][]string = map[uint8][]string{
 
 //Aliases for variablenames
 var payloadAlias map[string]string = map[string]string{
-	"reponame": "repository.full_name",
+	"repo_name_full": "repository.full_name",
+	"repo_name":      "repository.name",
+	"isprivate":      "repository.private",
+	"owner_name":     "repository.owner.name",
+	"owner_email":    "repository.full_name",
+	"pusher_name":    "pusher.name",
+	"pusher_email":   "pusher.email",
 }
 
 func validateHeaders(mode uint8, header http.Header) bool {
@@ -44,7 +50,7 @@ func formatAction(subscription *Subscription, webhookData *WebhookData, actionCm
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
-		//Relpace variables
+		//Relpace aliases
 		variables := GetVariablesFromCommand(*actionCmd)
 		for i, vari := range variables {
 			*actionCmd = strings.ReplaceAll(*actionCmd, vari, getReplacedAlias(vari))
@@ -96,11 +102,9 @@ func loopPayload(name string, payload map[string]interface{}, varlist *map[strin
 
 func replaceAliases(variables []string) []string {
 	ret := []string{}
-
 	for _, variable := range variables {
 		ret = append(ret, getReplacedAlias(variable))
 	}
-
 	return ret
 }
 
@@ -110,5 +114,4 @@ func getReplacedAlias(str string) string {
 		return v
 	}
 	return str
-
 }
