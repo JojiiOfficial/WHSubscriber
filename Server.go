@@ -97,9 +97,17 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 //OnWebhookReceived
 func webhookPage(w http.ResponseWriter, r *http.Request) {
 	hookSource := r.Header.Get(HeaderSource)
+	hookSubscriptionID := r.Header.Get(HeaderSubsID)
 	hookReceivedTime := r.Header.Get(HeaderReceived)
 
-	if len(hookSource) > 0 && len(hookReceivedTime) > 0 {
+	if len(hookSource) > 0 && len(hookReceivedTime) > 0 && len(hookSubscriptionID) > 0 {
+		has, err := hasSubscribted(dbs, hookSubscriptionID, hookSource)
+		if err != nil || !has {
+			if err != nil {
+				log.Println("Error receiving hook:", err.Error())
+			}
+			return
+		}
 
 		subscription, err := getSubscriptionFromSourceID(dbs, hookSource)
 		if err != nil {
@@ -130,7 +138,7 @@ func webhookPage(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "OK")
 	} else {
 		//Request from sth else than the WeServer
-		log.Printf("Found request without correct headers (%s,%s) from %s\n", hookSource, hookReceivedTime, gaw.GetIPFromHTTPrequest(r))
+		log.Printf("Found request without correct headers (%s,%s,%s) from %s\n", hookSource, hookReceivedTime, hookSubscriptionID, gaw.GetIPFromHTTPrequest(r))
 		sendNotSubscripted(w)
 	}
 }

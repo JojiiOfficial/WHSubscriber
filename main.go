@@ -11,6 +11,13 @@ import (
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
+const (
+	//ServerVersion the version of the server
+	ServerVersion = 0.2
+	//SubscriberVersion version of the WebHook subscriber
+	SubscriberVersion = 0.6
+)
+
 var (
 	//Global command
 	app = kingpin.New("whsub", "A WebHook subscriber")
@@ -109,6 +116,7 @@ var (
 func main() {
 	app.HelpFlag.Short('h')
 	app.Version(strconv.FormatFloat(SubscriberVersion, 'f', 2, 32))
+
 	if checkVersionCommand() {
 		return
 	}
