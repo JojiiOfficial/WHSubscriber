@@ -145,8 +145,8 @@ func ListSources(db *dbhelper.DBhelper, config *ConfigStruct, idFlag, idArg stri
 		fmt.Println(color.HiGreenString("Private: ") + strconv.FormatBool(source.IsPrivate))
 		if len(source.Secret) > 0 {
 			fmt.Println(color.HiGreenString("Secret:\t ") + source.Secret)
+			fmt.Println(color.HiGreenString("URL:\t ") + getURLFromSource(config, source.SourceID, source.Secret))
 		}
-		fmt.Println(color.HiGreenString("URL:\t ") + getURLFromSource(config, source.SourceID, source.Secret))
 	} else if len(sources) > 1 {
 		headingColor := color.New(color.FgHiGreen, color.Underline, color.Bold)
 		headingColor.Println("SourceID\t\t\t\tName\t\t\tCreation\t\tSecret")
