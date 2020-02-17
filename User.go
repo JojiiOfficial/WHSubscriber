@@ -15,9 +15,9 @@ import (
 )
 
 //LoginCommand login into the server
-func LoginCommand(config *ConfigStruct, usernameArg string) {
+func LoginCommand(config *ConfigStruct, usernameArg string, args ...bool) {
 	inpReader := bufio.NewReader(os.Stdin)
-	if isLoggedIn(config) && !*appYes {
+	if isLoggedIn(config) && !*appYes && len(args) == 0 {
 		i, e := gaw.ConfirmInput("You are already logged in. Overwrite session? [y/n]> ", inpReader)
 		if e == -1 || !i {
 			return
@@ -82,6 +82,10 @@ func RegisterCommand(config *ConfigStruct) {
 
 	if resp.Status == ResponseSuccess {
 		fmt.Printf("User '%s' created %s!\n", username, color.HiGreenString("successfully"))
+		y, _ := gaw.ConfirmInput("Do you want to login to this account? [y/n]> ", bufio.NewReader(os.Stdin))
+		if y {
+			LoginCommand(config, username, true)
+		}
 	} else {
 		fmt.Println("Error:", resp.Message)
 	}
