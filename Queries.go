@@ -21,7 +21,7 @@ func getInitSQL() dbhelper.QueryChain {
 		Order: 0,
 		Queries: dbhelper.CreateInitVersionSQL(
 			dbhelper.InitSQL{
-				Query:   "CREATE TABLE %s (`pkID` INTEGER PRIMARY KEY AUTOINCREMENT, `sourceID` TEXT, `hookName` TEXT, `subsID` TEXT, `valid` INTEGER DEFAULT 0, `mode` INTEGER)",
+				Query:   "CREATE TABLE %s (`pkID` INTEGER PRIMARY KEY AUTOINCREMENT, `sourceID` TEXT, `hookName` TEXT, `subsID` TEXT, `valid` INTEGER DEFAULT 1, `mode` INTEGER)",
 				FParams: []string{TableSubscriptions},
 			},
 			dbhelper.InitSQL{

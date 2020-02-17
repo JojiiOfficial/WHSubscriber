@@ -31,7 +31,6 @@ func StartReceiverServer(config *ConfigStruct, db *dbhelper.DBhelper, debug bool
 
 	//Always listen only on /
 	http.HandleFunc("/", webhookPage)
-	http.HandleFunc("/ping", pingHandler)
 
 	//Start the server
 	if config.Server.UseTLS {
@@ -56,42 +55,6 @@ func StartReceiverServer(config *ConfigStruct, db *dbhelper.DBhelper, debug bool
 	for {
 		time.Sleep(1 * time.Hour)
 	}
-}
-
-func pingHandler(w http.ResponseWriter, r *http.Request) {
-	ip := gaw.GetIPFromHTTPrequest(r)
-	match, err := matchIPHost(ip, configs.Client.ServerURL)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-
-	if !match {
-		w.WriteHeader(http.StatusNotImplemented)
-		fmt.Fprintf(w, "not implemented")
-		return
-	}
-	hookSourceID := r.Header.Get(HeaderSource)
-	hookSubsID := r.Header.Get(HeaderSubsID)
-	if len(hookSourceID) > 0 && len(hookSubsID) > 0 {
-		has, err := hasSubscribted(dbs, hookSubsID, hookSourceID)
-		if err != nil {
-			fmt.Println(err.Error())
-		} else if has {
-			err = validateSubscription(dbs, hookSubsID)
-			if err != nil {
-				fmt.Println(err.Error())
-			}
-			w.WriteHeader(http.StatusOK)
-			fmt.Fprintf(w, "OK")
-			if *appDebug {
-				fmt.Println("Ping success")
-			}
-			return
-		}
-	}
-	w.WriteHeader(http.StatusNotImplemented)
-	fmt.Fprintf(w, "not implemented")
 }
 
 //OnWebhookReceived
