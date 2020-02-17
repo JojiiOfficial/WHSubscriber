@@ -155,7 +155,7 @@ func ListSources(db *dbhelper.DBhelper, config *ConfigStruct, idFlag, idArg stri
 			if len(name) < 8 {
 				name += "\t"
 			}
-			if len(name) < 16 {
+			if len(name) < 14 {
 				name += "\t"
 			}
 			fmt.Printf("%s\t%s\t%s\t%s\n", source.SourceID, name, source.CreationTime, source.Secret)

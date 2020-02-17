@@ -38,7 +38,7 @@ type sourceRequest struct {
 }
 
 // -------> User
-type loginRequest struct {
+type credentialsRequest struct {
 	Username string `json:"username"`
 	Password string `json:"pass"`
 }

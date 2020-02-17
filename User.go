@@ -2,8 +2,6 @@ package main
 
 import (
 	"bufio"
-	"crypto/sha512"
-	"encoding/hex"
 	"fmt"
 	"log"
 	"os"
@@ -26,12 +24,12 @@ func LoginCommand(config *ConfigStruct, usernameArg string) {
 		}
 	}
 
-	username, pass := credentials(usernameArg, false)
+	username, pass := credentials(usernameArg, false, 0)
 
 	// You salty baby
-	password := SHA512(pass + SHA512(pass)[:8])
+	password := saltPass(pass)
 
-	login := loginRequest{
+	login := credentialsRequest{
 		Password: password,
 		Username: username,
 	}
@@ -60,38 +58,95 @@ func LoginCommand(config *ConfigStruct, usernameArg string) {
 		}
 		fmt.Println(color.HiGreenString("Success!"), "\nLogged in as", username)
 	} else {
-		fmt.Println("Unexpected error occured!")
+		fmt.Println("Unexpected error occurred!")
 	}
 }
 
 //RegisterCommand create a new account
 func RegisterCommand(config *ConfigStruct) {
+	username, pass := credentials("", true, 0)
+	if len(username) == 0 || len(pass) == 0 {
+		return
+	}
 
+	req := credentialsRequest{
+		Username: username,
+		Password: saltPass(pass),
+	}
+
+	resp, err := RestRequest(EPUserCreate, req, nil, config)
+	if err != nil {
+		fmt.Println("Err", err.Error())
+		return
+	}
+
+	if resp.Status == ResponseSuccess {
+		fmt.Printf("User '%s' created %s!\n", username, color.HiGreenString("successfully"))
+	} else {
+		fmt.Println("Error:", resp.Message)
+	}
 }
 
-func credentials(buser string, repeat bool) (string, string) {
+func credentials(bUser string, repeat bool, index uint8) (string, string) {
+	if index >= 3 {
+		return "", ""
+	}
+
 	reader := bufio.NewReader(os.Stdin)
 	var username string
-	if len(buser) > 0 {
-		username = buser
+	if len(bUser) > 0 {
+		username = bUser
 	} else {
 		fmt.Print("Enter Username: ")
 		username, _ = reader.ReadString('\n')
 	}
-	fmt.Print("Enter Password: ")
-	bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
-	if err != nil {
-		log.Fatalln("Error:", err.Error())
+
+	if len(username) > 30 {
+		fmt.Println("Username too long!")
 		return "", ""
 	}
-	return strings.TrimSpace(username), strings.TrimSpace(string(bytePassword))
+
+	var pass string
+	enterPassMsg := "Enter Password: "
+	count := 1
+
+	if repeat {
+		count = 2
+	}
+
+	for i := 0; i < count; i++ {
+		fmt.Print(enterPassMsg)
+		bytePassword, err := terminal.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			log.Fatalln("Error:", err.Error())
+			return "", ""
+		}
+		fmt.Println()
+		lPass := strings.TrimSpace(string(bytePassword))
+
+		if len(lPass) > 80 {
+			fmt.Println("Your password is too long!")
+			return credentials(username, repeat, index+1)
+		}
+		if len(lPass) < 7 {
+			fmt.Println("Your password must have at least 7 characters!")
+			return credentials(username, repeat, index+1)
+		}
+
+		if repeat && i == 1 && pass != lPass {
+			fmt.Println("Passwords don't match!")
+			return credentials(username, repeat, index+1)
+		}
+
+		pass = lPass
+		enterPassMsg = "Enter Password again: "
+	}
+
+	return strings.TrimSpace(username), pass
 }
 
-//SHA512 hashes using sha512 algorithm
-func SHA512(text string) string {
-	algorithm := sha512.New()
-	algorithm.Write([]byte(text))
-	return hex.EncodeToString(algorithm.Sum(nil))
+func saltPass(pass string) string {
+	return gaw.SHA512(pass + gaw.SHA512(pass)[:10])
 }
 
 func isLoggedIn(config *ConfigStruct) bool {

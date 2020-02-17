@@ -13,7 +13,7 @@ import (
 
 const (
 	//ServerVersion the version of the server
-	ServerVersion = 0.2
+	ServerVersion = 0.4
 	//SubscriberVersion version of the WebHook subscriber
 	SubscriberVersion = 0.6
 )
