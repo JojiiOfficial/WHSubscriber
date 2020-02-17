@@ -123,15 +123,5 @@ func (config *ConfigStruct) CheckServer() bool {
 		}
 	}
 
-	u, err := gaw.ParseURL(config.Client.CallbackURL)
-	if err != nil {
-		log.Println("Can't parse CallbackURL:", err.Error())
-		return false
-	}
-	if len(u.Path) != 0 && u.Path != "/" {
-		log.Println("You can't specify a path in the CallbackURL. Use a reverseproxy to change the path")
-		return false
-	}
-
 	return true
 }
