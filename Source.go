@@ -140,6 +140,11 @@ func SourceUpdateRequest(db *dbhelper.DBhelper, config *ConfigStruct, endpoint E
 		return
 	}
 
+	if len(requestStruct.Content) > 149 {
+		fmt.Println(color.HiRedString("Error:"), "Content too long!")
+		return
+	}
+
 	response, err := RestRequest(endpoint, requestStruct, nil, config)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -150,14 +155,15 @@ func SourceUpdateRequest(db *dbhelper.DBhelper, config *ConfigStruct, endpoint E
 }
 
 func getSources(db *dbhelper.DBhelper, config *ConfigStruct, args ...string) ([]sourceResponse, error) {
-	sid := ""
-	if len(args) > 0 {
+	sid := "-"
+	if len(args) > 0 && len(args[0]) > 0 {
 		sid = args[0]
 	}
 
 	req := sourceRequest{
 		SourceID: sid,
 		Token:    config.User.SessionToken,
+		Content:  "-",
 	}
 	var res listSourcesResponse
 
