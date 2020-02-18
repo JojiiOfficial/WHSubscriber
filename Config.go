@@ -26,13 +26,24 @@ type ConfigStruct struct {
 		IgnoreCert  bool   `default:"false"`
 	}
 
-	Server struct {
-		Enable        bool   `default:"false"`
-		ListenAddress string `default:":8499"`
-		UseTLS        bool
-		SSLCert       string
-		SSLKey        string
+	Webserver struct {
+		HTTP  configHTTPstruct
+		HTTPS configTLSStruct
 	}
+}
+
+//Config for HTTPS
+type configTLSStruct struct {
+	Enabled       bool   `default:"false"`
+	ListenAddress string `default:":443"`
+	CertFile      string
+	KeyFile       string
+}
+
+//Config for HTTP
+type configHTTPstruct struct {
+	Enabled       bool   `default:"false"`
+	ListenAddress string `default:":80"`
 }
 
 func getDefaultConfig() string {
@@ -62,7 +73,14 @@ func InitConfig(confFile string, createMode bool) (*ConfigStruct, bool) {
 		}
 	}
 
-	isDefault, err := configor.SetupConfig(&config, confFile, configor.NoChange)
+	isDefault, err := configor.SetupConfig(&config, confFile, func(confI interface{}) interface{} {
+		conf := confI.(*ConfigStruct)
+		conf.Webserver.HTTP = configHTTPstruct{
+			Enabled:       true,
+			ListenAddress: ":80",
+		}
+		return conf
+	})
 
 	if err != nil {
 		log.Fatalln(err.Error())
@@ -93,33 +111,40 @@ func (config *ConfigStruct) Check() bool {
 //Returns true on success
 func (config *ConfigStruct) CheckServer() bool {
 	//Validate server configuration if enabled
-	if !config.Server.Enable {
+	if !config.Webserver.HTTP.Enabled && !config.Webserver.HTTPS.Enabled {
 		fmt.Printf("Error: You need to enable the server first: 'enabled: true' (in the config)")
 		return false
 	}
 
-	if len(config.Server.ListenAddress) == 0 {
-		log.Println("You need to set the address in the config")
-		return false
+	if config.Webserver.HTTP.Enabled {
+		if len(config.Webserver.HTTP.ListenAddress) == 0 {
+			log.Println("You need to set the HTTP listenaddress in the config")
+			return false
+		}
 	}
 
-	if config.Server.UseTLS {
+	if config.Webserver.HTTPS.Enabled {
+		if len(config.Webserver.HTTPS.ListenAddress) == 0 {
+			log.Println("You need to set the address in the config")
+			return false
+		}
+
 		//Check SSL values
-		if len(config.Server.SSLCert) == 0 {
+		if len(config.Webserver.HTTPS.CertFile) == 0 {
 			log.Println("To enable TLS you need to specify a SSL certificate")
 			return false
 		}
-		if len(config.Server.SSLKey) == 0 {
+		if len(config.Webserver.HTTPS.KeyFile) == 0 {
 			log.Println("To enable TLS you need to specify a SSL private key")
 			return false
 		}
 
 		//Check SSL files
-		if !gaw.FileExists(config.Server.SSLCert) {
+		if !gaw.FileExists(config.Webserver.HTTPS.CertFile) {
 			log.Println("Can't find the SSL certificate. File not found")
 			return false
 		}
-		if !gaw.FileExists(config.Server.SSLKey) {
+		if !gaw.FileExists(config.Webserver.HTTPS.KeyFile) {
 			log.Println("Can't find the SSL key. File not found")
 			return false
 		}

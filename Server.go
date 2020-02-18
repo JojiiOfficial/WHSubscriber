@@ -33,21 +33,23 @@ func StartReceiverServer(config *ConfigStruct, db *dbhelper.DBhelper, debug bool
 	http.HandleFunc("/", webhookPage)
 
 	//Start the server
-	if config.Server.UseTLS {
+	if config.Webserver.HTTPS.Enabled {
 		//Start TLS server in background
 		go (func() {
-			log.Fatal(http.ListenAndServeTLS(config.Server.ListenAddress, config.Server.SSLCert, config.Server.SSLKey, nil))
+			log.Fatal(http.ListenAndServeTLS(config.Webserver.HTTPS.ListenAddress, config.Webserver.HTTPS.CertFile, config.Webserver.HTTPS.KeyFile, nil))
 		})()
 		if debug {
-			log.Printf("Started HTTPS server on address %s\n", config.Server.ListenAddress)
+			log.Printf("Started HTTPS server on address %s\n", config.Webserver.HTTPS.ListenAddress)
 		}
-	} else {
+	}
+
+	if config.Webserver.HTTP.Enabled {
 		//Start HTTP server in background
 		go (func() {
-			log.Fatal(http.ListenAndServe(config.Server.ListenAddress, nil))
+			log.Fatal(http.ListenAndServe(config.Webserver.HTTP.ListenAddress, nil))
 		})()
 		if debug {
-			log.Printf("Started HTTP server on address %s\n", config.Server.ListenAddress)
+			log.Printf("Started HTTP server on address %s\n", config.Webserver.HTTP.ListenAddress)
 		}
 	}
 
