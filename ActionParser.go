@@ -13,6 +13,10 @@ var requiredHeadersForMode map[uint8][]string = map[uint8][]string{
 	uint8(3): []string{"x-github-event"},
 }
 
+var eventHeader map[uint8]string = map[uint8]string{
+	3: "x-github-event",
+}
+
 //Aliases for variablenames
 var payloadAlias map[string]string = map[string]string{
 	"repo_name_full": "repository.full_name",
@@ -44,12 +48,28 @@ func formatAction(subscription *Subscription, webhookData *WebhookData, actionCm
 		return false, false
 	}
 
+	//Parse JSON to map
 	var data map[string]interface{}
 	err := json.Unmarshal([]byte(webhookData.Payload), &data)
 
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
+		//Get the event from header
+		var event string
+		for h, v := range webhookData.Header {
+			i := strings.ToLower(strings.TrimSpace(h))
+			if i == eventHeader[subscription.Mode] {
+				event = strings.TrimSpace(strings.ToLower(v[0]))
+				break
+			}
+		}
+
+		//Return if trigger wasn't hit
+		if !checkTrigger(event, action.Source.Trigger) {
+			return true, false
+		}
+
 		//Relpace aliases
 		variables := GetVariablesFromCommand(*actionCmd)
 		for i, vari := range variables {
@@ -57,14 +77,21 @@ func formatAction(subscription *Subscription, webhookData *WebhookData, actionCm
 			variables[i] = getReplacedAlias(vari)
 		}
 
+		//Fill empty map with variable names
 		varValMap := make(map[string]string, len(variables))
-
 		for _, v := range variables {
 			varValMap[v] = "-"
 		}
 
+		//Fill variablenames with values from json
 		if len(variables) > 0 {
-			loopPayload("", data, &varValMap)
+			findJSONvalues("", data, &varValMap)
+		}
+
+		//In case a 'event' variable is used, fill it
+		_, k := varValMap["event"]
+		if k {
+			varValMap["event"] = event
 		}
 
 		//Replace all custom variables with json values
@@ -79,14 +106,28 @@ func formatAction(subscription *Subscription, webhookData *WebhookData, actionCm
 
 			*actionCmd = strings.ReplaceAll(*actionCmd, "%"+vari+"%", jsonVal)
 		}
-
-		fmt.Println(actionCmd)
 	}
 
 	return true, true
 }
 
-func loopPayload(name string, payload map[string]interface{}, varlist *map[string]string) {
+//Returns true if trigger was hit
+func checkTrigger(event string, triggers []string) bool {
+	// Handle trigger
+	if len(triggers) > 0 {
+		for _, trigger := range triggers {
+			if strings.ToLower(trigger) == event {
+				return true
+			}
+		}
+		return false
+	}
+
+	return true
+}
+
+//Fill varlist with json values
+func findJSONvalues(name string, payload map[string]interface{}, varlist *map[string]string) {
 	for k, v := range payload {
 		if v == nil {
 			continue
@@ -96,7 +137,7 @@ func loopPayload(name string, payload map[string]interface{}, varlist *map[strin
 			continue
 		}
 		if reft.Kind() == reflect.Map {
-			loopPayload(name+k+".", (v).(map[string]interface{}), varlist)
+			findJSONvalues(name+k+".", (v).(map[string]interface{}), varlist)
 			continue
 		}
 

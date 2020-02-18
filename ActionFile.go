@@ -28,7 +28,7 @@ type ActionFileStruct struct {
 
 //SourceActionItem item for an action
 type SourceActionItem struct {
-	Trigger string
+	Trigger []string
 	Filter  map[string]string
 }
 
@@ -56,7 +56,7 @@ func createDefaultActionFile(file string) error {
 
 	actionFileStruct := ActionFileStruct{
 		Source: SourceActionItem{
-			Trigger: "push",
+			Trigger: []string{"push"},
 			Filter:  map[string]string{"branch": "master"},
 		},
 
