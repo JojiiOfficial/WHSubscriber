@@ -31,7 +31,10 @@ const (
 	EPSource       Endpoint = "/source"
 	EPSources      Endpoint = EPSource + "s"
 	EPSourceCreate Endpoint = EPSource + "/create"
-	EPSourceDelete Endpoint = EPSource + "/delete"
+
+	EPSourceUpdate     Endpoint = EPSource + "/update"
+	EPSourceDelete     Endpoint = EPSourceUpdate + "/delete"
+	EPSourceChangeDesc Endpoint = EPSourceUpdate + "/changedescr"
 )
 
 //RestRequest a better request method

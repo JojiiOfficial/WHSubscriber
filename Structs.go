@@ -35,6 +35,7 @@ type sourceAddRequest struct {
 type sourceRequest struct {
 	Token    string `json:"token"`
 	SourceID string `json:"sid,omitempty"`
+	Content  string `json:"content,omitempty"`
 }
 
 // -------> User

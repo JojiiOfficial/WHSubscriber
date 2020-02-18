@@ -30,6 +30,7 @@ func CreateSource(config *ConfigStruct, name, description, mode string, private 
 	if len(description) == 0 {
 		description = "NULL"
 	}
+
 	req := sourceAddRequest{
 		Description: description,
 		Name:        name,
@@ -56,9 +57,9 @@ func CreateSource(config *ConfigStruct, name, description, mode string, private 
 }
 
 func getURLFromSource(config *ConfigStruct, sourceID, secret string) string {
-	surl, _ := gaw.ParseURL(config.Client.ServerURL)
-	surl.JoinPath(fmt.Sprintf("/webhook/post/%s/%s/", sourceID, secret))
-	u := (url.URL)(*surl)
+	sURL, _ := gaw.ParseURL(config.Client.ServerURL)
+	sURL.JoinPath(fmt.Sprintf("/webhook/post/%s/%s/", sourceID, secret))
+	u := (url.URL)(*sURL)
 	return u.String()
 }
 
@@ -68,10 +69,17 @@ func DeleteSource(db *dbhelper.DBhelper, config *ConfigStruct, sourceID string) 
 		return
 	}
 
+	if len(sourceID) != 32 {
+		fmt.Println(color.HiRedString("Error:"), "SourceID invalid")
+		return
+	}
+
 	req := sourceRequest{
 		SourceID: sourceID,
 		Token:    config.User.SessionToken,
+		Content:  "-",
 	}
+
 	response, err := RestRequest(EPSourceDelete, req, nil, config)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -86,6 +94,47 @@ func DeleteSource(db *dbhelper.DBhelper, config *ConfigStruct, sourceID string) 
 		fmt.Println("Source deleted", color.HiGreenString("successfully"))
 	} else {
 		fmt.Println("Error:", response.Message)
+	}
+}
+
+//UpdateSourceDescription updates the source description
+func UpdateSourceDescription(db *dbhelper.DBhelper, config *ConfigStruct, sourceID, newText string) {
+	if !checkLoggedIn(config) {
+		return
+	}
+
+	if len(sourceID) != 32 {
+		fmt.Println(color.HiRedString("Error:"), "SourceID invalid")
+		return
+	}
+
+	content := "-"
+	if len(newText) != 0 {
+		content = newText
+	}
+	fmt.Println(sourceID)
+
+	req := sourceRequest{
+		SourceID: sourceID,
+		Token:    config.User.SessionToken,
+		Content:  content,
+	}
+
+	resp, err := RestRequest(EPSourceChangeDesc, req, nil, config)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	if resp.Status == ResponseSuccess {
+		str := "updating"
+		if len(newText) == 0 {
+			str = "removing"
+		}
+
+		fmt.Printf("%s %s source description\n", color.HiGreenString("Success"), str)
+	} else {
+		fmt.Println("Error:", resp.Message)
 	}
 }
 

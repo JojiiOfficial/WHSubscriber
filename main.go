@@ -40,7 +40,7 @@ var (
 	//Subscription commands
 	//Subscriptions
 	subscriptionsCmd = app.Command("subscriptions", "Lists your subscriptions").FullCommand()
-	//Subscription
+	//Subscriptioncreate
 	subscriptionCmd = app.Command("subscription", "Subscription command")
 	//Subscribe child command
 	subscribeAddWh         = subscriptionCmd.Command("add", "Subscribe to a webhook")
@@ -66,12 +66,12 @@ var (
 	//Actions
 	actionsCmd = app.Command("actions", "List you actions").FullCommand()
 	//Action add
-	actionCmdAdd        = actionCmd.Command("add", "Adds an action for a webhook")
-	actionCmdAddMode    = actionCmdAdd.Flag("mode", "The kind of action you want to add").HintAction(hintAvailableActions).String()
-	actionCmdAddFile    = actionCmdAdd.Arg("file", "The action-file. Either a bash script or an action-configuration").HintAction(hintListCurDir).Required().String()
-	actionCmdAddName    = actionCmdAdd.Flag("name", "The name of the action. To make it easier to use again").HintAction(hintRandomNames).Default(getRandomName()).String()
-	actionCmdAddWebhook = actionCmdAdd.Flag("webhook", "The webhook to add the action to").HintAction(hintSubscriptionsNoNa).String()
-	actionCmdAddCreate  = actionCmdAdd.Flag("create", "Create the file for the action").Default("false").Bool()
+	actionCmdAdd         = actionCmd.Command("add", "Adds an action for a webhook").Alias("create")
+	actionCmdAddMode     = actionCmdAdd.Flag("mode", "The kind of action you want to add").HintAction(hintAvailableActions).String()
+	actionCmdAddFile     = actionCmdAdd.Arg("file", "The action-file. Either a bash script or an action-configuration").HintAction(hintListCurDir).Required().String()
+	actionCmdAddName     = actionCmdAdd.Flag("name", "The name of the action. To make it easier to use again").HintAction(hintRandomNames).Default(getRandomName()).String()
+	actionCmdAddWebhook  = actionCmdAdd.Flag("webhook", "The webhook to add the action to").HintAction(hintSubscriptionsNoNa).String()
+	actionCmdAddNoCreate = actionCmdAdd.Flag("no-file", "Don't create the action file").Default("false").Bool()
 	//Action set
 	actionCmdUpdate = actionCmd.Command("update", "Sets/Changes an action")
 	//Action set webhook
@@ -106,6 +106,12 @@ var (
 	//Delete source
 	sourceCmdDelete   = sourceCmd.Command("delete", "Delete a source").Alias("rm").Alias("del")
 	sourceCmdDeleteID = sourceCmdDelete.Arg("sourceID", "The ID of the source to delete").String()
+	//Update source
+	sourceCmdUpdate = sourceCmd.Command("update", "Update the source")
+	//Update description
+	sourceCmdUpdateDescr     = sourceCmdUpdate.Command("description", "Update the description").Alias("descr")
+	sourceCmdUpdateDescrID   = sourceCmdUpdateDescr.Arg("sourceID", "The sourceID from the source to update").Required().String()
+	sourceCmdUpdateDescrText = sourceCmdUpdateDescr.Arg("text", "The new text for the description. Keep empty to remove the description text").String()
 
 	loginCmd     = app.Command("login", "login")
 	loginCmdUser = loginCmd.Flag("username", "Your username").String()
@@ -187,7 +193,7 @@ func main() {
 	case actionCmdAdd.FullCommand():
 		{
 			//whsub action add
-			AddAction(db, *actionCmdAddMode, *actionCmdAddName, *actionCmdAddWebhook, *actionCmdAddFile, *actionCmdAddCreate)
+			AddAction(db, *actionCmdAddMode, *actionCmdAddName, *actionCmdAddWebhook, *actionCmdAddFile, *actionCmdAddNoCreate)
 		}
 	case actionCmdDelete.FullCommand():
 		{
@@ -232,6 +238,11 @@ func main() {
 		{
 			//whsub source delete
 			DeleteSource(db, config, *sourceCmdDeleteID)
+		}
+	case sourceCmdUpdateDescr.FullCommand():
+		{
+			//whsub source update description
+			UpdateSourceDescription(db, config, *sourceCmdUpdateDescrID, *sourceCmdUpdateDescrText)
 		}
 	case sourcesCmd.FullCommand():
 		{

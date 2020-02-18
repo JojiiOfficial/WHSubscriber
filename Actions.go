@@ -49,7 +49,7 @@ func getWhIDFromHumanInput(db *dbhelper.DBhelper, input string) (int64, error) {
 }
 
 //AddAction adds a new action
-func AddAction(db *dbhelper.DBhelper, actionMode, actionName, webhookName, actionFile string, createFile bool) {
+func AddAction(db *dbhelper.DBhelper, actionMode, actionName, webhookName, actionFile string, noFile bool) {
 	mode := uint8(0)
 
 	hasAction, err := hasAction(db, actionName)
@@ -58,7 +58,7 @@ func AddAction(db *dbhelper.DBhelper, actionMode, actionName, webhookName, actio
 		return
 	}
 	if hasAction {
-		fmt.Printf("There is already an action with the name '%s'", actionName)
+		fmt.Printf("There is already an action with the name '%s'\n", actionName)
 		return
 	}
 
@@ -86,7 +86,7 @@ func AddAction(db *dbhelper.DBhelper, actionMode, actionName, webhookName, actio
 	newFileString := gaw.FromString(actionFile)
 	absfile, _ := filepath.Abs(actionFile)
 
-	if !gaw.FileExists(newFileString.ToString()) && !(*appYes) && !createFile {
+	if !gaw.FileExists(newFileString.ToString()) && !(*appYes) && noFile {
 		y, i := gaw.ConfirmInput(color.HiYellowString("Warning: ")+"file or directory doesn't exist! Continue anyway? [y/n]> ", bufio.NewReader(os.Stdin))
 		if i == -1 || !y {
 			fmt.Println("Abort")
@@ -113,7 +113,7 @@ func AddAction(db *dbhelper.DBhelper, actionMode, actionName, webhookName, actio
 
 	fmt.Printf("Created action %s %s\n", actionName, color.HiGreenString("successfully"))
 
-	if createFile {
+	if !noFile {
 		ActionCreateFile(db, &action)
 	}
 }

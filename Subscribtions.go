@@ -25,6 +25,11 @@ func Subscribe(db *dbhelper.DBhelper, config *ConfigStruct, callbackURL, sourceI
 		callbackURL = config.Client.CallbackURL
 	}
 
+	if len(sourceID) != 32 {
+		fmt.Println(color.HiRedString("Error:"), "SourceID invalid")
+		return
+	}
+
 	if *appDebug {
 		fmt.Printf("Trying to subscribe to '%s' using callback URL '%s' and remote '%s'\n", sourceID, callbackURL, remoteURL)
 	}
