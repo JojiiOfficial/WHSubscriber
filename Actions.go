@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"log"
@@ -15,10 +16,15 @@ import (
 	"github.com/fatih/color"
 )
 
-//Modes the available actions
-var Modes = map[string]uint8{
-	"github": 3, "gitlab": 1, "docker": 2, "script": 0,
-}
+var (
+	//Modes the available actions
+	Modes = map[string]uint8{
+		"github": 3, "gitlab": 1, "docker": 2, "script": 0,
+	}
+
+	//BashTemplate the base64 encoded content for the bashfile template
+	BashTemplate = "IyEvYmluL2Jhc2gKCiMgcmVhZGluZyB0aGUgcGF5bG9hZCBmcm9tIHRoZSB0ZW1wLWZpbGUKcGF5bG9hZD0kKGNhdCAkMSkKCiMgcmVwbGFjaW5nIGFsbCAiIHdpdGggXCIgdG8gbWFrZSBpdCBzYWZlIHRvIHVzZSBpbiBKU09OIHZhbHVlcwpqc29uVmFsaWQ9JHtwYXlsb2FkL1wiL1xcXCJ9CgojIGV4YW1wbGUganNvbgpqc29uPSQocHJpbnRmICd7Impzb24iOiJ2YWx1ZTEiLCAiY29udGVudCI6IiVzIn0nICRqc29uVmFsaWQpCgojIGRvIHNvbWV0aGluZyBoZXJlCmVjaG8gJGpzb24K"
+)
 
 func getWhIDFromHumanInput(db *dbhelper.DBhelper, input string) (int64, error) {
 	whID := int64(-1)
@@ -288,7 +294,7 @@ func ActionCreateFile(db *dbhelper.DBhelper, action *Action) {
 			log.Fatalln(err.Error())
 			return
 		}
-		f.WriteString("#!/bin/bash\n")
+		f.WriteString(getTemplate())
 		f.Close()
 	} else {
 		//Action-file
@@ -299,6 +305,11 @@ func ActionCreateFile(db *dbhelper.DBhelper, action *Action) {
 	}
 
 	fmt.Println("Action file created", color.HiGreenString("successfully"))
+}
+
+func getTemplate() string {
+	decoded, _ := base64.StdEncoding.DecodeString(BashTemplate)
+	return string(decoded)
 }
 
 //Run an action
