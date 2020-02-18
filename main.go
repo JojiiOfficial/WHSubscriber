@@ -112,6 +112,10 @@ var (
 	sourceCmdUpdateDescr     = sourceCmdUpdate.Command("description", "Update the description").Alias("descr")
 	sourceCmdUpdateDescrID   = sourceCmdUpdateDescr.Arg("sourceID", "The sourceID from the source to update").Required().String()
 	sourceCmdUpdateDescrText = sourceCmdUpdateDescr.Arg("text", "The new text for the description. Keep empty to remove the description text").String()
+	//Update name
+	sourceCmdUpdateName     = sourceCmdUpdate.Command("name", "Update the description")
+	sourceCmdUpdateNameID   = sourceCmdUpdateName.Arg("sourceID", "The sourceID from the source to update").Required().String()
+	sourceCmdUpdateNameText = sourceCmdUpdateName.Arg("new-name", "The new name").Required().String()
 
 	loginCmd     = app.Command("login", "login")
 	loginCmdUser = loginCmd.Flag("username", "Your username").String()
@@ -243,6 +247,11 @@ func main() {
 		{
 			//whsub source update description
 			UpdateSourceDescription(db, config, *sourceCmdUpdateDescrID, *sourceCmdUpdateDescrText)
+		}
+	case sourceCmdUpdateName.FullCommand():
+		{
+			//whsub source updatename
+			UpdateSourceName(db, config, *sourceCmdUpdateNameID, *sourceCmdUpdateNameText)
 		}
 	case sourcesCmd.FullCommand():
 		{

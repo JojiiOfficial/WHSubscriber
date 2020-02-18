@@ -65,14 +65,6 @@ func getURLFromSource(config *ConfigStruct, sourceID, secret string) string {
 
 //DeleteSource deletes a source
 func DeleteSource(db *dbhelper.DBhelper, config *ConfigStruct, sourceID string) {
-	if !checkLoggedIn(config) {
-		return
-	}
-
-	if len(sourceID) != 32 {
-		fmt.Println(color.HiRedString("Error:"), "SourceID invalid")
-		return
-	}
 
 	req := sourceRequest{
 		SourceID: sourceID,
@@ -80,62 +72,81 @@ func DeleteSource(db *dbhelper.DBhelper, config *ConfigStruct, sourceID string) 
 		Content:  "-",
 	}
 
-	response, err := RestRequest(EPSourceDelete, req, nil, config)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-	if response.Status == ResponseSuccess {
-		id, err := getSubscriptionID(db, sourceID)
-		if err == nil {
-			removeActionSource(db, id)
-			deleteSubscriptionByID(db, sourceID)
+	SourceUpdateRequest(db, config, EPSourceDelete, req, func(response *RestResponse) {
+		if response.Status == ResponseSuccess {
+			id, err := getSubscriptionID(db, sourceID)
+			if err == nil {
+				removeActionSource(db, id)
+				deleteSubscriptionByID(db, sourceID)
+			}
+			fmt.Println("Source deleted", color.HiGreenString("successfully"))
+		} else {
+			fmt.Println("Error:", response.Message)
 		}
-		fmt.Println("Source deleted", color.HiGreenString("successfully"))
-	} else {
-		fmt.Println("Error:", response.Message)
-	}
+	})
 }
 
 //UpdateSourceDescription updates the source description
 func UpdateSourceDescription(db *dbhelper.DBhelper, config *ConfigStruct, sourceID, newText string) {
-	if !checkLoggedIn(config) {
-		return
+	if len(newText) == 0 {
+		newText = "-"
 	}
-
-	if len(sourceID) != 32 {
-		fmt.Println(color.HiRedString("Error:"), "SourceID invalid")
-		return
-	}
-
-	content := "-"
-	if len(newText) != 0 {
-		content = newText
-	}
-	fmt.Println(sourceID)
 
 	req := sourceRequest{
 		SourceID: sourceID,
 		Token:    config.User.SessionToken,
-		Content:  content,
+		Content:  newText,
 	}
 
-	resp, err := RestRequest(EPSourceChangeDesc, req, nil, config)
+	SourceUpdateRequest(db, config, EPSourceChangeDesc, req, func(resp *RestResponse) {
+		if resp.Status == ResponseSuccess {
+			str := "updating"
+			if newText == "-" {
+				str = "removing"
+			}
+
+			fmt.Printf("%s %s source description\n", color.HiGreenString("Success"), str)
+		} else {
+			fmt.Println("Error:", resp.Message)
+		}
+	})
+}
+
+//UpdateSourceName updates the name of a given source
+func UpdateSourceName(db *dbhelper.DBhelper, config *ConfigStruct, sourceID, newName string) {
+	req := sourceRequest{
+		Content:  newName,
+		Token:    config.User.SessionToken,
+		SourceID: sourceID,
+	}
+
+	SourceUpdateRequest(db, config, EPSourceRename, req, func(response *RestResponse) {
+		if response.Status == ResponseSuccess {
+			fmt.Printf("%s updating source to '%s'\n", color.HiGreenString("Success"), newName)
+		} else {
+			fmt.Println("Error:", response.Message)
+		}
+	})
+}
+
+//SourceUpdateRequest updates a source
+func SourceUpdateRequest(db *dbhelper.DBhelper, config *ConfigStruct, endpoint Endpoint, requestStruct sourceRequest, respFunc func(*RestResponse)) {
+	if !checkLoggedIn(config) {
+		return
+	}
+
+	if len(requestStruct.SourceID) != 32 {
+		fmt.Println(color.HiRedString("Error:"), "SourceID invalid")
+		return
+	}
+
+	response, err := RestRequest(endpoint, requestStruct, nil, config)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
-	if resp.Status == ResponseSuccess {
-		str := "updating"
-		if len(newText) == 0 {
-			str = "removing"
-		}
-
-		fmt.Printf("%s %s source description\n", color.HiGreenString("Success"), str)
-	} else {
-		fmt.Println("Error:", resp.Message)
-	}
+	respFunc(response)
 }
 
 func getSources(db *dbhelper.DBhelper, config *ConfigStruct, args ...string) ([]sourceResponse, error) {
