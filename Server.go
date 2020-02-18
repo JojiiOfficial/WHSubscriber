@@ -150,6 +150,9 @@ func handleValidWebhook(c chan bool, subscription *Subscription, actions []Actio
 
 		action.Run(file, subscription, &parsedWebhook)
 	}
+
+	//Delete tempFile
+	os.Remove(tmpFile.Name())
 }
 
 //
