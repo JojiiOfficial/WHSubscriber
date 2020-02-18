@@ -34,8 +34,9 @@ type SourceActionItem struct {
 
 //ShellActionItem action item for shell options
 type ShellActionItem struct {
-	User   string
-	EnVars []string
+	User     string
+	SafeMode bool
+	EnVars   []string
 }
 
 func createDefaultActionFile(file string) error {
@@ -60,7 +61,8 @@ func createDefaultActionFile(file string) error {
 		},
 
 		Shell: ShellActionItem{
-			User: username,
+			User:     username,
+			SafeMode: true,
 			EnVars: []string{
 				"PATH=/bin:/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin",
 				"ACTION_PWD=" + pwd,
@@ -147,7 +149,7 @@ func (action *ActionFileStruct) Run(payloadFile string, sAction *Action, subscri
 			continue
 		}
 
-		isReqValid, hitTrigger := formatAction(subscription, webhookData, &actionCmd)
+		isReqValid, hitTrigger := formatAction(subscription, webhookData, &actionCmd, action)
 		if !isReqValid {
 			log.Println("Request was not valid")
 			return nil

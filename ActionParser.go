@@ -38,7 +38,7 @@ func validateHeaders(mode uint8, header http.Header) bool {
 }
 
 //Formats the variable names in the actions
-func formatAction(subscription *Subscription, webhookData *WebhookData, actionCmd *string) (requestValid, hitTrigger bool) {
+func formatAction(subscription *Subscription, webhookData *WebhookData, actionCmd *string, action *ActionFileStruct) (requestValid, hitTrigger bool) {
 	if !validateHeaders(subscription.Mode, webhookData.Header) {
 		log.Println("Not all required headers were found!")
 		return false, false
@@ -62,13 +62,24 @@ func formatAction(subscription *Subscription, webhookData *WebhookData, actionCm
 		for _, v := range variables {
 			varValMap[v] = "-"
 		}
+
 		if len(variables) > 0 {
 			loopPayload("", data, &varValMap)
 		}
 
+		//Replace all custom variables with json values
 		for _, vari := range variables {
-			*actionCmd = strings.ReplaceAll(*actionCmd, "%"+vari+"%", varValMap[vari])
+			jsonVal := varValMap[vari]
+
+			if action.Shell.SafeMode {
+				for _, toReplace := range []string{";", "`", "$("} {
+					jsonVal = strings.ReplaceAll(jsonVal, toReplace, "")
+				}
+			}
+
+			*actionCmd = strings.ReplaceAll(*actionCmd, "%"+vari+"%", jsonVal)
 		}
+
 		fmt.Println(actionCmd)
 	}
 

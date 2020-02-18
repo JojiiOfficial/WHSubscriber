@@ -19,6 +19,7 @@ type ConfigStruct struct {
 		Username     string
 		SessionToken string
 	}
+
 	Client struct {
 		ServerURL   string `default:"https://wh-share.de/"`
 		CallbackURL string `default:"https://yourCallbackDomain.de/"`
@@ -62,6 +63,7 @@ func InitConfig(confFile string, createMode bool) (*ConfigStruct, bool) {
 	}
 
 	isDefault, err := configor.SetupConfig(&config, confFile, configor.NoChange)
+
 	if err != nil {
 		log.Fatalln(err.Error())
 		return nil, true
