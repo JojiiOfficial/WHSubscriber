@@ -117,6 +117,9 @@ var (
 	sourceCmdUpdateNameID   = sourceCmdUpdateName.Arg("sourceID", "The sourceID from the source to update").Required().String()
 	sourceCmdUpdateNameText = sourceCmdUpdateName.Arg("new-name", "The new name").Required().String()
 
+	sourceCmdUpdateAccessMode   = sourceCmdUpdate.Command("access-mode", "Toggles the access-mode (private/public) of your source")
+	sourceCmdUpdateAccessModeID = sourceCmdUpdateAccessMode.Arg("sourceID", "The sourceID from the source to update").Required().String()
+
 	loginCmd     = app.Command("login", "login")
 	loginCmdUser = loginCmd.Flag("username", "Your username").String()
 
@@ -250,8 +253,13 @@ func main() {
 		}
 	case sourceCmdUpdateName.FullCommand():
 		{
-			//whsub source updatename
+			//whsub source update name
 			UpdateSourceName(db, config, *sourceCmdUpdateNameID, *sourceCmdUpdateNameText)
+		}
+	case sourceCmdUpdateAccessMode.FullCommand():
+		{
+			//whsub update access-mode
+			ToggleSourceAccessMode(db, config, *sourceCmdUpdateAccessModeID)
 		}
 	case sourcesCmd.FullCommand():
 		{

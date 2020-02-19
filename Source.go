@@ -129,6 +129,23 @@ func UpdateSourceName(db *dbhelper.DBhelper, config *ConfigStruct, sourceID, new
 	})
 }
 
+//ToggleSourceAccessMode updates the name of a given source
+func ToggleSourceAccessMode(db *dbhelper.DBhelper, config *ConfigStruct, sourceID string) {
+	req := sourceRequest{
+		Content:  "-",
+		Token:    config.User.SessionToken,
+		SourceID: sourceID,
+	}
+
+	SourceUpdateRequest(db, config, EPSourceToggleAccess, req, func(response *RestResponse) {
+		if response.Status == ResponseSuccess {
+			fmt.Printf("%s updating source to '%s'\n", color.HiGreenString("Success"), response.Message)
+		} else {
+			fmt.Println("Error:", response.Message)
+		}
+	})
+}
+
 //SourceUpdateRequest updates a source
 func SourceUpdateRequest(db *dbhelper.DBhelper, config *ConfigStruct, endpoint Endpoint, requestStruct sourceRequest, respFunc func(*RestResponse)) {
 	if !checkLoggedIn(config) {

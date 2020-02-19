@@ -25,17 +25,18 @@ const (
 	//User
 	EPUser       Endpoint = "/user"
 	EPUserCreate Endpoint = EPUser + "/create"
-	EPLogin      Endpoint = "/login"
+	EPLogin      Endpoint = EPUser + "/login"
 
 	//Source
 	EPSource       Endpoint = "/source"
 	EPSources      Endpoint = EPSource + "s"
 	EPSourceCreate Endpoint = EPSource + "/create"
 
-	EPSourceUpdate     Endpoint = EPSource + "/update"
-	EPSourceDelete     Endpoint = EPSourceUpdate + "/delete"
-	EPSourceChangeDesc Endpoint = EPSourceUpdate + "/changedescr"
-	EPSourceRename     Endpoint = EPSourceUpdate + "/rename"
+	EPSourceUpdate       Endpoint = EPSource + "/update"
+	EPSourceDelete       Endpoint = EPSourceUpdate + "/delete"
+	EPSourceChangeDesc   Endpoint = EPSourceUpdate + "/changedescr"
+	EPSourceRename       Endpoint = EPSourceUpdate + "/rename"
+	EPSourceToggleAccess Endpoint = EPSourceUpdate + "/toggleAccess"
 )
 
 //RestRequest a better request method
