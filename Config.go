@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	gaw "github.com/JojiiOfficial/GoAw"
-	"github.com/JojiiOfficial/configor"
+	"github.com/JojiiOfficial/configService"
 )
 
 //ConfigStruct the structure of the configfile
@@ -73,7 +73,7 @@ func InitConfig(confFile string, createMode bool) (*ConfigStruct, bool) {
 		}
 	}
 
-	isDefault, err := configor.SetupConfig(&config, confFile, func(confI interface{}) interface{} {
+	isDefault, err := configService.SetupConfig(&config, confFile, func(confI interface{}) interface{} {
 		conf := confI.(*ConfigStruct)
 		conf.Webserver.HTTP = configHTTPstruct{
 			Enabled:       true,
@@ -94,7 +94,7 @@ func InitConfig(confFile string, createMode bool) (*ConfigStruct, bool) {
 		}
 	}
 
-	if err = configor.Load(&config, confFile); err != nil {
+	if err = configService.Load(&config, confFile); err != nil {
 		log.Fatalln(err.Error())
 		return nil, true
 	}

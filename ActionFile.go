@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/JojiiOfficial/configor"
+	"github.com/JojiiOfficial/configService"
 )
 
 //WebhookData contains the parsed webhook
@@ -74,14 +74,14 @@ func createDefaultActionFile(file string) error {
 		},
 	}
 
-	_, err = configor.SetupConfig(&actionFileStruct, file, configor.NoChange)
+	_, err = configService.SetupConfig(&actionFileStruct, file, configService.NoChange)
 	return err
 }
 
 //LoadActionFile loads the action from a file
 func LoadActionFile(file string) (*ActionFileStruct, error) {
 	action := ActionFileStruct{}
-	err := configor.Load(&action, file)
+	err := configService.Load(&action, file)
 	if err != nil {
 		return nil, err
 	}

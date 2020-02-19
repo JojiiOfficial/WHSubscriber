@@ -9,7 +9,7 @@ import (
 	"syscall"
 
 	gaw "github.com/JojiiOfficial/GoAw"
-	"github.com/JojiiOfficial/configor"
+	"github.com/JojiiOfficial/configService"
 	"github.com/fatih/color"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -51,7 +51,7 @@ func LoginCommand(config *ConfigStruct, usernameArg string, args ...bool) {
 			Username:     username,
 			SessionToken: response.Token,
 		}
-		err := configor.Save(config, config.File)
+		err := configService.Save(config, config.File)
 		if err != nil {
 			fmt.Println("Error saving config:", err.Error())
 			return
