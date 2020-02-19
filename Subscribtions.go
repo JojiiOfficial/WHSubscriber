@@ -77,7 +77,7 @@ func Subscribe(db *dbhelper.DBhelper, config *ConfigStruct, callbackURL, sourceI
 }
 
 //Unsubscribe unsubscribe a subscription
-func Unsubscribe(config *ConfigStruct, db *dbhelper.DBhelper, id string) {
+func Unsubscribe(db *dbhelper.DBhelper, config *ConfigStruct, id string) {
 	wdid, err := getWhIDFromHumanInput(db, id)
 	if err != nil {
 		fmt.Println("Err:", err.Error())
@@ -103,13 +103,45 @@ func Unsubscribe(config *ConfigStruct, db *dbhelper.DBhelper, id string) {
 		}
 		fmt.Println(color.HiGreenString("Successfully"), "unsubscribed from", subscription.Name)
 	} else {
-		fmt.Println("Error:", response.Message)
+		fmt.Println(color.HiRedString("Error:"), response.Message)
 	}
 }
 
-//ImportSubscription import a subscription
-func ImportSubscription(db *dbhelper.DBhelper, id string) {
-	fmt.Println(id)
+//SubscriptionUpdateCallback updates the callback of a subscription
+func SubscriptionUpdateCallback(db *dbhelper.DBhelper, config *ConfigStruct, subscriptionID, newCallback string) {
+	wdid, err := getWhIDFromHumanInput(db, subscriptionID)
+	if err != nil {
+		fmt.Println("Err:", err.Error())
+		return
+	}
+
+	subscription, _ := getSubscriptionFromID(db, wdid)
+	if len(newCallback) == 0 {
+		newCallback = config.Client.CallbackURL
+	}
+
+	token := "-"
+	if len(config.User.SessionToken) > 0 {
+		token = config.User.SessionToken
+	}
+
+	request := subscriptionUpdateCallbackRequest{
+		CallbackURL:    newCallback,
+		SubscriptionID: subscription.SubscriptionID,
+		Token:          token,
+	}
+
+	resp, err := RestRequest(EPSubscriptionUpdCallback, request, nil, config)
+	if err != nil {
+		fmt.Println("Err:", err.Error())
+		return
+	}
+
+	if resp.Status == ResponseSuccess {
+		fmt.Printf("%s updating callback URL to '%s'\n", color.HiGreenString("Success"), newCallback)
+	} else {
+		fmt.Println(color.HiRedString("Error:"), resp.Message)
+	}
 }
 
 //ViewSubscriptions views subscriptions

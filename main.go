@@ -47,12 +47,15 @@ var (
 	subscribeWhID          = subscribeAddWh.Arg("webhookID", "Which webhook you want to subscribe").Required().String()
 	subscribeWhCallbackURL = subscribeAddWh.Arg("url", "The callback URL to receive the notifications").Envar(getEnVar(EnVarReceiveURL)).String()
 	subscribeWhScript      = subscribeAddWh.Flag("script", "The script to run on a webhook call").Short('s').String()
-	//Subscribe import
-	subscribeImport   = subscriptionCmd.Command("import", "Imports a subscription").Alias("load")
-	subscribeImportID = subscribeImport.Arg("id", "The ID of the subscription to import").Required().String()
 	//Subscription delete
 	subscribeDelete   = subscriptionCmd.Command("unsubscribe", "Delete/unsubscribe a subscription").Alias("rm").Alias("delete")
 	subscribeDeleteID = subscribeDelete.Arg("id", "The ID of the subscription to delete").HintAction(hintSubscriptionsNoNa).Required().String()
+	//Subscription update
+	subscriptionCmdUpdate = subscriptionCmd.Command("update", "Update a subscription")
+	//Subscription update callbackURL
+	subscriptionCmdUpdateCallback     = subscriptionCmdUpdate.Command("callback", "Update the callback URL of a subscripion")
+	subscriptionCmdUpdateCallbackName = subscriptionCmdUpdateCallback.Arg("name", "The name of the subscription to update").Required().HintAction(hintSubscriptionsNoNa).String()
+	subscriptionCmdUpdateCallbackURL  = subscriptionCmdUpdateCallback.Arg("url", "The new callback URL").Envar(getEnVar(EnVarReceiveURL)).String()
 
 	//Config commands
 	//Config create
@@ -188,12 +191,12 @@ func main() {
 	case subscribeDelete.FullCommand():
 		{
 			//whsub subscription unsubscribe
-			Unsubscribe(config, db, *subscribeDeleteID)
+			Unsubscribe(db, config, *subscribeDeleteID)
 		}
-	case subscribeImport.FullCommand():
+	case subscriptionCmdUpdateCallback.FullCommand():
 		{
-			//whsub subscription import
-			ImportSubscription(db, *subscribeImportID)
+			//whsub subscription update callback
+			SubscriptionUpdateCallback(db, config, *subscriptionCmdUpdateCallbackName, *subscriptionCmdUpdateCallbackURL)
 		}
 
 	//Actions --------------------

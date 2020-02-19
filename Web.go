@@ -16,27 +16,27 @@ type Endpoint string
 
 //Remote endpoints
 const (
-	//Subscriptions
-	EPSubscription         Endpoint = "/sub"
-	EPSubscriptionAdd      Endpoint = EPSubscription + "/add"
-	EPSubscriptionActivate Endpoint = EPSubscription + "/activate"
-	EPSubscriptionRemove   Endpoint = EPSubscription + "/remove"
-
 	//User
 	EPUser       Endpoint = "/user"
 	EPUserCreate Endpoint = EPUser + "/create"
 	EPLogin      Endpoint = EPUser + "/login"
 
 	//Source
-	EPSource       Endpoint = "/source"
-	EPSources      Endpoint = EPSource + "s"
-	EPSourceCreate Endpoint = EPSource + "/create"
-
+	EPSource             Endpoint = "/source"
+	EPSources            Endpoint = EPSource + "s"
+	EPSourceCreate       Endpoint = EPSource + "/create"
 	EPSourceUpdate       Endpoint = EPSource + "/update"
 	EPSourceDelete       Endpoint = EPSourceUpdate + "/delete"
 	EPSourceChangeDesc   Endpoint = EPSourceUpdate + "/changedescr"
 	EPSourceRename       Endpoint = EPSourceUpdate + "/rename"
 	EPSourceToggleAccess Endpoint = EPSourceUpdate + "/toggleAccess"
+
+	//Subscriptions
+	EPSubscription            Endpoint = "/sub"
+	EPSubscriptionAdd         Endpoint = EPSubscription + "/add"
+	EPSubscriptionActivate    Endpoint = EPSubscription + "/activate"
+	EPSubscriptionRemove      Endpoint = EPSubscription + "/remove"
+	EPSubscriptionUpdCallback Endpoint = EPSubscription + "/updateCallback"
 )
 
 //RestRequest a better request method
