@@ -87,7 +87,7 @@ func RegisterCommand(config *ConfigStruct) {
 			LoginCommand(config, username, true)
 		}
 	} else {
-		fmt.Println("Error:", resp.Message)
+		PrintResponseError(resp)
 	}
 }
 
@@ -164,4 +164,11 @@ func checkLoggedIn(config *ConfigStruct) bool {
 	}
 	fmt.Println("You need to be logged in to use this feature")
 	return false
+}
+
+//PrintResponseError prints the response message on a error. In red
+func PrintResponseError(rep *RestResponse) {
+	if rep.Status == ResponseError {
+		fmt.Printf("%s %s\n", color.HiRedString("Error:"), rep.Message)
+	}
 }

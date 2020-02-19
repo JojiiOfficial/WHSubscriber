@@ -71,7 +71,7 @@ func Subscribe(db *dbhelper.DBhelper, config *ConfigStruct, callbackURL, sourceI
 		}
 		fmt.Printf("%s subscribed to '%s'\n", color.HiGreenString("Successfully"), sourceID)
 	} else {
-		fmt.Println(color.HiRedString("Error:"), response.Message)
+		PrintResponseError(response)
 	}
 
 }
@@ -103,7 +103,7 @@ func Unsubscribe(db *dbhelper.DBhelper, config *ConfigStruct, id string) {
 		}
 		fmt.Println(color.HiGreenString("Successfully"), "unsubscribed from", subscription.Name)
 	} else {
-		fmt.Println(color.HiRedString("Error:"), response.Message)
+		PrintResponseError(response)
 	}
 }
 
@@ -140,7 +140,7 @@ func SubscriptionUpdateCallback(db *dbhelper.DBhelper, config *ConfigStruct, sub
 	if resp.Status == ResponseSuccess {
 		fmt.Printf("%s updating callback URL to '%s'\n", color.HiGreenString("Success"), newCallback)
 	} else {
-		fmt.Println(color.HiRedString("Error:"), resp.Message)
+		PrintResponseError(resp)
 	}
 }
 

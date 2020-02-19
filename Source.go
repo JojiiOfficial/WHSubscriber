@@ -52,7 +52,7 @@ func CreateSource(config *ConfigStruct, name, description, mode string, private 
 			fmt.Printf("\nWebhook URL: %s\n", getURLFromSource(config, respData.SourceID, respData.Secret))
 		}
 	} else {
-		fmt.Println("Err:", response.Message)
+		PrintResponseError(response)
 	}
 }
 
@@ -81,7 +81,7 @@ func DeleteSource(db *dbhelper.DBhelper, config *ConfigStruct, sourceID string) 
 			}
 			fmt.Println("Source deleted", color.HiGreenString("successfully"))
 		} else {
-			fmt.Println("Error:", response.Message)
+			PrintResponseError(response)
 		}
 	})
 }
@@ -124,7 +124,7 @@ func UpdateSourceName(db *dbhelper.DBhelper, config *ConfigStruct, sourceID, new
 		if response.Status == ResponseSuccess {
 			fmt.Printf("%s updating source to '%s'\n", color.HiGreenString("Success"), newName)
 		} else {
-			fmt.Println("Error:", response.Message)
+			PrintResponseError(response)
 		}
 	})
 }
@@ -141,7 +141,7 @@ func ToggleSourceAccessMode(db *dbhelper.DBhelper, config *ConfigStruct, sourceI
 		if response.Status == ResponseSuccess {
 			fmt.Printf("%s updating source to '%s'\n", color.HiGreenString("Success"), response.Message)
 		} else {
-			fmt.Println("Error:", response.Message)
+			PrintResponseError(response)
 		}
 	})
 }
