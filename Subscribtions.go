@@ -146,6 +146,8 @@ func SubscriptionUpdateCallback(db *dbhelper.DBhelper, config *ConfigStruct, sub
 
 //ViewSubscriptions views subscriptions
 func ViewSubscriptions(db *dbhelper.DBhelper, config *ConfigStruct) {
+	//TODO display online version on internet connection & update local database
+
 	subscriptions, err := getSubscriptions(db)
 	if err != nil {
 		log.Fatalln(err.Error())
