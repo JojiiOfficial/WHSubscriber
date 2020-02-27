@@ -22,7 +22,7 @@ var (
 		"github": 3, "gitlab": 1, "docker": 2, "script": 0,
 	}
 
-	//BashTemplate the base64 encoded content for the bashfile template
+	//BashTemplate the base64 encoded content for the bashFile template
 	BashTemplate = "IyEvYmluL2Jhc2gKCiMgcmVhZGluZyB0aGUgcGF5bG9hZCBmcm9tIHRoZSB0ZW1wLWZpbGUKcGF5bG9hZD0kKGNhdCAkMSkKCiMgcmVwbGFjaW5nIGFsbCAiIHdpdGggXCIgdG8gbWFrZSBpdCBzYWZlIHRvIHVzZSBpbiBKU09OIHZhbHVlcwpqc29uVmFsaWQ9JHtwYXlsb2FkLy9cIi9cXFwifQoKIyBleGFtcGxlIGpzb24KanNvbj0kKHByaW50ZiAneyJqc29uIjoidmFsdWUxIiwgImNvbnRlbnQiOiIlcyJ9JyAkanNvblZhbGlkKQoKIyBkbyBzb21ldGhpbmcgaGVyZQplY2hvICRqc29uCg=="
 )
 

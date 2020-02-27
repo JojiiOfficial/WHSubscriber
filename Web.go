@@ -70,6 +70,9 @@ func (endpoint Endpoint) DoRequest(payload interface{}, retVar interface{}, useS
 	}
 
 	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
 
 	//Read and validate headers
 	statusStr := resp.Header.Get(HeaderStatus)

@@ -36,7 +36,6 @@ func CreateSource(config *ConfigStruct, name, description, mode string, private 
 		Name:        name,
 		Private:     private,
 		Mode:        m,
-		Token:       config.User.SessionToken,
 	}
 
 	var respData sourceAddResponse
@@ -68,7 +67,6 @@ func DeleteSource(db *dbhelper.DBhelper, config *ConfigStruct, sourceID string) 
 
 	req := sourceRequest{
 		SourceID: sourceID,
-		Token:    config.User.SessionToken,
 		Content:  "-",
 	}
 
@@ -94,7 +92,6 @@ func UpdateSourceDescription(db *dbhelper.DBhelper, config *ConfigStruct, source
 
 	req := sourceRequest{
 		SourceID: sourceID,
-		Token:    config.User.SessionToken,
 		Content:  newText,
 	}
 
@@ -116,7 +113,6 @@ func UpdateSourceDescription(db *dbhelper.DBhelper, config *ConfigStruct, source
 func UpdateSourceName(db *dbhelper.DBhelper, config *ConfigStruct, sourceID, newName string) {
 	req := sourceRequest{
 		Content:  newName,
-		Token:    config.User.SessionToken,
 		SourceID: sourceID,
 	}
 
@@ -133,7 +129,6 @@ func UpdateSourceName(db *dbhelper.DBhelper, config *ConfigStruct, sourceID, new
 func ToggleSourceAccessMode(db *dbhelper.DBhelper, config *ConfigStruct, sourceID string) {
 	req := sourceRequest{
 		Content:  "-",
-		Token:    config.User.SessionToken,
 		SourceID: sourceID,
 	}
 
@@ -179,7 +174,6 @@ func getSources(db *dbhelper.DBhelper, config *ConfigStruct, args ...string) ([]
 
 	req := sourceRequest{
 		SourceID: sid,
-		Token:    config.User.SessionToken,
 		Content:  "-",
 	}
 	var res listSourcesResponse

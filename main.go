@@ -40,7 +40,7 @@ var (
 	//Subscription commands
 	//Subscriptions
 	subscriptionsCmd = app.Command("subscriptions", "Lists your subscriptions").FullCommand()
-	//Subscriptioncreate
+	//SubscriptionCreate
 	subscriptionCmd = app.Command("subscription", "Subscription command")
 	//Subscribe child command
 	subscribeAddWh         = subscriptionCmd.Command("add", "Subscribe to a webhook")
@@ -53,7 +53,7 @@ var (
 	//Subscription update
 	subscriptionCmdUpdate = subscriptionCmd.Command("update", "Update a subscription")
 	//Subscription update callbackURL
-	subscriptionCmdUpdateCallback     = subscriptionCmdUpdate.Command("callback", "Update the callback URL of a subscripion")
+	subscriptionCmdUpdateCallback     = subscriptionCmdUpdate.Command("callback", "Update the callback URL of a subscription")
 	subscriptionCmdUpdateCallbackName = subscriptionCmdUpdateCallback.Arg("name", "The name of the subscription to update").Required().HintAction(hintSubscriptionsNoNa).String()
 	subscriptionCmdUpdateCallbackURL  = subscriptionCmdUpdateCallback.Arg("url", "The new callback URL").Envar(getEnVar(EnVarReceiveURL)).String()
 

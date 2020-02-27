@@ -25,7 +25,6 @@ type Action struct {
 
 // -------> Sources
 type sourceAddRequest struct {
-	Token       string `json:"token"`
 	Name        string `json:"name"`
 	Description string `json:"descr"`
 	Private     bool   `json:"private"`
@@ -33,7 +32,6 @@ type sourceAddRequest struct {
 }
 
 type sourceRequest struct {
-	Token    string `json:"token"`
 	SourceID string `json:"sid,omitempty"`
 	Content  string `json:"content,omitempty"`
 }
@@ -46,7 +44,6 @@ type credentialsRequest struct {
 
 // -------> Subscriptions
 type subscriptionRequest struct {
-	Token       string `json:"token"`
 	SourceID    string `json:"sid"`
 	CallbackURL string `json:"cbUrl"`
 }
@@ -56,7 +53,6 @@ type unsubscribeRequest struct {
 }
 
 type subscriptionUpdateCallbackRequest struct {
-	Token          string `json:"token"`
 	SubscriptionID string `json:"subID"`
 	CallbackURL    string `json:"cbUrl"`
 }

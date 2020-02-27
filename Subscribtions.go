@@ -38,18 +38,11 @@ func Subscribe(db *dbhelper.DBhelper, config *ConfigStruct, callbackURL, sourceI
 		SourceID: sourceID,
 	}
 
-	//Request subscription
-	token := "-"
-	if isLoggedIn(config) {
-		token = config.User.SessionToken
-	}
-
 	removeInvalidSubs(db, sourceID)
 
 	subsRequest := subscriptionRequest{
 		CallbackURL: callbackURL,
 		SourceID:    sourceID,
-		Token:       token,
 	}
 
 	var subscrResponse subscriptionResponse
@@ -89,7 +82,7 @@ func Unsubscribe(db *dbhelper.DBhelper, config *ConfigStruct, id string) {
 	req := unsubscribeRequest{
 		SubscriptionID: subscription.SubscriptionID,
 	}
-	response, err := EPSubscriptionRemove.DoRequest(req, nil, true, config)
+	response, err := EPSubscriptionRemove.DoRequest(req, nil, isLoggedIn(config), config)
 	if err != nil {
 		fmt.Println("Err:", err.Error())
 		return
@@ -120,18 +113,12 @@ func SubscriptionUpdateCallback(db *dbhelper.DBhelper, config *ConfigStruct, sub
 		newCallback = config.Client.CallbackURL
 	}
 
-	token := "-"
-	if len(config.User.SessionToken) > 0 {
-		token = config.User.SessionToken
-	}
-
 	request := subscriptionUpdateCallbackRequest{
 		CallbackURL:    newCallback,
 		SubscriptionID: subscription.SubscriptionID,
-		Token:          token,
 	}
 
-	resp, err := EPSubscriptionUpdCallback.DoRequest(request, nil, true, config)
+	resp, err := EPSubscriptionUpdCallback.DoRequest(request, nil, isLoggedIn(config), config)
 	if err != nil {
 		fmt.Println("Err:", err.Error())
 		return
