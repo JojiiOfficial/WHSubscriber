@@ -40,7 +40,7 @@ func CreateSource(config *ConfigStruct, name, description, mode string, private 
 	}
 
 	var respData sourceAddResponse
-	response, err := RestRequest(EPSourceCreate, req, &respData, config)
+	response, err := EPSourceCreate.DoRequest(req, &respData, true, config)
 	if err != nil {
 		fmt.Println("Err:", err.Error())
 		return
@@ -162,7 +162,7 @@ func SourceUpdateRequest(db *dbhelper.DBhelper, config *ConfigStruct, endpoint E
 		return
 	}
 
-	response, err := RestRequest(endpoint, requestStruct, nil, config)
+	response, err := endpoint.DoRequest(requestStruct, nil, true, config)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -184,7 +184,7 @@ func getSources(db *dbhelper.DBhelper, config *ConfigStruct, args ...string) ([]
 	}
 	var res listSourcesResponse
 
-	response, err := RestRequest(EPSources, req, &res, config)
+	response, err := EPSources.DoRequest(req, &res, true, config)
 
 	if err != nil {
 		return []sourceResponse{}, err

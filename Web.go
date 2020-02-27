@@ -39,8 +39,8 @@ const (
 	EPSubscriptionUpdCallback Endpoint = EPSubscription + "/updateCallback"
 )
 
-//RestRequest a better request method
-func RestRequest(endpoint Endpoint, payload interface{}, retVar interface{}, config *ConfigStruct) (*RestResponse, error) {
+//DoRequest a better request method
+func (endpoint Endpoint) DoRequest(payload interface{}, retVar interface{}, useSession bool, config *ConfigStruct) (*RestResponse, error) {
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
@@ -63,10 +63,13 @@ func RestRequest(endpoint Endpoint, payload interface{}, retVar interface{}, con
 	}
 
 	//Make request
-	resp, err := client.Post(u.String(), "application/json", bytes.NewBuffer(bda))
-	if err != nil {
-		return nil, err
+	req, _ := http.NewRequest("POST", u.String(), bytes.NewBuffer(bda))
+	req.Header.Set("Content-Type", "application/json")
+	if useSession {
+		req.Header.Set("Authorization", "Bearer "+config.User.SessionToken)
 	}
+
+	resp, err := client.Do(req)
 
 	//Read and validate headers
 	statusStr := resp.Header.Get(HeaderStatus)

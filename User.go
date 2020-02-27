@@ -35,7 +35,7 @@ func LoginCommand(config *ConfigStruct, usernameArg string, args ...bool) {
 	}
 
 	var response loginResponse
-	resp, err := RestRequest(EPLogin, login, &response, config)
+	resp, err := EPLogin.DoRequest(login, &response, false, config)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -74,7 +74,7 @@ func RegisterCommand(config *ConfigStruct) {
 		Password: saltPass(pass),
 	}
 
-	resp, err := RestRequest(EPUserCreate, req, nil, config)
+	resp, err := EPUserCreate.DoRequest(req, nil, false, config)
 	if err != nil {
 		fmt.Println("Err", err.Error())
 		return

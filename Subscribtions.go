@@ -53,7 +53,7 @@ func Subscribe(db *dbhelper.DBhelper, config *ConfigStruct, callbackURL, sourceI
 	}
 
 	var subscrResponse subscriptionResponse
-	response, err := RestRequest(EPSubscriptionAdd, subsRequest, &subscrResponse, config)
+	response, err := EPSubscriptionAdd.DoRequest(subsRequest, &subscrResponse, isLoggedIn(config), config)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -89,7 +89,7 @@ func Unsubscribe(db *dbhelper.DBhelper, config *ConfigStruct, id string) {
 	req := unsubscribeRequest{
 		SubscriptionID: subscription.SubscriptionID,
 	}
-	response, err := RestRequest(EPSubscriptionRemove, req, nil, config)
+	response, err := EPSubscriptionRemove.DoRequest(req, nil, true, config)
 	if err != nil {
 		fmt.Println("Err:", err.Error())
 		return
@@ -131,7 +131,7 @@ func SubscriptionUpdateCallback(db *dbhelper.DBhelper, config *ConfigStruct, sub
 		Token:          token,
 	}
 
-	resp, err := RestRequest(EPSubscriptionUpdCallback, request, nil, config)
+	resp, err := EPSubscriptionUpdCallback.DoRequest(request, nil, true, config)
 	if err != nil {
 		fmt.Println("Err:", err.Error())
 		return
