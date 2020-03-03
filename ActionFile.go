@@ -194,7 +194,8 @@ func (action ActionFileStruct) runCommand(command, username string, actionData *
 
 	if err != nil {
 		log.Printf("Err: %s", err.Error())
-	} else if *appDebug {
+		log.Print(execCommand, args)
+	} else if *appDebug && len(cmd) > 0 {
 		log.Println("Output from '" + actionData.Name + "':\n" + string(cmd))
 	}
 }
