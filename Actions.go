@@ -218,7 +218,7 @@ func ActionSetWebhook(db *dbhelper.DBhelper, webhookName, actionName string) {
 		log.Fatalln(err.Error())
 		return
 	}
-	fmt.Printf("Action %s updated %s", actionName, color.HiGreenString("successfully"))
+	fmt.Printf("Action %s updated %s\n", actionName, color.HiGreenString("successfully"))
 }
 
 //ActionSetFile sets the action-file for an action

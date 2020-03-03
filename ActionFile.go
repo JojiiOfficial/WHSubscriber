@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -34,9 +35,10 @@ type SourceActionItem struct {
 
 //ShellActionItem action item for shell options
 type ShellActionItem struct {
-	User     string
-	SafeMode bool
-	EnVars   []string
+	User             string
+	SafeMode         bool
+	EnVars           []string
+	WorkingDirectory string
 }
 
 func createDefaultActionFile(file string) error {
@@ -67,6 +69,7 @@ func createDefaultActionFile(file string) error {
 				"PATH=/bin:/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin",
 				"ACTION_PWD=" + pwd,
 			},
+			WorkingDirectory: pwd,
 		},
 
 		Actions: []string{
@@ -160,14 +163,20 @@ func (action *ActionFileStruct) Run(payloadFile string, sAction *Action, subscri
 		}
 
 		username := getUsername(action.Shell.User)
-		runCommand(actionCmd, username, sAction, action.Shell.EnVars)
+		action.runCommand(actionCmd, username, sAction, action.Shell.EnVars)
 	}
 
 	return nil
 }
 
-func runCommand(command, username string, action *Action, enVars []string) {
-	command = replaceRelativePath(command, action)
+func (action ActionFileStruct) runCommand(command, username string, actionData *Action, enVars []string) {
+	command = replaceRelativePath(command, actionData)
+
+	//Apply working directory
+	if len(action.Shell.WorkingDirectory) != 0 {
+		command = fmt.Sprintf("cd %s; %s", action.Shell.WorkingDirectory, command)
+	}
+
 	envStr := formatBashEnVars(enVars)
 
 	var execCommand string
@@ -186,7 +195,7 @@ func runCommand(command, username string, action *Action, enVars []string) {
 	if err != nil {
 		log.Printf("Err: %s", err.Error())
 	} else if *appDebug {
-		log.Println("Output from '" + action.Name + "':\n" + string(cmd))
+		log.Println("Output from '" + actionData.Name + "':\n" + string(cmd))
 	}
 }
 
