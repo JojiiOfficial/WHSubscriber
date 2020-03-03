@@ -86,6 +86,13 @@ func AddAction(db *dbhelper.DBhelper, actionMode, actionName, webhookName, actio
 	newFileString := gaw.FromString(actionFile)
 	absfile, _ := filepath.Abs(actionFile)
 
+	//Append file correct endings if needed
+	if mode == Modes["script"] && !strings.HasSuffix(absfile, ".sh") {
+		absfile += ".sh"
+	} else if !strings.HasSuffix(absfile, ".yaml") || !strings.HasSuffix(absfile, ".yml") {
+		absfile += ".yaml"
+	}
+
 	if !gaw.FileExists(newFileString.ToString()) && !(*appYes) && noFile {
 		y, i := gaw.ConfirmInput(color.HiYellowString("Warning: ")+"file or directory doesn't exist! Continue anyway? [y/n]> ", bufio.NewReader(os.Stdin))
 		if i == -1 || !y {
